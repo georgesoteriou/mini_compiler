@@ -4,3 +4,8 @@ src/antlr
 
 #ignore Java class files
 *.class
+
+#ignore all the stuff in the .idea folder
+#.idea/
+
+

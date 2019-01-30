@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="oracle-java10-jdk-amd64">
-    <CLASSES>
-      <root url="file:///usr/lib/jvm/oracle-java10-jdk-amd64" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
