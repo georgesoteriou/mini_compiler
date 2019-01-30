@@ -6,6 +6,6 @@ src/antlr
 *.class
 
 #ignore all the stuff in the .idea folder
-#.idea/
+.idea/
 
 
