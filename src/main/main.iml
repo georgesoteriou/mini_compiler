@@ -9,10 +9,6 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="antlr-4.7-complete" level="project" />
-    <orderEntry type="library" name="oracle-java8-jdk-amd64" level="project" />
-    <orderEntry type="library" name="oracle-java10-jdk-amd64" level="project" />
-    <orderEntry type="library" name="oracle-java10-jdk-amd641" level="project" />
-    <orderEntry type="library" name="KotlinJavaRuntime" level="project" />
+    <orderEntry type="library" name="lib" level="project" />
   </component>
 </module>
