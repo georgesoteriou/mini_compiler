@@ -13,7 +13,16 @@ LTE: '<=';
 EQ: '==';
 NOTEQ: '!=';
 AND: '&&';
-OR: '||'; 
+OR: '||';
+
+
+// unary operators:
+
+NOT: '!';
+NEG: '-';
+LEN: 'len';
+ORD: 'ord';
+CHR: 'chr';
 
 //brackets
 OPEN_PARENTHESES: '(' ;
