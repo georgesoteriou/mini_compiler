@@ -2,7 +2,10 @@ clone repo
 import
 create project from existing sources 
 select 10
-click build 
+
+--- setup finished 
+
+click build in ide 
 make antlr and kotlin folder sources root 
 
 
