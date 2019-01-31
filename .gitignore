@@ -6,6 +6,7 @@ bin
 
 build/
 out/
+src/main/gen
 
 
 # Created by https://www.gitignore.io/api/vim,java,linux,macos,gradle,kotlin,intellij,visualstudiocode
