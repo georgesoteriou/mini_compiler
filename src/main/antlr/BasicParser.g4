@@ -4,8 +4,8 @@ options {
   tokenVocab=BasicLexer;
 }
 
+unaryOper: NOT | MINUS | LEN | ORD | CHR ;
 binaryOper: PLUS | MINUS | MULT | DIV | MOD | GT | GTE | LT | LTE | EQ | NOTEQ | AND | OR ;
-unaryOper: NOT | NEG | LEN | ORD | CHR ;
 
 expr: INT_LITER
 | BOOL_LITER
@@ -14,8 +14,8 @@ expr: INT_LITER
 | PAIR_LITER
 | IDENT
 | array_elem
-| unaryOper expr
-| expr binaryOper expr
+| <assoc=left>unaryOper expr
+| <assoc=right>expr binaryOper expr
 | OPEN_PARENTHESES expr CLOSE_PARENTHESES
 ;
 

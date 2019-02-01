@@ -22,7 +22,6 @@ OR: '||' ;
 
 // unary operators:
 NOT: '!' ;
-NEG: '-' ;
 LEN: 'len' ;
 ORD: 'ord' ;
 CHR: 'chr' ;
