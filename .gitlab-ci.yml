@@ -1,0 +1,19 @@
+stages:
+  - assemble
+  - test
+  - clean
+
+assemble:
+  stage: assemble
+  script:
+    - ./gradlew assemble
+
+test:
+  stage: test
+  script:
+    - ./gradlew test
+
+clean:
+  stage: clean
+  script:
+    - ./gradlew clean
