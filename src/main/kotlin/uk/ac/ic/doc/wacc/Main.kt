@@ -1,7 +1,7 @@
 package uk.ac.ic.doc.wacc
 
-import org.antlr.runtime.ANTLRInputStream
-import org.antlr.runtime.CommonTokenStream
+import org.antlr.v4.runtime.CharStreams
+import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.ParserRuleContext
 import org.antlr.v4.runtime.tree.TerminalNode
 import uk.ac.ic.doc.wacc.grammar.BasicLexer
@@ -9,10 +9,11 @@ import uk.ac.ic.doc.wacc.grammar.BasicParser
 import java.util.*
 
 fun main(args : Array<String>) {
-    fun lexerForResource(resourceName: String) = BasicLexer(ANTLRInputStream(this.javaClass.getResourceAsStream("/${resourceName}.wacc")))
-    fun parseResource(resourceName: String) : BasicParser.ExprContext = BasicParser(CommonTokenStream(lexerForResource(resourceName))).expr()
+    fun lexerForResource(resourceName: String) = BasicLexer(CharStreams.fromFileName(resourceName))
+    fun tokenStream(resourceName: String) = CommonTokenStream(lexerForResource(resourceName))
+    fun parseResource(resourceName: String) = BasicParser(tokenStream(resourceName)).prog()
 
-    toParseTree(parseResource("addition_assignment")).multiLineString()
+    toParseTree(parseResource("test.wacc")).multiLineString()
 }
 
 // Each AST element is wrapped as an element
