@@ -1,0 +1,13 @@
+stages:
+  - assemble
+  - test
+
+build:
+  stage: assemble
+  script:
+    - ./gradlew assemble
+
+test:
+  stage: test
+  script:
+    - ./gradlew assemble
