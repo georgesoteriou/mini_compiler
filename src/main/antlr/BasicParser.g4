@@ -4,9 +4,6 @@ options {
   tokenVocab=BasicLexer;
 }
 
-binaryOper: PLUS | MINUS | MULT | DIV | MOD | GT | GTE | LT | LTE | EQ | NOTEQ | AND | OR ;
-unaryOper: NOT | NEG | LEN | ORD | CHR ;
-
 expr: INT_LITER
 | BOOL_LITER
 | CHAR_LITER
@@ -14,10 +11,13 @@ expr: INT_LITER
 | PAIR_LITER
 | IDENT
 | array_elem
-| unaryOper expr
 | expr binaryOper expr
+| unaryOper expr
 | OPEN_PARENTHESES expr CLOSE_PARENTHESES
 ;
+
+binaryOper: PLUS | MINUS | MULT | DIV | MOD | GT | GTE | LT | LTE | EQ | NOTEQ | AND | OR ;
+unaryOper: NOT | MINUS | LEN | ORD | CHR ;
 
 assign_lhs: IDENT
 | array_elem
@@ -31,7 +31,7 @@ assign_rhs: expr
 | CALL IDENT OPEN_PARENTHESES arg_list? CLOSE_PARENTHESES
 ;
 
-arg_list: expr (OPEN_PARENTHESES COMMA expr)* ;
+arg_list: expr (COMMA expr)* ;
 
 param: type IDENT ;
 
@@ -40,6 +40,7 @@ param_list: param (COMMA param)* ;
 stat: SKIP_S
 | type IDENT ASSIGN assign_rhs
 | assign_lhs ASSIGN assign_rhs
+| READ_S assign_lhs
 | FREE_S expr
 | RETURN_S expr
 | EXIT_S expr

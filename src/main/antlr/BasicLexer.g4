@@ -32,9 +32,10 @@ CLOSE_PARENTHESES: ')' ;
 OPEN_SQ_BRACKETS: '[' ;
 CLOSE_SQ_BRACKETS: ']' ;
 
-//numbers
+//numbers and chars
 fragment DIGIT: '0'..'9' ;
 INT_SIGN: '+' | '-' ;
+fragment CHAR: ~('\\' | '\'' | '\"') ;
 
 //statements
 BEGIN_S: 'begin' ;
@@ -75,8 +76,8 @@ CALL: 'call' ;
 //literals
 INT_LITER: INT_SIGN? DIGIT+ ;
 BOOL_LITER: 'true' | 'false' ;
-CHAR_LITER: '\'' ~('\b' | '\t' | '\n' | 'f' | '\r' | '"' | '\'' | '\\') '\'' ;
-STR_LITER: '"' (~('\b' | '\t' | '\n' | 'f' | '\r' | '"' | '\'' | '\\'))* '"' ;
+CHAR_LITER: '\'' ~('\b' | '\t' | '\n' | '\f' | '\r' | '"' | '\\') '\'' ;
+STR_LITER: '"' (~('\b' | '\t' | '\n' | '\f' | '\r' | '"' | '\\'))* '"' ;
 PAIR_LITER: 'null' ;
 
 IDENT: ('_' |[a-zA-Z]) ('_' | [a-zA-Z] | DIGIT)* ;
