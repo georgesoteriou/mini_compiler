@@ -74,15 +74,15 @@ array_type: base_type OPEN_SQ_BRACKETS CLOSE_SQ_BRACKETS
 
 array_liter: OPEN_SQ_BRACKETS (expr (COMMA expr)*)? CLOSE_SQ_BRACKETS;
 
+pair_elem_type: base_type
+| array_type
+| pair_type
+;
+
 pair_type: PAIR OPEN_PARENTHESES pair_elem_type COMMA pair_elem_type CLOSE_PARENTHESES ;
 
 pair_elem: FST expr
 | SND expr
-;
-
-pair_elem_type: base_type
-| array_type
-| pair_type
 ;
 
 func: type IDENT OPEN_PARENTHESES param_list? CLOSE_PARENTHESES IS_S stat END_S ;
