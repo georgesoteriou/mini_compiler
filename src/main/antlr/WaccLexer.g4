@@ -1,4 +1,4 @@
-lexer grammar BasicLexer;
+lexer grammar WaccLexer;
 
 //skippable
 WHITESPACE: (' ' | '\n' | '\t')+ -> skip ;
