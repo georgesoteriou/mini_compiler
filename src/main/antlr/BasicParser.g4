@@ -87,5 +87,4 @@ pair_elem: FST expr
 
 func: type IDENT OPEN_PARENTHESES param_list? CLOSE_PARENTHESES IS_S stat END_S ;
 
-// EOF indicates that the program must consume to the end of the input.
-prog: BEGIN_S func* stat END_S ;
+prog: BEGIN_S (func)* stat END_S ;
