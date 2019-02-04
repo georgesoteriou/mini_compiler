@@ -76,7 +76,7 @@ array_liter: OPEN_SQ_BRACKETS (expr (COMMA expr)*)? CLOSE_SQ_BRACKETS;
 
 pair_elem_type: base_type
 | array_type
-| pair_type
+| PAIR
 ;
 
 pair_type: PAIR OPEN_PARENTHESES pair_elem_type COMMA pair_elem_type CLOSE_PARENTHESES ;
