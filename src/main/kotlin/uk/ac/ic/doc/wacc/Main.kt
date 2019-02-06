@@ -20,14 +20,32 @@ fun main(args : Array<String>) {
 
 
 class WaccVisitor : WaccParserBaseVisitor<Void?>() {
-
-
     override fun visitExpr(ctx: WaccParser.ExprContext?): Void? {
         return super.visitExpr(ctx)
     }
 
-    override fun visitBinaryOper(ctx: WaccParser.BinaryOperContext?): Void? {
-        return super.visitBinaryOper(ctx)
+    override fun visitBinaryOperPres1(ctx: WaccParser.BinaryOperPres1Context?): Void? {
+        return super.visitBinaryOperPres1(ctx)
+    }
+
+    override fun visitBinaryOperPres2(ctx: WaccParser.BinaryOperPres2Context?): Void? {
+        return super.visitBinaryOperPres2(ctx)
+    }
+
+    override fun visitBinaryOperPres3(ctx: WaccParser.BinaryOperPres3Context?): Void? {
+        return super.visitBinaryOperPres3(ctx)
+    }
+
+    override fun visitBinaryOperPres4(ctx: WaccParser.BinaryOperPres4Context?): Void? {
+        return super.visitBinaryOperPres4(ctx)
+    }
+
+    override fun visitBinaryOperPres5(ctx: WaccParser.BinaryOperPres5Context?): Void? {
+        return super.visitBinaryOperPres5(ctx)
+    }
+
+    override fun visitBinaryOperPres6(ctx: WaccParser.BinaryOperPres6Context?): Void? {
+        return super.visitBinaryOperPres6(ctx)
     }
 
     override fun visitUnaryOper(ctx: WaccParser.UnaryOperContext?): Void? {
