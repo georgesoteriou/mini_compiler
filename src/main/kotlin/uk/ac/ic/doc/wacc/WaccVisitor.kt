@@ -1,15 +1,14 @@
 package uk.ac.ic.doc.wacc
 
+import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 
 
 class WaccVisitor : WaccParserBaseVisitor<Void?>() {
 
-    var currentScope : Scope = Scope(null)
-    var functions: ArrayList<Function> = ArrayList()
-
     override fun visitExpr(ctx: WaccParser.ExprContext?): Void? {
+
         return super.visitExpr(ctx)
     }
 
