@@ -9,5 +9,7 @@
 # Program:
 
 begin
+  int a = 3;
+  int x = a;
   exit -1
 end
