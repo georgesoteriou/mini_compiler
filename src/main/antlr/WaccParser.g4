@@ -4,19 +4,29 @@ options {
   tokenVocab=WaccLexer;
 }
 
-expr: INT_LITER
+expr: array_elem
+| expr binaryOperPres1 expr
+| expr binaryOperPres2 expr
+| expr binaryOperPres3 expr
+| expr binaryOperPres4 expr
+| expr binaryOperPres5 expr
+| expr binaryOperPres6 expr
+| unaryOper expr
+| OPEN_PARENTHESES expr CLOSE_PARENTHESES
+| INT_SIGN? INT_LITER
 | BOOL_LITER
 | CHAR_LITER
 | STR_LITER
 | PAIR_LITER
 | IDENT
-| array_elem
-| expr binaryOper expr
-| unaryOper expr
-| OPEN_PARENTHESES expr CLOSE_PARENTHESES
 ;
 
-binaryOper: PLUS | MINUS | MULT | DIV | MOD | GT | GTE | LT | LTE | EQ | NOTEQ | AND | OR ;
+binaryOperPres1: MULT | DIV | MOD;
+binaryOperPres2: PLUS | MINUS;
+binaryOperPres3: GT | GTE | LT | LTE;
+binaryOperPres4: EQ | NOTEQ;
+binaryOperPres5: AND;
+binaryOperPres6: OR;
 unaryOper: NOT | MINUS | LEN | ORD | CHR ;
 
 assign_lhs: IDENT
