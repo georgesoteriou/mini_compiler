@@ -76,7 +76,7 @@ CALL: 'call' ;
 
 
 //literals
-INT_LITER: INT_SIGN? DIGIT+ ;
+INT_LITER: DIGIT+ ;
 BOOL_LITER: 'true' | 'false' ;
 CHAR_LITER: '\'' CHAR '\'' ;
 STR_LITER: '"' CHAR* '"' ;
