@@ -1,11 +1,17 @@
 package uk.ac.ic.doc.wacc
 
+import com.sun.xml.internal.bind.v2.model.core.ID
 import uk.ac.ic.doc.wacc.ast.*
+import uk.ac.ic.doc.wacc.ast.Function
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 
 
 class WaccVisitor : WaccParserBaseVisitor<Void?>() {
+
+    var currScope : Scope = Scope(null, null)
+    var root : Root = Root()
+    var currNode : Node = root
 
     override fun visitExpr(ctx: WaccParser.ExprContext?): Void? {
         return super.visitExpr(ctx)
@@ -52,7 +58,10 @@ class WaccVisitor : WaccParserBaseVisitor<Void?>() {
     }
 
     override fun visitParam(ctx: WaccParser.ParamContext?): Void? {
-        return super.visitParam(ctx)
+        val t =  Type.getType(ctx!!.type().toString())
+        (currNode as Function).parameters.add(t)
+        currScope.definitions[ctx.IDENT().toString()] = t
+        return null
     }
 
     override fun visitParam_list(ctx: WaccParser.Param_listContext?): Void? {
@@ -96,11 +105,15 @@ class WaccVisitor : WaccParserBaseVisitor<Void?>() {
     }
 
     override fun visitFunc(ctx: WaccParser.FuncContext?): Void? {
-        return super.visitFunc(ctx)
+        currNode = Function.funcFromCTX(ctx,root)
+        currScope = currNode.children[0] as Scope
+        super.visitFunc(ctx)
+        currScope = currNode.scope!!
+        return null
     }
 
     override fun visitProg(ctx: WaccParser.ProgContext?): Void? {
+        root.children.add(currScope)
         return super.visitProg(ctx)
     }
-
 }

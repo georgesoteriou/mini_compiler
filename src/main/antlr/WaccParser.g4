@@ -47,6 +47,8 @@ param: type IDENT ;
 
 param_list: param (COMMA param)* ;
 
+stat_list: stat (SEMICOL stat)* ;
+
 stat: SKIP_S
 | type IDENT ASSIGN assign_rhs
 | assign_lhs ASSIGN assign_rhs
@@ -56,10 +58,9 @@ stat: SKIP_S
 | EXIT_S expr
 | PRINT_S expr
 | PRINTLN_S expr
-| IF_S expr THEN_S stat ELSE_S stat FI_S
-| WHILE_S expr DO_S stat DONE_S
-| BEGIN_S stat END_S
-| stat SEMICOL stat
+| IF_S expr THEN_S stat_list ELSE_S stat_list FI_S
+| WHILE_S expr DO_S stat_list DONE_S
+| BEGIN_S stat_list END_S
 ;
 
 //types
@@ -95,6 +96,6 @@ pair_elem: FST expr
 | SND expr
 ;
 
-func: type IDENT OPEN_PARENTHESES param_list? CLOSE_PARENTHESES IS_S stat END_S ;
+func: type IDENT OPEN_PARENTHESES param_list? CLOSE_PARENTHESES IS_S stat_list END_S ;
 
-prog: BEGIN_S (func)* stat END_S ;
+prog: BEGIN_S (func)* stat_list END_S ;

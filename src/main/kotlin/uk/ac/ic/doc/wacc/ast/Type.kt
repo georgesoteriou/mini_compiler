@@ -1,5 +1,19 @@
 package uk.ac.ic.doc.wacc.ast
 
+import java.lang.IllegalArgumentException
+
 enum class Type {
-    int, bool, char, string
+    INT, BOOL, CHAR, STRING;
+
+    companion object {
+        fun getType(t: String): Type {
+            return when (t) {
+                "int" -> INT
+                "string" -> STRING
+                "char" -> CHAR
+                "bool" -> BOOL
+                else -> throw IllegalArgumentException("Invalid type!")
+            }
+        }
+    }
 }
