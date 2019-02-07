@@ -21,6 +21,16 @@ begin
     return s
   end
 
+  pair(int, string) ab = null;
+
+  pair(int, string) abc = newpair(5, "hello");
+
+  fst abc = 4;
+  snd abc = "World";
+
+  int kk = fts abc
+
+
   int a = 3;
   int x = a;
 

@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.wacc.ast
+package uk.ac.ic.doc.wacc.ast_old
 
 class Print(parent: Node?, scope: Scope?, expr: Expr) : Node(parent, scope)
 

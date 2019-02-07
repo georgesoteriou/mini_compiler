@@ -1,7 +1,8 @@
 package uk.ac.ic.doc.wacc
 
-import uk.ac.ic.doc.wacc.ast.*
-import uk.ac.ic.doc.wacc.ast.Function
+import uk.ac.ic.doc.wacc.ast_old.*
+import uk.ac.ic.doc.wacc.ast_old.Function
+import uk.ac.ic.doc.wacc.ast_old.Scope
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 
@@ -69,7 +70,6 @@ class WaccVisitor : WaccParserBaseVisitor<Void?>() {
     }
 
     override fun visitStat(ctx: WaccParser.StatContext?): Void? {
-        ctx.
         return super.visitStat(ctx)
     }
 
