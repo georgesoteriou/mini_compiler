@@ -1,6 +1,5 @@
 package uk.ac.ic.doc.wacc
 
-import com.sun.xml.internal.bind.v2.model.core.ID
 import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.ast.Function
 import uk.ac.ic.doc.wacc.grammar.WaccParser
@@ -8,6 +7,7 @@ import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 
 
 class WaccVisitor : WaccParserBaseVisitor<Void?>() {
+
 
     var currScope : Scope = Scope(null, null)
     var root : Root = Root()
@@ -69,7 +69,12 @@ class WaccVisitor : WaccParserBaseVisitor<Void?>() {
     }
 
     override fun visitStat(ctx: WaccParser.StatContext?): Void? {
+        ctx.
         return super.visitStat(ctx)
+    }
+
+    override fun visitStat_list(ctx: WaccParser.Stat_listContext?): Void? {
+        return super.visitStat_list(ctx)
     }
 
     override fun visitBase_type(ctx: WaccParser.Base_typeContext?): Void? {
