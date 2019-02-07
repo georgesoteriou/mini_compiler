@@ -8,7 +8,6 @@ import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 class WaccVisitor : WaccParserBaseVisitor<Void?>() {
 
     override fun visitExpr(ctx: WaccParser.ExprContext?): Void? {
-
         return super.visitExpr(ctx)
     }
 

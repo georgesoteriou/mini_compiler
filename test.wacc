@@ -9,7 +9,48 @@
 # Program:
 
 begin
+  int g() is
+    string p = call f();
+    print "g ";
+    println p;
+    return 1
+  end
+
+  string f() is
+    string s = "hello";
+    return s
+  end
+
   int a = 3;
   int x = a;
+
+  string s = call f();
+
+  if x == a then
+    println s;
+    println "YAY"
+  else
+    print 2;
+    println 2 + 2
+  fi;
+
+  while a > 0 do
+    if a == 1 then
+        println "a is 1"
+    else
+        println "a is not 1"
+    fi;
+
+    a = a - 1;
+    println a
+  done;
+
+  char c = 'b';
+  println c;
+  skip;
+
+  int y = call g();
+  println y;
+
   exit -1
 end
