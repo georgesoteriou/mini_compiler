@@ -13,11 +13,5 @@ fun main(args : Array<String>) {
     fun parseResource(resourceName: String) = WaccParser(tokenStream(resourceName)).prog()
 
     val visitor = WaccVisitor()
-    // parseResource(args[0]).accept(visitor)
-
-    try {
-        parseResource(args[0])
-    } catch (e: Exception) {
-        println(e)
-    }
+    parseResource(args[0]).accept(visitor)
 }
