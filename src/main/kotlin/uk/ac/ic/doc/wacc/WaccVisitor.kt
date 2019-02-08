@@ -1,18 +1,11 @@
 package uk.ac.ic.doc.wacc
 
-import uk.ac.ic.doc.wacc.ast.*
-import uk.ac.ic.doc.wacc.ast.Function
+import uk.ac.ic.doc.wacc.ast.Statement
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 
 
 class WaccVisitor : WaccParserBaseVisitor<Void?>() {
-
-
-    var currScope : Scope = Scope(null, null)
-    var root : Root = Root()
-    var currNode : Node = root
-
     override fun visitExpr(ctx: WaccParser.ExprContext?): Void? {
         return super.visitExpr(ctx)
     }
@@ -58,23 +51,20 @@ class WaccVisitor : WaccParserBaseVisitor<Void?>() {
     }
 
     override fun visitParam(ctx: WaccParser.ParamContext?): Void? {
-        val t =  Type.getType(ctx!!.type().toString())
-        (currNode as Function).parameters.add(t)
-        currScope.definitions[ctx.IDENT().toString()] = t
-        return null
+        return super.visitParam(ctx)
     }
 
     override fun visitParam_list(ctx: WaccParser.Param_listContext?): Void? {
+        // var block = Statement.Block( ctx!!.param().map { param -> param.accept(this)} )
         return super.visitParam_list(ctx)
-    }
-
-    override fun visitStat(ctx: WaccParser.StatContext?): Void? {
-        ctx.
-        return super.visitStat(ctx)
     }
 
     override fun visitStat_list(ctx: WaccParser.Stat_listContext?): Void? {
         return super.visitStat_list(ctx)
+    }
+
+    override fun visitStat(ctx: WaccParser.StatContext?): Void? {
+        return super.visitStat(ctx)
     }
 
     override fun visitBase_type(ctx: WaccParser.Base_typeContext?): Void? {
@@ -110,15 +100,18 @@ class WaccVisitor : WaccParserBaseVisitor<Void?>() {
     }
 
     override fun visitFunc(ctx: WaccParser.FuncContext?): Void? {
-        currNode = Function.funcFromCTX(ctx,root)
-        currScope = currNode.children[0] as Scope
-        super.visitFunc(ctx)
-        currScope = currNode.scope!!
-        return null
+        return super.visitFunc(ctx)
     }
 
     override fun visitProg(ctx: WaccParser.ProgContext?): Void? {
-        root.children.add(currScope)
         return super.visitProg(ctx)
     }
+
 }
+
+class BlockVisitor: WaccParserBaseVisitor<Statement>() {
+    override fun visitStat_list(ctx: WaccParser.Stat_listContext?): Statement {
+        return Statement.Block(ctx!!.stat().map {stat -> stat.accept(this)})
+    }
+}
+
