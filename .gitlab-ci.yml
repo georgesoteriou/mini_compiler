@@ -6,9 +6,9 @@ stages:
 assemble:
   stage: assemble
   script:
-    - ./gradlew assemble
+    - make build
 
 test:
   stage: test
   script:
-    - ./gradlew test
+    - make test
