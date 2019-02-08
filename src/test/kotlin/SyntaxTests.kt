@@ -190,10 +190,10 @@ class SyntaxTests {
         testInvalid("src/test/resources/invalid/syntaxErr/variables/")
     }
 
-    @Test
-    fun invalidSyntaxErrWhile() {
-        testInvalid("src/test/resources/invalid/syntaxErr/while/")
-    }
+//    @Test
+//    fun invalidSyntaxErrWhile() {
+//        testInvalid("src/test/resources/invalid/syntaxErr/while/")
+//    }
 }
 
 class TestErrorListener : BaseErrorListener() {
