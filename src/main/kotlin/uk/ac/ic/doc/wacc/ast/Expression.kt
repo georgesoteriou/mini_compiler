@@ -3,9 +3,8 @@ package uk.ac.ic.doc.wacc.ast
 sealed class Expression {
 
     data class Variable(var name: String, var type: Type): Expression()
-    data class CallFunction(var name: String, var params: ArrayList<Expression>): Expression()
-
-    data class ArrayElem(var name: String, var indexes: ArrayList<Expression>): Expression()
+    data class CallFunction(var name: String, var params: List<Expression>): Expression()
+    data class ArrayElem(var name: String, var indexes: List<Expression>): Expression()
 
 
     sealed class Literal: Expression() {
