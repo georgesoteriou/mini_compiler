@@ -4,29 +4,24 @@ options {
   tokenVocab=WaccLexer;
 }
 
-expr: array_elem
-| expr binaryOperPres1 expr
-| expr binaryOperPres2 expr
-| expr binaryOperPres3 expr
-| expr binaryOperPres4 expr
-| expr binaryOperPres5 expr
-| expr binaryOperPres6 expr
-| unaryOper expr
-| OPEN_PARENTHESES expr CLOSE_PARENTHESES
-| (MINUS | PLUS)? INT_LITER
-| BOOL_LITER
-| CHAR_LITER
-| STR_LITER
-| PAIR_LITER
-| IDENT
+expr: array_elem                            #arrayElem
+| expr binaryOperPres expr                  #binaryOp
+| unaryOper expr                            #unaryOp
+| OPEN_PARENTHESES expr CLOSE_PARENTHESES   #parenth
+| (MINUS | PLUS)? INT_LITER                 #intLit
+| BOOL_LITER                                #boolLit
+| CHAR_LITER                                #charLit
+| STR_LITER                                 #strLit
+| PAIR_LITER                                #pairLit
+| IDENT                                     #ident
 ;
-
-binaryOperPres1: MULT | DIV | MOD;
-binaryOperPres2: PLUS | MINUS;
-binaryOperPres3: GT | GTE | LT | LTE;
-binaryOperPres4: EQ | NOTEQ;
-binaryOperPres5: AND;
-binaryOperPres6: OR;
+binaryOperPres: (MULT | DIV | MOD)          #multDivMod
+| (PLUS | MINUS)                            #plusMunus
+| (GT | GTE | LT | LTE)                     #gtGteLtLte
+| (EQ | NOTEQ)                              #eqNotEq
+| (AND)                                     #and
+| (OR)                                      #or
+;
 unaryOper: NOT | MINUS | LEN | ORD | CHR ;
 
 assign_lhs: IDENT
@@ -49,26 +44,26 @@ param_list: param (COMMA param)* ;
 
 stat_list: stat (SEMICOL stat)* ;
 
-stat: SKIP_S
-| type IDENT ASSIGN assign_rhs
-| assign_lhs ASSIGN assign_rhs
-| READ_S assign_lhs
-| FREE_S expr
-| RETURN_S expr
-| EXIT_S expr
-| PRINT_S expr
-| PRINTLN_S expr
-| IF_S expr THEN_S stat_list ELSE_S stat_list FI_S
-| WHILE_S expr DO_S stat_list DONE_S
-| BEGIN_S stat_list END_S
+stat: SKIP_S                                        #skip
+| type IDENT ASSIGN assign_rhs                      #declarae
+| assign_lhs ASSIGN assign_rhs                      #assign
+| READ_S assign_lhs                                 #read
+| FREE_S expr                                       #free
+| RETURN_S expr                                     #return
+| EXIT_S expr                                       #exit
+| PRINT_S expr                                      #print
+| PRINTLN_S expr                                    #println
+| IF_S expr THEN_S stat_list ELSE_S stat_list FI_S  #if
+| WHILE_S expr DO_S stat_list DONE_S                #while
+| BEGIN_S stat_list END_S                           #begin
 ;
 
 //types
 
-base_type: INT_T
-| BOOL_T
-| CHAR_T
-| STRING_T
+base_type: INT_T    #int
+| BOOL_T            #bool
+| CHAR_T            #char
+| STRING_T          #string
 ;
 
 type: base_type
@@ -92,8 +87,8 @@ pair_elem_type: base_type
 
 pair_type: PAIR OPEN_PARENTHESES pair_elem_type COMMA pair_elem_type CLOSE_PARENTHESES ;
 
-pair_elem: FST expr
-| SND expr
+pair_elem: FST expr      #fst
+| SND expr               #snd
 ;
 
 func: type IDENT OPEN_PARENTHESES param_list? CLOSE_PARENTHESES IS_S stat_list END_S ;
