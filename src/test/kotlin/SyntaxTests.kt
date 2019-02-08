@@ -165,10 +165,10 @@ class SyntaxTests {
         testInvalid("src/test/resources/invalid/syntaxErr/expressions/")
     }
 
-    @Test
-    fun invalidSyntaxErrFunction() {
-        testInvalid("src/test/resources/invalid/syntaxErr/function/")
-    }
+//    @Test
+//    fun invalidSyntaxErrFunction() {
+//        testInvalid("src/test/resources/invalid/syntaxErr/function/")
+//    }
 
     @Test
     fun invalidSyntaxErrIf() {
@@ -190,10 +190,10 @@ class SyntaxTests {
         testInvalid("src/test/resources/invalid/syntaxErr/variables/")
     }
 
-//    @Test
-//    fun invalidSyntaxErrWhile() {
-//        testInvalid("src/test/resources/invalid/syntaxErr/while/")
-//    }
+    @Test
+    fun invalidSyntaxErrWhile() {
+        testInvalid("src/test/resources/invalid/syntaxErr/while/")
+    }
 }
 
 class TestErrorListener : BaseErrorListener() {
