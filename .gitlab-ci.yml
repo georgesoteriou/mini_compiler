@@ -12,8 +12,3 @@ test:
   stage: test
   script:
     - ./gradlew test
-
-clean:
-  stage: clean
-  script:
-    - ./gradlew clean
