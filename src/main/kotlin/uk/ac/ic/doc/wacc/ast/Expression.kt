@@ -36,9 +36,10 @@ sealed class Expression {
         data class ULen  (var expression: Expression): UnaryOperator()
         data class UOrd  (var expression: Expression): UnaryOperator()
         data class UChar (var expression: Expression): UnaryOperator()
-        data class UFst  (var expression: Expression): UnaryOperator()
-        data class USnd  (var expression: Expression): UnaryOperator()
     }
+
+    data class UFst  (var expression: Expression): Expression()
+    data class USnd  (var expression: Expression): Expression()
 
 
 }

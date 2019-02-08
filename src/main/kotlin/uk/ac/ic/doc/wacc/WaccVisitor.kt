@@ -55,7 +55,7 @@ class WaccVisitor : WaccParserBaseVisitor<Void?>() {
     }
 
     override fun visitParam_list(ctx: WaccParser.Param_listContext?): Void? {
-        var block = Statement.Block( ctx!!.param().map { param -> param.accept(this)} as List<Statement> )
+        // var block = Statement.Block( ctx!!.param().map { param -> param.accept(this)} )
         return super.visitParam_list(ctx)
     }
 
@@ -108,3 +108,10 @@ class WaccVisitor : WaccParserBaseVisitor<Void?>() {
     }
 
 }
+
+class BlockVisitor: WaccParserBaseVisitor<Statement>() {
+    override fun visitStat_list(ctx: WaccParser.Stat_listContext?): Statement {
+        return Statement.Block(ctx!!.stat().map {stat -> stat.accept(this)})
+    }
+}
+

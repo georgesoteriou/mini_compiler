@@ -28,7 +28,7 @@ begin
   fst abc = 4;
   snd abc = "World";
 
-  int kk = fts abc
+  int kk = fst abc;
 
 
   int a = 3;

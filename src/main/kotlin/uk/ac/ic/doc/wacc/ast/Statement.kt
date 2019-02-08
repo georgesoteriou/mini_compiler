@@ -2,10 +2,10 @@ package uk.ac.ic.doc.wacc.ast
 
 sealed class Statement {
 
-    data class VariableDeclaration(var variable: Expression, var expression: Expression) : Statement()
+    data class VariableDeclaration(var lhs: Expression, var rhs: Expression) : Statement()
     data class VariableAssignment(var lhs: Expression, var rhs: Expression) : Statement()
-    data class ReadInput(var lhs: Expression) : Statement()
-    data class FreeVariable(var lhs: Expression) : Statement()
+    data class ReadInput(var expression: Expression) : Statement()
+    data class FreeVariable(var expression: Expression) : Statement()
     data class Return(var expression: Expression) : Statement()
     data class Exit(var expression: Expression) : Statement()
     data class Print(var expression: Expression) : Statement()
