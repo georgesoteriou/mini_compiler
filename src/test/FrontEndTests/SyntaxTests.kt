@@ -19,22 +19,26 @@ class SyntaxTests {
 
     private fun testValid(pathname: String) {
         File(pathname).listFiles().forEach {
-            try {
-                parseResource(it.absolutePath)
-            } catch (e: RuntimeException) {
-                fail("Cannot parse " + it.name + "\nReason: " + e)
+            if (it.extension == "wacc") {
+                try {
+                    parseResource(it.absolutePath)
+                } catch (e: RuntimeException) {
+                    fail("Cannot parse " + it.name + "\nReason: " + e)
+                }
             }
         }
     }
 
     private fun testInvalid(pathname: String) {
         File(pathname).listFiles().forEach {
-            try {
-                parseResource(it.absolutePath)
-            } catch (e: RuntimeException) {
-                return@forEach
+            if (it.extension == "wacc") {
+                try {
+                    parseResource(it.absolutePath)
+                } catch (e: RuntimeException) {
+                    return@forEach
+                }
+                fail("Shouldn't successfully parse " + it.name)
             }
-            fail("Shouldn't successfully parse " + it.name)
         }
     }
 

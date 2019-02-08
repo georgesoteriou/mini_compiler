@@ -35,7 +35,6 @@ CLOSE_SQ_BRACKETS: ']' ;
 
 //numbers and chars
 fragment DIGIT: '0'..'9' ;
-INT_SIGN: '+' | '-' ;
 fragment ESC_CHAR: '0' | 'b' | 't' | 'n' | 'f' | 'r' | '\'' | '\\' | '"' ;
 fragment CHAR: ~( '\\' | '\'' |  '"') | ('\\' ESC_CHAR);
 
@@ -75,8 +74,13 @@ NEWPAIR: 'newpair' ;
 CALL: 'call' ;
 
 
-//literals
-INT_LITER: DIGIT+ ;
+//literals, -2^31 <= int < 2^31
+INT_LITER: DIGIT+ {
+  Long n = Long.parseLong(getText());
+  if (!(n <= ((long) Integer.MAX_VALUE) + 1)) {
+    throw new RuntimeException("Integer overflow while parsing");
+  }
+};
 BOOL_LITER: 'true' | 'false' ;
 CHAR_LITER: '\'' CHAR '\'' ;
 STR_LITER: '"' CHAR* '"' ;

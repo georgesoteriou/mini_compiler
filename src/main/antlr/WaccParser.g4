@@ -13,7 +13,7 @@ expr: array_elem
 | expr binaryOperPres6 expr
 | unaryOper expr
 | OPEN_PARENTHESES expr CLOSE_PARENTHESES
-| INT_SIGN? INT_LITER
+| (MINUS | PLUS)? INT_LITER
 | BOOL_LITER
 | CHAR_LITER
 | STR_LITER
@@ -98,4 +98,4 @@ pair_elem: FST expr
 
 func: type IDENT OPEN_PARENTHESES param_list? CLOSE_PARENTHESES IS_S stat_list END_S ;
 
-prog: BEGIN_S (func)* stat_list END_S ;
+prog: BEGIN_S (func)* stat_list END_S EOF ;
