@@ -15,8 +15,6 @@ sealed class Statement {
     data class PrintLn(var expression: Expression) : Statement()
     data class If(var condition: Expression, var ifThen: Statement, var elseThen: Statement) : Statement()
     data class While(var condition: Expression, var then: Statement) : Statement()
-    class Block(var statements: List<Statement>) : Statement() {
-        var scope: Scope = Scope()
-    }
+    data class Block(var statements: List<Statement>, var scope: Scope) : Statement()
 }
 
