@@ -1,14 +1,30 @@
 package uk.ac.ic.doc.wacc
 
+import com.sun.jdi.InvalidTypeException
 import org.antlr.v4.runtime.Token
-import uk.ac.ic.doc.wacc.ast.Expression
-import uk.ac.ic.doc.wacc.ast.Statement
-import uk.ac.ic.doc.wacc.ast.Type
+import uk.ac.ic.doc.wacc.ast.*
+import uk.ac.ic.doc.wacc.ast.Function
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 import java.security.InvalidParameterException
 
-lateinit var activeScope: ActiveScope
+var activeScope: ActiveScope = ActiveScope(Scope(), null)
+
+class ProgramVisitor: WaccParserBaseVisitor<Program>() {
+    override fun visitProg(ctx: WaccParser.ProgContext): Program {
+        val functions = ctx.func().map {it.accept(FunctionVisitor())}
+        val prog = ctx.stat_list().accept(StatementVisitor())
+        return Program(functions, prog)
+    }
+}
+
+class FunctionVisitor: WaccParserBaseVisitor<Function>() {
+    override fun visitFunc(ctx: WaccParser.FuncContext): Function {
+        val params = ctx.param_list().param().map { it.accept(ExprVisitor()) }
+        val block = ctx.stat_list().accept(StatementVisitor())
+        return Function(params, block)
+    }
+}
 
 class StatementVisitor: WaccParserBaseVisitor<Statement>() {
     
@@ -87,6 +103,8 @@ class StatementVisitor: WaccParserBaseVisitor<Statement>() {
         return block.at(ctx.start)
     }
 
+
+
 }
 
 class ExprVisitor: WaccParserBaseVisitor<Expression>() {
@@ -153,11 +171,43 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
         = Expression.Literal.LPair
 
     override fun visitIdent(ctx: WaccParser.IdentContext): Expression {
-        return activeScope.currentScope.findVar(ctx.IDENT().toString()) as Expression
+        return activeScope.currentScope.findVar(ctx.IDENT().toString())
     }
+
+    override fun visitFst(ctx: WaccParser.FstContext): Expression
+        = Expression.Fst(ctx.expr().accept(this))
+
+    override fun visitSnd(ctx: WaccParser.SndContext): Expression
+        = Expression.Snd(ctx.expr().accept(this))
+
 
 }
 
 class TypeVisitor: WaccParserBaseVisitor<Type>() {
+    override fun visitInt(ctx: WaccParser.IntContext): Type
+        = Type.TInt
+
+    override fun visitChar(ctx: WaccParser.CharContext): Type
+        = Type.TChar
+
+    override fun visitBool(ctx: WaccParser.BoolContext): Type
+        = Type.TBool
+
+    override fun visitString(ctx: WaccParser.StringContext): Type
+        = Type.TString
+
+    override fun visitArray_type(ctx: WaccParser.Array_typeContext): Type
+        = when {
+            ctx.array_type() != null -> Type.TArray(ctx.array_type().accept(this))
+            ctx.base_type()  != null  -> Type.TArray(ctx.base_type().accept(this))
+            ctx.pair_type()  != null  -> Type.TArray(ctx.pair_type().accept(this))
+            else -> throw InvalidTypeException("Array type does not exist")
+        }
+
+    override fun visitPair_type(ctx: WaccParser.Pair_typeContext): Type {
+        val t1 = ctx.pair_elem_type(0).accept(this)
+        val t2 = ctx.pair_elem_type(1).accept(this)
+        return Type.TPair(t1, t2)
+    }
 
 }

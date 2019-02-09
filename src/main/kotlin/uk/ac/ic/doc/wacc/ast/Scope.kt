@@ -6,7 +6,7 @@ class Scope {
     var variables: MutableList<Expression.Variable> = arrayListOf()
 
     fun findVar(s : String) : Expression.Variable {
-        variables.forEach() {
+        variables.forEach {
             if(it.name == s) {
                 return it
             }

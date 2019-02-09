@@ -16,6 +16,9 @@ fun main(args : Array<String>) {
     fun tokenStream(resourceName: String) = CommonTokenStream(lexerForResource(resourceName))
     fun parseResource(resourceName: String) = WaccParser(tokenStream(resourceName)).prog()
 
-    val visitor = StatementVisitor()
+    val visitor = ProgramVisitor()
     parseResource(args[0]).accept(visitor)
+
+
+    println("Done")
 }
