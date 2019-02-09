@@ -8,6 +8,7 @@ import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 import java.security.InvalidParameterException
 
+lateinit var activeScope: ActiveScope
 
 class StatementVisitor: WaccParserBaseVisitor<Statement>() {
     
@@ -20,6 +21,7 @@ class StatementVisitor: WaccParserBaseVisitor<Statement>() {
     override fun visitDeclare(ctx: WaccParser.DeclareContext): Statement {
         val lhs = Expression.Variable(ctx.IDENT().toString(), ctx.type().accept(TypeVisitor()))
         val rhs = ctx.assign_rhs().accept(ExprVisitor())
+        activeScope.currentScope.variables.add(lhs)
         return Statement.VariableDeclaration(lhs,rhs)
             .at(ctx.start)
     }
@@ -79,9 +81,11 @@ class StatementVisitor: WaccParserBaseVisitor<Statement>() {
             = Statement.PrintLn(ctx.expr().accept(ExprVisitor()))
                 .at(ctx.start)
 
-    override fun visitStat_list(ctx: WaccParser.Stat_listContext): Statement
-            = Statement.Block(ctx.stat().map { it.accept(this) })
-                .at(ctx.start)
+    override fun visitStat_list(ctx: WaccParser.Stat_listContext): Statement {
+        val block = Statement.Block(ctx.stat().map { it.accept(this) })
+        activeScope = ActiveScope(block.scope, activeScope)
+        return block.at(ctx.start)
+    }
 
 }
 
@@ -148,6 +152,9 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
     override fun visitPairLit(ctx: WaccParser.PairLitContext): Expression
         = Expression.Literal.LPair
 
+    override fun visitIdent(ctx: WaccParser.IdentContext): Expression {
+        return activeScope.currentScope.findVar(ctx.IDENT().toString()) as Expression
+    }
 
 }
 
