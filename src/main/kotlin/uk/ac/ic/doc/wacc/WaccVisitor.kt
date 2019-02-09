@@ -1,14 +1,11 @@
 package uk.ac.ic.doc.wacc
 
 import org.antlr.v4.runtime.Token
-import org.antlr.v4.runtime.tree.TerminalNode
-import org.graalvm.compiler.lir.Variable
 import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Statement
 import uk.ac.ic.doc.wacc.ast.Type
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
-import java.lang.Exception
 import java.security.InvalidParameterException
 
 
