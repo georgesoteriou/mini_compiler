@@ -2,6 +2,7 @@ package uk.ac.ic.doc.wacc
 
 import org.antlr.v4.runtime.Token
 import org.antlr.v4.runtime.tree.TerminalNode
+import org.graalvm.compiler.lir.Variable
 import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Statement
 import uk.ac.ic.doc.wacc.ast.Type
@@ -9,6 +10,7 @@ import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 import java.lang.Exception
 import java.security.InvalidParameterException
+
 
 class StatementVisitor: WaccParserBaseVisitor<Statement>() {
     
@@ -115,8 +117,39 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
         }
     }
 
+    override fun visitUnaryOp(ctx: WaccParser.UnaryOpContext): Expression {
+        val e = ctx.expr().accept(this)
+        return when {
+            ctx.unaryOper().NOT()   != null -> Expression.UnaryOperator.UNot  (e)
+            ctx.unaryOper().MINUS() != null -> Expression.UnaryOperator.UMinus(e)
+            ctx.unaryOper().LEN()   != null -> Expression.UnaryOperator.ULen  (e)
+            ctx.unaryOper().ORD()   != null -> Expression.UnaryOperator.UOrd  (e)
+            ctx.unaryOper().CHR()   != null -> Expression.UnaryOperator.UChar (e)
+            else -> throw InvalidParameterException("Unary Op does not exist")
+        }
+    }
 
+    override fun visitParenth(ctx: WaccParser.ParenthContext): Expression
+        = ctx.expr().accept(this)
 
+    override fun visitIntLit(ctx: WaccParser.IntLitContext): Expression
+        = Expression.Literal.LInt( if(ctx.MINUS() != null) {
+             -Integer.parseInt(ctx.INT_LITER().toString())
+        } else {
+             Integer.parseInt(ctx.INT_LITER().toString())
+        })
+
+    override fun visitBoolLit(ctx: WaccParser.BoolLitContext): Expression
+        = Expression.Literal.LBool(ctx.BOOL_LITER().toString().toBoolean())
+
+    override fun visitCharLit(ctx: WaccParser.CharLitContext): Expression
+        = Expression.Literal.LChar(ctx.CHAR_LITER().toString().first())
+
+    override fun visitStrLit(ctx: WaccParser.StrLitContext): Expression
+        =  Expression.Literal.LString(ctx.STR_LITER().toString())
+
+    override fun visitPairLit(ctx: WaccParser.PairLitContext): Expression
+        = Expression.Literal.LPair
 
 
 }
