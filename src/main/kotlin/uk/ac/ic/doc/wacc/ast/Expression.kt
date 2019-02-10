@@ -3,8 +3,10 @@ package uk.ac.ic.doc.wacc.ast
 sealed class Expression {
 
     data class Variable(var name: String, var type: Type): Expression()
-    data class CallFunction(var name: String, var params: List<Expression>): Expression()
-    data class ArrayElem(var name: String, var indexes: List<Expression>): Expression()
+    data class CallFunction(var name: String, var params: Expression?): Expression()
+
+    data class ExpressionList(var expressions: List<Expression>) : Expression()
+    data class ExpressionPair(var e1: Expression, var e2: Expression) : Expression()
 
 
     sealed class Literal: Expression() {
@@ -39,6 +41,7 @@ sealed class Expression {
         data class UChar (var expression: Expression): UnaryOperator()
     }
 
+    data class ArrayElem(var array: Expression, var indexes: Expression): Expression()
     data class Fst  (var expression: Expression): Expression()
     data class Snd  (var expression: Expression): Expression()
 

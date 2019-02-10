@@ -24,9 +24,9 @@ binaryOperPres: (MULT | DIV | MOD)
 ;
 unaryOper: NOT | MINUS | LEN | ORD | CHR ;
 
-assign_lhs: IDENT    #assignIdent
-| array_elem         #assignArray
-| pair_elem          #assignPair
+assign_lhs: IDENT    #lhsIdent
+| array_elem         #lhsArray
+| pair_elem          #lhsPair
 ;
 
 assign_rhs: expr                                                #expression

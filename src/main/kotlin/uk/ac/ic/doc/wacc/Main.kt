@@ -2,9 +2,9 @@ package uk.ac.ic.doc.wacc
 
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
-import uk.ac.ic.doc.wacc.ast.Statement
 import uk.ac.ic.doc.wacc.grammar.WaccLexer
 import uk.ac.ic.doc.wacc.grammar.WaccParser
+import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
 
 fun main(args : Array<String>) {
 
@@ -20,6 +20,7 @@ fun main(args : Array<String>) {
     val visitor = ProgramVisitor()
     val program = parseResource(args[0]).accept(visitor)
 
-    println((program.block as Statement.Block).statements.toString())
+    println(program.functions.toString() +'\n'+ program.block.toString())
+
 
 }

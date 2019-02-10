@@ -1,4 +1,4 @@
-package uk.ac.ic.doc.wacc
+package uk.ac.ic.doc.wacc.visitors
 
 import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Scope
@@ -20,3 +20,4 @@ class ActiveScope(var currentScope: Scope, var parentScope: ActiveScope?) {
     }
 }
 
+var activeScope: ActiveScope? = ActiveScope(Scope(), null)

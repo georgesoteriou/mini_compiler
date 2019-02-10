@@ -25,6 +25,10 @@ begin
 
   pair(int, string) abc = newpair(5, "hello");
 
+  int[] arr = [1,2,4,5];
+
+  arr = [1,2,3,4,5,6];
+
   fst abc = 4;
   snd abc = "World";
 
