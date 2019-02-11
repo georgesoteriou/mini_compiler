@@ -85,14 +85,14 @@ begin
 		pair(pair, char) row2 = snd front ;
 		pair(pair, char) row3 = snd board ;
 	
-    println " 1 2 3";
-    print "1";	
-		bool _ = call printRow(row1) ;
-		println " -+-+-" ;
-    print "2";	
-		_ = call printRow(row2) ;
-		println " -+-+-" ;
-    print "3";	
+        println " 1 2 3";
+        print "1";
+            bool _ = call printRow(row1) ;
+            println " -+-+-" ;
+        print "2";
+            _ = call printRow(row2) ;
+            println " -+-+-" ;
+        print "3";
 		_ = call printRow(row3) ;
 		println "";
 		return true 

@@ -5,10 +5,10 @@ import uk.ac.ic.doc.wacc.ast.Scope
 import java.lang.IllegalArgumentException
 
 class ActiveScope(var currentScope: Scope, var parentScope: ActiveScope?) {
-    fun findVar(s : String) : Expression.Variable {
+    fun findVar(s : Expression.Identifier) : Expression.Variable {
         currentScope.variables.forEach {
-            if (it.name == s) {
-                return it
+            when(it) {
+                is Expression.Variable -> if (it.name == s) { return it }
             }
         }
 
@@ -16,7 +16,7 @@ class ActiveScope(var currentScope: Scope, var parentScope: ActiveScope?) {
             return parentScope!!.findVar(s)
         }
 
-        throw IllegalArgumentException("Variable not found")
+        throw IllegalArgumentException("Variable \"$s\" not found")
     }
 }
 

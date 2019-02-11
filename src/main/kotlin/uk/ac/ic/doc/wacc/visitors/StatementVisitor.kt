@@ -17,7 +17,7 @@ class StatementVisitor: WaccParserBaseVisitor<Statement>() {
 
     override fun visitDeclare(ctx: WaccParser.DeclareContext): Statement {
         val lhs = Expression.Variable(
-            ctx.IDENT().toString(),
+            Expression.Identifier(ctx.IDENT().toString()),
             ctx.type().accept(TypeVisitor())
         )
         val rhs = ctx.assign_rhs().accept(ExprVisitor())

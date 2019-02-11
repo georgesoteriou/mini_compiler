@@ -2,15 +2,16 @@ package uk.ac.ic.doc.wacc.ast
 
 sealed class Expression {
 
-    data class Variable(var name: String, var type: Type): Expression()
-    data class CallFunction(var name: String, var params: Expression?): Expression()
+    data class Variable(var name: Identifier, var type: Type): Expression()
+    data class CallFunction(var name: Identifier, var params: Expression?): Expression()
 
     data class ExpressionList(var expressions: List<Expression>) : Expression()
     data class ExpressionPair(var e1: Expression, var e2: Expression) : Expression()
 
+    data class Identifier(var name: String): Expression()
 
     sealed class Literal: Expression() {
-        data class LInt(var int: Int): Literal()
+        data class LInt(var int: String): Literal()
         data class LBool(var bool: Boolean): Literal()
         data class LChar(var char: Char): Literal()
         data class LString(var string: String): Literal()

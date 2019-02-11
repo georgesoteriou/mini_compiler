@@ -11,5 +11,5 @@ open class Type {
         var size: Int = 0
     }
     data class TPair(var t1: Type, var t2: Type): Type()
-
+    object TPairSimple: Type()
 }

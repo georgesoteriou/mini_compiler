@@ -32,4 +32,12 @@ class TypeVisitor: WaccParserBaseVisitor<Type>() {
         return Type.TPair(t1, t2)
     }
 
+    override fun visitPair_elem_type(ctx: WaccParser.Pair_elem_typeContext): Type {
+        return if(ctx.PAIR() == null) {
+            super.visitPair_elem_type(ctx)
+        } else {
+            Type.TPairSimple
+        }
+    }
+
 }

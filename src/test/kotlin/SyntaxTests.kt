@@ -3,6 +3,8 @@ import org.junit.Assert.fail
 import org.junit.Test
 import uk.ac.ic.doc.wacc.grammar.WaccLexer
 import uk.ac.ic.doc.wacc.grammar.WaccParser
+import uk.ac.ic.doc.wacc.program
+import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
 import java.io.File
 
 
@@ -11,10 +13,11 @@ class SyntaxTests {
     fun lexerForResource(resourceName: String) = WaccLexer(CharStreams.fromFileName(resourceName))
     fun tokenStream(resourceName: String) = CommonTokenStream(lexerForResource(resourceName))
     fun parseResource(resourceName: String) {
+        val visitor = ProgramVisitor()
         val parser = WaccParser(tokenStream(resourceName))
         parser.removeErrorListeners()
         parser.addErrorListener(TestErrorListener())
-        parser.prog()
+        parser.prog().accept(visitor)
     }
 
     private fun testValid(pathname: String) {
@@ -165,10 +168,10 @@ class SyntaxTests {
         testInvalid("src/test/resources/invalid/syntaxErr/expressions/")
     }
 
-//    @Test
-//    fun invalidSyntaxErrFunction() {
-//        testInvalid("src/test/resources/invalid/syntaxErr/function/")
-//    }
+    @Test
+    fun invalidSyntaxErrFunction() {
+        testInvalid("src/test/resources/invalid/syntaxErr/function/")
+    }
 
     @Test
     fun invalidSyntaxErrIf() {

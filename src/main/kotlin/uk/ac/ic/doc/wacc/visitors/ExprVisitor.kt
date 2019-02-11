@@ -11,17 +11,13 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
     override fun visitArg_list(ctx: WaccParser.Arg_listContext): Expression
             = Expression.ExpressionList(ctx.expr().map { it.accept(this) })
 
-
-
     override fun visitCallFunc(ctx: WaccParser.CallFuncContext): Expression {
-        val name = ctx.IDENT().toString()
+        val name = Expression.Identifier(ctx.IDENT().toString())
         return when {
             ctx.arg_list() != null -> Expression.CallFunction(name, ctx.arg_list().accept(this))
             else -> Expression.CallFunction(name,null)
         }
     }
-
-
 
     override fun visitBinaryOp(ctx: WaccParser.BinaryOpContext): Expression {
         val e1 = ctx.expr(0).accept(this)
@@ -63,9 +59,9 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
     override fun visitIntLit(ctx: WaccParser.IntLitContext): Expression
         = Expression.Literal.LInt(
         if (ctx.MINUS() != null) {
-            -Integer.parseInt(ctx.INT_LITER().toString())
+            "-"+ctx.INT_LITER().toString()
         } else {
-            Integer.parseInt(ctx.INT_LITER().toString())
+            ctx.INT_LITER().toString()
         })
 
     override fun visitBoolLit(ctx: WaccParser.BoolLitContext): Expression
@@ -91,16 +87,16 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
     }
 
     override fun visitArray_elem(ctx: WaccParser.Array_elemContext): Expression {
-        val array =  activeScope!!.findVar(ctx.IDENT().toString())
+        val array =  Expression.Identifier(ctx.IDENT().toString())
         val indexes = Expression.ExpressionList(ctx.expr().map { it.accept(this) })
         return Expression.ArrayElem(array, indexes)
     }
 
     override fun visitIdent(ctx: WaccParser.IdentContext): Expression
-            = activeScope!!.findVar(ctx.IDENT().toString())
+            = Expression.Identifier(ctx.IDENT().toString())
 
     override fun visitLhsIdent(ctx: WaccParser.LhsIdentContext): Expression
-            = activeScope!!.findVar(ctx.IDENT().toString())
+            = Expression.Identifier(ctx.IDENT().toString())
 
     override fun visitFst(ctx: WaccParser.FstContext): Expression
         = Expression.Fst(ctx.expr().accept(this))
