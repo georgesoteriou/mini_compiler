@@ -29,23 +29,16 @@ fun checkStatement(param: Statement, activeScope: ActiveScope): Boolean {
     return when (param) {
         is Statement.Block -> checkStatements(param, activeScope)
 
-        is Statement.While -> {
-            var ret =  exprType(param.condition, activeScope) !is Type.TBool
-            ret = ret && checkStatements(param.then as Statement.Block, activeScope)
-            return ret
-        }
-        /*
+        is Statement.While -> exprType(param.condition, activeScope) !is Type.TBool
+                && checkStatements(param.then as Statement.Block, activeScope)
 
+        is Statement.If -> exprType(param.condition, activeScope) !is Type.TBool
+                && checkStatements(param.ifThen as Statement.Block, activeScope)
+                && checkStatements(param.elseThen as Statement.Block, activeScope)
 
-         */
-
-        is Statement.If -> true
-        /*
-
-
-         */
 
         is Statement.PrintLn -> true
+        
         /*
             evaluate expression recursively to see if:
                 expression has a uniform type
