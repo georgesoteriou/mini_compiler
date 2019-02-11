@@ -1,11 +1,4 @@
-import org.antlr.v4.runtime.*
-import org.junit.Assert.fail
 import org.junit.Test
-import uk.ac.ic.doc.wacc.grammar.WaccLexer
-import uk.ac.ic.doc.wacc.grammar.WaccParser
-import uk.ac.ic.doc.wacc.program
-import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
-import java.io.File
 
 
 class SyntaxTests {
