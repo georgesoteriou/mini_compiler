@@ -115,11 +115,21 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
             val lhsType = exprType(param.lhs,activeScope)
             val rhsType = exprType(param.rhs,activeScope)
             lhsType::class == rhsType::class
-
-
         }
 
-        is Statement.VariableDeclaration -> true
+        is Statement.VariableDeclaration -> {
+            val lhs = param.lhs as Expression.Variable
+            val rhsType = exprType(param.rhs, activeScope)
+
+            if (!activeScope.isVarInCurrScope(lhs.name))
+            {
+                activeScope.currentScope.variables.add(lhs)
+                lhs.type::class == rhsType::class
+            } else {
+                false
+            }
+
+        }
         /* check if lhs var exists in scope
             if it does then proboem
             else:
