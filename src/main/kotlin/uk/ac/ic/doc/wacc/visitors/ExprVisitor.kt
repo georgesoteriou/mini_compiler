@@ -39,7 +39,22 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
             ctx.op.OR()    != null -> Expression.BinaryOperator.BOr(e1, e2)
             else -> throw InvalidParameterException("Binary Op does not exist")
         }
+
+        /*
+        when (a)  {
+            is Expression.BinaryOperator.BMult -> // repeat onwards for BPlus, BMinus, BMult, BMod, BDiv
+                /*
+                    Type x = evaluate e1 recursively to obtain overall type
+                    Type y = evaluate e2 recursively to obtain overall type
+
+                    add an extra type : error type
+
+                    if x or y is an errortype then problem
+                        if x and y dont have the same type then problem
+
+                 */ */
     }
+
 
     override fun visitUnaryOp(ctx: WaccParser.UnaryOpContext): Expression {
         val e = ctx.expr().accept(this)

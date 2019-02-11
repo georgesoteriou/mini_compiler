@@ -2,12 +2,9 @@ package uk.ac.ic.doc.wacc
 
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
-import uk.ac.ic.doc.wacc.ast.Program
 import uk.ac.ic.doc.wacc.grammar.WaccLexer
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
-
-var program:Program? = null
 
 fun main(args : Array<String>) {
 
@@ -21,9 +18,13 @@ fun main(args : Array<String>) {
     fun parseResource(resourceName: String) = WaccParser(tokenStream(resourceName)).prog()
 
     val visitor = ProgramVisitor()
-    program = parseResource(args[0]).accept(visitor)
+    val program = parseResource(args[0]).accept(visitor)
 
+    //semanticChecker(program)
     println(program.toString())
-
-
 }
+
+
+
+
+
