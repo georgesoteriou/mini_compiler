@@ -271,7 +271,38 @@ fun exprType(expr: Expression, activeScope: ActiveScope, functions: List<Functio
             }
         }
 
+        is Expression.ArrayElem -> {
+            (expr.indexes as Expression.ExpressionList).expressions.forEach {
+                if(exprType(it, activeScope, functions) !is Type.TInt){
+                    Type.TError
+                }
+            }
 
+            var arrType = activeScope.findType(expr.array as Expression.Identifier)
+            (expr.indexes as Expression.ExpressionList).expressions.forEach {
+                when (arrType) {
+                    is Type.TArray -> arrType = (arrType as Type.TArray).type
+                    else -> arrType = Type.TError
+                }
+            }
+            arrType
+        }
+
+        is Expression.Fst -> {
+            val pairType = activeScope.findType(expr.expression as Expression.Identifier)
+            return when (pairType) {
+                is Type.TPair -> pairType.t1
+                else -> Type.TError
+            }
+        }
+
+        is Expression.Snd -> {
+            val pairType = activeScope.findType(expr.expression as Expression.Identifier)
+            return when (pairType) {
+                is Type.TPair -> pairType.t2
+                else -> Type.TError
+            }
+        }
         else -> Type.TError
     }
         /* FOR PRINT:
