@@ -57,6 +57,171 @@ fun exprType(expr: Expression, activeScope: ActiveScope, functions: List<Functio
         is Expression.Literal.LString-> Type.TString
         is Expression.Literal.LPair -> Type.TPairSimple
 
+        is Expression.BinaryOperator.BMult -> {
+            val e1Type = exprType(expr.e1,activeScope,functions)
+            val e2Type = exprType(expr.e2,activeScope,functions)
+
+            if (e1Type::class == e2Type::class && e1Type is Type.TInt)
+            {
+                Type.TInt
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.BinaryOperator.BDiv -> {
+            val e1Type = exprType(expr.e1,activeScope,functions)
+            val e2Type = exprType(expr.e2,activeScope,functions)
+
+            if (e1Type::class == e2Type::class && e1Type is Type.TInt)
+            {
+                Type.TInt
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.BinaryOperator.BMod -> {
+            val e1Type = exprType(expr.e1,activeScope,functions)
+            val e2Type = exprType(expr.e2,activeScope,functions)
+
+            if (e1Type::class == e2Type::class && e1Type is Type.TInt)
+            {
+                Type.TInt
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.BinaryOperator.BPlus -> {
+            val e1Type = exprType(expr.e1,activeScope,functions)
+            val e2Type = exprType(expr.e2,activeScope,functions)
+
+            if (e1Type::class == e2Type::class && e1Type is Type.TInt)
+            {
+                Type.TInt
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.BinaryOperator.BMinus -> {
+            val e1Type = exprType(expr.e1,activeScope,functions)
+            val e2Type = exprType(expr.e2,activeScope,functions)
+
+            if (e1Type::class == e2Type::class && e1Type is Type.TInt)
+            {
+                Type.TInt
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.BinaryOperator.BGT -> {
+            val e1Type = exprType(expr.e1,activeScope,functions)
+            val e2Type = exprType(expr.e2,activeScope,functions)
+
+            if (e1Type::class == e2Type::class &&
+                ( e1Type is Type.TInt || e1Type is Type.TChar))
+            {
+                Type.TBool
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.BinaryOperator.BGTE -> {
+            val e1Type = exprType(expr.e1,activeScope,functions)
+            val e2Type = exprType(expr.e2,activeScope,functions)
+
+            if (e1Type::class == e2Type::class &&
+                ( e1Type is Type.TInt || e1Type is Type.TChar))
+            {
+                Type.TBool
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.BinaryOperator.BLT -> {
+            val e1Type = exprType(expr.e1,activeScope,functions)
+            val e2Type = exprType(expr.e2,activeScope,functions)
+
+            if (e1Type::class == e2Type::class &&
+                ( e1Type is Type.TInt || e1Type is Type.TChar))
+            {
+                Type.TBool
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.BinaryOperator.BLTE -> {
+            val e1Type = exprType(expr.e1,activeScope,functions)
+            val e2Type = exprType(expr.e2,activeScope,functions)
+
+            if (e1Type::class == e2Type::class &&
+                ( e1Type is Type.TInt || e1Type is Type.TChar))
+            {
+                Type.TBool
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.BinaryOperator.BEQ -> {
+            val e1Type = exprType(expr.e1,activeScope,functions)
+            val e2Type = exprType(expr.e2,activeScope,functions)
+
+            if (e1Type::class == e2Type::class &&
+                ( e1Type is Type.TInt || e1Type is Type.TChar || e1Type is Type.TBool))
+            {
+                Type.TBool
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.BinaryOperator.BNotEQ -> {
+            val e1Type = exprType(expr.e1,activeScope,functions)
+            val e2Type = exprType(expr.e2,activeScope,functions)
+
+            if (e1Type::class == e2Type::class &&
+                ( e1Type is Type.TInt || e1Type is Type.TChar || e1Type is Type.TBool))
+            {
+                Type.TBool
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.BinaryOperator.BAnd -> {
+            val e1Type = exprType(expr.e1,activeScope,functions)
+            val e2Type = exprType(expr.e2,activeScope,functions)
+
+            if (e1Type::class == e2Type::class &&
+                e1Type is Type.TBool)
+            {
+                Type.TBool
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.BinaryOperator.BOr -> {
+            val e1Type = exprType(expr.e1,activeScope,functions)
+            val e2Type = exprType(expr.e2,activeScope,functions)
+
+            if (e1Type::class == e2Type::class &&
+                e1Type is Type.TBool)
+            {
+                Type.TBool
+            } else {
+                Type.TError
+            }
+        }
+
+
 
         else -> Type.TError
     }
