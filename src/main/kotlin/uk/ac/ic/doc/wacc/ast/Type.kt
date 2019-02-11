@@ -7,6 +7,8 @@ open class Type {
     object TChar  : Type()
     object TString: Type()
 
+    object TError: Type()
+
     class TArray(var type: Type): Type() {
         var size: Int = 0
     }
