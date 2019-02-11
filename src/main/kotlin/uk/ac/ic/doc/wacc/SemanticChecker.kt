@@ -43,6 +43,8 @@ fun exprType(expr: Expression, activeScope: ActiveScope, functions: List<Functio
             Type.TError
         }
 
+        is Expression.ExpressionPair -> Type.TPair(exprType(expr.e1,activeScope,functions), exprType(expr.e2,activeScope,functions))
+
         else -> Type.TError
     }
         /* FOR PRINT:
