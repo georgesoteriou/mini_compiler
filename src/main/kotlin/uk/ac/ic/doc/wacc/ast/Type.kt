@@ -8,7 +8,6 @@ open class Type {
     object TString: Type()
 
     object TError: Type()
-
     class TArray(var type: Type): Type() {
         var size: Int = 0
     }

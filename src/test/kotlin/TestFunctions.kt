@@ -40,7 +40,6 @@ fun testInvalid(pathname: String) {
     }
 }
 
-
 class TestErrorListener : BaseErrorListener() {
     override fun syntaxError(
         recognizer: Recognizer<*, *>?,

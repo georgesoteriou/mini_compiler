@@ -21,12 +21,13 @@ fun main(args : Array<String>) {
     val visitor = ProgramVisitor()
     val program = parseResource(args[0]).accept(visitor)
 
-
     if(!semanticCheck(program)) {
         exitProcess(200)
     }
 
     println(program.toString())
+
+
 
 }
 

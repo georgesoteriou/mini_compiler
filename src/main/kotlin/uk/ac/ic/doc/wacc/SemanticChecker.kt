@@ -45,7 +45,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope, functions: List<Functio
             functions.forEach{
                 if (it.name == expr.name)
                 {
-                    it.returnType
+                    return it.returnType
                 }
             }
             Type.TError
@@ -182,8 +182,11 @@ fun exprType(expr: Expression, activeScope: ActiveScope, functions: List<Functio
             val e2Type = exprType(expr.e2,activeScope,functions)
 
             if (e1Type::class == e2Type::class &&
-                ( e1Type is Type.TInt || e1Type is Type.TChar || e1Type is Type.TBool))
+                 e1Type !is Type.TError)
             {
+                Type.TBool
+            } else if ( (e1Type is Type.TPair && e2Type is Type.TPairSimple) ||
+                (e1Type is Type.TPairSimple && e2Type is Type.TPair)) {
                 Type.TBool
             } else {
                 Type.TError
@@ -195,7 +198,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope, functions: List<Functio
             val e2Type = exprType(expr.e2,activeScope,functions)
 
             if (e1Type::class == e2Type::class &&
-                ( e1Type is Type.TInt || e1Type is Type.TChar || e1Type is Type.TBool))
+                e1Type !is Type.TError )
             {
                 Type.TBool
             } else {
@@ -300,6 +303,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope, functions: List<Functio
             val pairType = activeScope.findType(expr.expression as Expression.Identifier)
             return when (pairType) {
                 is Type.TPair -> pairType.t1
+                is Type.TPairSimple -> Type.TPairSimple
                 else -> Type.TError
             }
         }
@@ -308,6 +312,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope, functions: List<Functio
             val pairType = activeScope.findType(expr.expression as Expression.Identifier)
             return when (pairType) {
                 is Type.TPair -> pairType.t2
+                is Type.TPairSimple -> Type.TPairSimple
                 else -> Type.TError
             }
         }
@@ -375,7 +380,9 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type, 
 
             val lhsType = exprType(param.lhs,activeScope, functions)
             val rhsType = exprType(param.rhs,activeScope, functions)
-            lhsType::class == rhsType::class
+            lhsType::class == rhsType::class ||
+                    (lhsType is Type.TPair && rhsType is Type.TPairSimple) ||
+                    (rhsType is Type.TPair && lhsType is Type.TPairSimple)
         }
 
         is Statement.VariableDeclaration -> {
@@ -385,7 +392,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type, 
             if (!activeScope.isVarInCurrScope(lhs.name))
             {
                 activeScope.currentScope.variables.add(lhs)
-                lhs.type::class == rhsType::class
+                lhs.type::class == rhsType::class || (lhs.type is Type.TPair && rhsType is Type.TPairSimple)
             } else {
                 false
             }
