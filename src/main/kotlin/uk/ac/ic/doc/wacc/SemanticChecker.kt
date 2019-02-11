@@ -1,6 +1,7 @@
 package uk.ac.ic.doc.wacc
 
 import uk.ac.ic.doc.wacc.ast.*
+import uk.ac.ic.doc.wacc.ast.Function
 import uk.ac.ic.doc.wacc.visitors.ActiveScope
 
 fun semanticCheck (prog: Program) {
@@ -10,22 +11,40 @@ fun semanticCheck (prog: Program) {
         (it.params as Expression.ExpressionList).expressions.forEach{
             scope.variables.add(it)
         }
-        valid = valid && checkStatements(it.block as Statement.Block, ActiveScope(Scope(),null),it.returnType)
+        valid = valid && checkStatements(it.block as Statement.Block, ActiveScope(Scope(),null),it.returnType, prog.functions)
     }
+
+    // TODO to go over the main block of the program
 
 }
 
 
-fun checkStatements(block: Statement.Block, activeScope: ActiveScope, returnType: Type): Boolean {
+fun checkStatements(block: Statement.Block, activeScope: ActiveScope, returnType: Type, functions: List<Function>): Boolean {
     val newActiveScope = ActiveScope(block.scope, activeScope)
     var valid = true
     block.statements.forEach{
-        valid = valid && checkStatement(it, newActiveScope, returnType)
+        valid = valid && checkStatement(it, newActiveScope, returnType, functions)
     }
     return valid
 }
 
-fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
+fun exprType(expr: Expression, activeScope: ActiveScope, functions: List<Function> ) : Type {
+
+    return when (expr) {
+        is Expression.Variable -> expr.type
+
+        is Expression.CallFunction -> {
+            functions.forEach{
+                if (it.name == expr.name)
+                {
+                    it.returnType
+                }
+            }
+            Type.TError
+        }
+
+        else -> Type.TError
+    }
         /* FOR PRINT:
             evaluate expression recursively to see if:
                 expression has a uniform type
@@ -49,29 +68,27 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
     else error
 
      */
-
-    return Type.TError
 }
 
-fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type): Boolean {
+fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type, functions : List<Function>): Boolean {
     return when (param) {
-        is Statement.Block -> checkStatements(param, activeScope,returnType)
+        is Statement.Block -> checkStatements(param, activeScope,returnType, functions)
 
-        is Statement.While -> exprType(param.condition, activeScope) !is Type.TBool
-                && checkStatements(param.then as Statement.Block, activeScope,returnType)
+        is Statement.While -> exprType(param.condition, activeScope, functions) !is Type.TBool
+                && checkStatements(param.then as Statement.Block, activeScope,returnType, functions)
 
-        is Statement.If -> exprType(param.condition, activeScope) !is Type.TBool
-                && checkStatements(param.ifThen as Statement.Block, activeScope,returnType)
-                && checkStatements(param.elseThen as Statement.Block, activeScope,returnType)
-
-
-        is Statement.PrintLn -> exprType(param.expression,activeScope) !is Type.TError
+        is Statement.If -> exprType(param.condition, activeScope, functions) !is Type.TBool
+                && checkStatements(param.ifThen as Statement.Block, activeScope,returnType, functions)
+                && checkStatements(param.elseThen as Statement.Block, activeScope,returnType, functions)
 
 
+        is Statement.PrintLn -> exprType(param.expression,activeScope, functions) !is Type.TError
 
-        is Statement.Print -> exprType(param.expression,activeScope) !is Type.TError
 
-        is Statement.Exit -> exprType(param.expression,activeScope) !is Type.TInt
+
+        is Statement.Print -> exprType(param.expression,activeScope, functions) !is Type.TError
+
+        is Statement.Exit -> exprType(param.expression,activeScope, functions) !is Type.TInt
 
 
         is Statement.Return -> {
@@ -79,13 +96,13 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
                false
             } else {
                 when (returnType) {
-                    is Type.TInt-> exprType(param.expression,activeScope) is Type.TInt
-                    is Type.TBool-> exprType(param.expression,activeScope) is Type.TBool
-                    is Type.TChar-> exprType(param.expression,activeScope) is Type.TChar
-                    is Type.TString-> exprType(param.expression,activeScope) is Type.TString
-                    is Type.TArray-> exprType(param.expression,activeScope) is Type.TArray
-                    is Type.TPair -> exprType(param.expression,activeScope) is Type.TPair
-                    is Type.TPairSimple -> exprType(param.expression,activeScope) is Type.TPairSimple
+                    is Type.TInt-> exprType(param.expression,activeScope, functions) is Type.TInt
+                    is Type.TBool-> exprType(param.expression,activeScope, functions) is Type.TBool
+                    is Type.TChar-> exprType(param.expression,activeScope, functions) is Type.TChar
+                    is Type.TString-> exprType(param.expression,activeScope, functions) is Type.TString
+                    is Type.TArray-> exprType(param.expression,activeScope, functions) is Type.TArray
+                    is Type.TPair -> exprType(param.expression,activeScope, functions) is Type.TPair
+                    is Type.TPairSimple -> exprType(param.expression,activeScope, functions) is Type.TPairSimple
                     else -> false
                 }
 
@@ -95,7 +112,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
 
 
         is Statement.FreeVariable -> {
-            when (exprType(param.expression, activeScope)) {
+            when (exprType(param.expression, activeScope, functions)) {
                 is Type.TArray -> true
                 is Type.TPair -> true
                 is Type.TPairSimple -> true
@@ -112,14 +129,14 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
 
         is Statement.VariableAssignment -> {
 
-            val lhsType = exprType(param.lhs,activeScope)
-            val rhsType = exprType(param.rhs,activeScope)
+            val lhsType = exprType(param.lhs,activeScope, functions)
+            val rhsType = exprType(param.rhs,activeScope, functions)
             lhsType::class == rhsType::class
         }
 
         is Statement.VariableDeclaration -> {
             val lhs = param.lhs as Expression.Variable
-            val rhsType = exprType(param.rhs, activeScope)
+            val rhsType = exprType(param.rhs, activeScope, functions)
 
             if (!activeScope.isVarInCurrScope(lhs.name))
             {
@@ -130,14 +147,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
             }
 
         }
-        /* check if lhs var exists in scope
-            if it does then proboem
-            else:
-                evaluate lhs and rhs to see what type theu have
-                    if types dont match -> problem
-                    else
-                        add to activescope
-         */
+
 
 
         else -> false
