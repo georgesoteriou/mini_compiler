@@ -5,7 +5,7 @@ import uk.ac.ic.doc.wacc.ast.Function
 import uk.ac.ic.doc.wacc.ast.Statement
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
-import kotlin.system.exitProcess
+import java.lang.RuntimeException
 
 class FunctionVisitor: WaccParserBaseVisitor<Function>() {
     override fun visitFunc(ctx: WaccParser.FuncContext): Function {
@@ -35,6 +35,6 @@ fun checkReturn(block: Statement.Block): Boolean{
         is Statement.If     -> {
             checkReturn((stat.ifThen as Statement.Block)) && checkReturn((stat.elseThen as Statement.Block))
         }
-        else -> exitProcess(200)
+        else -> throw RuntimeException("Line "+stat.location.lineNum+": Function missing return statement")
     }
 }

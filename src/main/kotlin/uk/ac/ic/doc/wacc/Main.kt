@@ -18,16 +18,17 @@ fun main(args : Array<String>) {
     fun tokenStream(resourceName: String) = CommonTokenStream(lexerForResource(resourceName))
     fun parseResource(resourceName: String) = WaccParser(tokenStream(resourceName)).prog()
 
-    val visitor = ProgramVisitor()
-    val program = parseResource(args[0]).accept(visitor)
 
-    if(!semanticCheck(program)) {
-        exitProcess(200)
+    try {
+        val visitor = ProgramVisitor()
+        val program = parseResource(args[0]).accept(visitor)
+
+        if(!semanticCheck(program)) {
+            exitProcess(200)
+        }
+    } catch (e: RuntimeException) {
+        exitProcess(100)
     }
-
-    println(program.toString())
-
-
 
 }
 

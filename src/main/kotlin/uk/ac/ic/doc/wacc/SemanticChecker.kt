@@ -3,7 +3,6 @@ package uk.ac.ic.doc.wacc
 import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.ast.Function
 import uk.ac.ic.doc.wacc.visitors.ActiveScope
-import kotlin.system.exitProcess
 
 fun semanticCheck (prog: Program): Boolean {
     var valid = true
@@ -58,7 +57,7 @@ fun checkStatements(block: Statement.Block, activeScope: ActiveScope, returnType
         val check = checkStatement(it, newActiveScope, returnType, functions)
         if (!check)
         {
-           // println(it.location)
+           println(it.location)
         }
         valid = valid && check
     }
@@ -481,7 +480,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type, 
 
         }
 
-
+        is Statement.Skip -> true
 
         else -> false
     }
