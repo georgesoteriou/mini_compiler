@@ -2,21 +2,26 @@ package uk.ac.ic.doc.wacc.visitors
 
 import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Scope
+import uk.ac.ic.doc.wacc.ast.Type
 import java.lang.IllegalArgumentException
 
 class ActiveScope(var currentScope: Scope, var parentScope: ActiveScope?) {
-    fun findVar(s : Expression.Identifier) : Expression.Variable {
+    fun findVar(s : Expression.Identifier): Expression.Variable? {
         currentScope.variables.forEach {
             when(it) {
                 is Expression.Variable -> if (it.name == s) { return it }
             }
         }
-
-        if (parentScope != null){
-            return parentScope!!.findVar(s)
+        return if (parentScope == null){
+            null
+        } else {
+            parentScope!!.findVar(s)
         }
+    }
 
-        throw IllegalArgumentException("Variable \"$s\" not found")
+    fun findType(s : Expression.Identifier): Type {
+        val ret = findVar(s)
+        return ret?.type ?: Type.TError
     }
 }
 
