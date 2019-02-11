@@ -7,7 +7,10 @@ open class Type {
     object TChar  : Type()
     object TString: Type()
 
-    data class TArray(var type: Type, var size: Int): Type()
+    object TError: Type()
+    class TArray(var type: Type): Type() {
+        var size: Int = 0
+    }
     data class TPair(var t1: Type, var t2: Type): Type()
-
+    object TPairSimple: Type()
 }

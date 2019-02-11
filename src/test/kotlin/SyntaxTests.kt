@@ -1,46 +1,7 @@
-import org.antlr.v4.runtime.*
-import org.junit.Assert.fail
 import org.junit.Test
-import uk.ac.ic.doc.wacc.grammar.WaccLexer
-import uk.ac.ic.doc.wacc.grammar.WaccParser
-import java.io.File
 
 
 class SyntaxTests {
-
-    fun lexerForResource(resourceName: String) = WaccLexer(CharStreams.fromFileName(resourceName))
-    fun tokenStream(resourceName: String) = CommonTokenStream(lexerForResource(resourceName))
-    fun parseResource(resourceName: String) {
-        val parser = WaccParser(tokenStream(resourceName))
-        parser.removeErrorListeners()
-        parser.addErrorListener(TestErrorListener())
-        parser.prog()
-    }
-
-    private fun testValid(pathname: String) {
-        File(pathname).listFiles().forEach {
-            if (it.extension == "wacc") {
-                try {
-                    parseResource(it.absolutePath)
-                } catch (e: RuntimeException) {
-                    fail("Cannot parse " + it.name + "\nReason: " + e)
-                }
-            }
-        }
-    }
-
-    private fun testInvalid(pathname: String) {
-        File(pathname).listFiles().forEach {
-            if (it.extension == "wacc") {
-                try {
-                    parseResource(it.absolutePath)
-                } catch (e: RuntimeException) {
-                    return@forEach
-                }
-                fail("Shouldn't successfully parse " + it.name)
-            }
-        }
-    }
 
 
     @Test
@@ -165,10 +126,10 @@ class SyntaxTests {
         testInvalid("src/test/resources/invalid/syntaxErr/expressions/")
     }
 
-//    @Test
-//    fun invalidSyntaxErrFunction() {
-//        testInvalid("src/test/resources/invalid/syntaxErr/function/")
-//    }
+    @Test
+    fun invalidSyntaxErrFunction() {
+        testInvalid("src/test/resources/invalid/syntaxErr/function/")
+    }
 
     @Test
     fun invalidSyntaxErrIf() {
@@ -193,18 +154,5 @@ class SyntaxTests {
     @Test
     fun invalidSyntaxErrWhile() {
         testInvalid("src/test/resources/invalid/syntaxErr/while/")
-    }
-}
-
-class TestErrorListener : BaseErrorListener() {
-    override fun syntaxError(
-        recognizer: Recognizer<*, *>?,
-        offendingSymbol: Any?,
-        line: Int,
-        charPositionInLine: Int,
-        msg: String?,
-        e: RecognitionException?
-    ) {
-        throw RuntimeException("line $line:$charPositionInLine: $msg")
     }
 }

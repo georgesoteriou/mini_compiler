@@ -1,5 +1,5 @@
 package uk.ac.ic.doc.wacc.ast
 
 class Scope {
-    var variables: List<Expression.Variable> = ArrayList()
+    var variables: MutableList<Expression> = arrayListOf()
 }
