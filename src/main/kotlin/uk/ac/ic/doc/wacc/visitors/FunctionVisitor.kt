@@ -17,7 +17,8 @@ class FunctionVisitor: WaccParserBaseVisitor<Function>() {
         }
         val block = ctx.stat_list().accept(StatementVisitor())
         checkReturn(block as Statement.Block)
-        return Function(name, params, block)
+        val thisRetType = ctx.type().accept(TypeVisitor())
+        return Function(name, params, block,thisRetType)
     }
 }
 
