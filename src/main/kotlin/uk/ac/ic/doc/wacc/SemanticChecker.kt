@@ -3,9 +3,14 @@ package uk.ac.ic.doc.wacc
 import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.ast.Function
 import uk.ac.ic.doc.wacc.visitors.ActiveScope
+import kotlin.system.exitProcess
 
 fun semanticCheck (prog: Program): Boolean {
     var valid = true
+    if(!checkFunctions(prog.functions))
+    {
+        return false
+    }
     prog.functions.forEach{
         val scope = (it.block as Statement.Block).scope
         if(it.params != null) {
@@ -20,6 +25,30 @@ fun semanticCheck (prog: Program): Boolean {
     return valid
 }
 
+fun checkFunctions(functions: List<Function>): Boolean {
+    val functionNameMap :HashMap<String, Int> = HashMap()
+    functions.forEach { f ->
+        var count = functionNameMap[f.name.name]
+
+        if ( count == null )
+        {
+            count = 1
+        } else {
+            count += 1
+        }
+
+        functionNameMap[f.name.name] = count
+    }
+
+    functionNameMap.forEach{
+        if (it.value > 1 ) {
+            return false
+        }
+
+    }
+    return true
+}
+
 
 fun checkStatements(block: Statement.Block, activeScope: ActiveScope, returnType: Type, functions: List<Function>): Boolean {
     val newActiveScope = ActiveScope(block.scope, activeScope)
@@ -29,7 +58,7 @@ fun checkStatements(block: Statement.Block, activeScope: ActiveScope, returnType
         val check = checkStatement(it, newActiveScope, returnType, functions)
         if (!check)
         {
-            println(it.location)
+           // println(it.location)
         }
         valid = valid && check
     }
@@ -386,16 +415,63 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type, 
 
             val lhsType = exprType(param.lhs,activeScope, functions)
             val rhsType = exprType(param.rhs,activeScope, functions)
-            lhsType::class == rhsType::class ||
+
+            var funcValid = true
+            when(param.rhs) {
+                is Expression.CallFunction ->
+                    functions.forEach { f ->
+                        if (f.name == (param.rhs as Expression.CallFunction).name) {
+                            var count = 0
+                            if((param.rhs as Expression.CallFunction).params != null && f.params != null) {
+                                if(((param.rhs as Expression.CallFunction).params as Expression.ExpressionList).expressions.size == f.params!!.size) {
+                                    ((param.rhs as Expression.CallFunction).params
+                                            as Expression.ExpressionList).expressions.forEach {
+                                        funcValid =
+                                            funcValid && exprType(f.params!![count], activeScope, functions)::class ==
+                                                    exprType(it, activeScope, functions)::class
+                                        count++
+                                    }
+                                } else {
+                                    funcValid = false
+                                }
+                            }
+                        }
+                    }
+            }
+
+            funcValid && (lhsType::class == rhsType::class ||
                     (lhsType is Type.TPair && rhsType is Type.TPairSimple) ||
-                    (rhsType is Type.TPair && lhsType is Type.TPairSimple)
+                    (rhsType is Type.TPair && lhsType is Type.TPairSimple))
         }
 
         is Statement.VariableDeclaration -> {
             val lhs = param.lhs as Expression.Variable
             val rhsType = exprType(param.rhs, activeScope, functions)
 
-            if (!activeScope.isVarInCurrScope(lhs.name))
+            var funcValid = true
+            when(param.rhs) {
+                is Expression.CallFunction ->
+                    functions.forEach { f ->
+                        if (f.name == (param.rhs as Expression.CallFunction).name) {
+                            var count = 0
+                            if((param.rhs as Expression.CallFunction).params != null && f.params != null) {
+                                if(((param.rhs as Expression.CallFunction).params as Expression.ExpressionList).expressions.size == f.params!!.size) {
+                                    ((param.rhs as Expression.CallFunction).params
+                                            as Expression.ExpressionList).expressions.forEach {
+                                        funcValid =
+                                            funcValid && exprType(f.params!![count], activeScope, functions)::class ==
+                                                    exprType(it, activeScope, functions)::class
+                                        count++
+                                    }
+                                } else {
+                                    funcValid = false
+                                }
+                            }
+                        }
+                    }
+            }
+
+            if (funcValid && !activeScope.isVarInCurrScope(lhs.name))
             {
                 activeScope.currentScope.variables.add(lhs)
                 lhs.type::class == rhsType::class || (lhs.type is Type.TPair && rhsType is Type.TPairSimple)

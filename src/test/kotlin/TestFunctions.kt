@@ -43,10 +43,22 @@ fun testInvalid(pathname: String) {
 }
 
 fun testInvalidSemantics (pathname: String) {
+    var count = 0
+    var total = 0
     File(pathname).listFiles().forEach {
         if (it.extension == "wacc") {
-            Assert.assertFalse(semanticCheck(parseResource(it.absolutePath)))
+            //println("Trying: ${it.name}")
+            if(!semanticCheck(parseResource(it.absolutePath))) {
+                count++
+                //println("Success: ${it.name}")
+            } else {
+                println("Failed: ${it.name}")
+            }
+            total++
         }
+    }
+    if(count < total) {
+        Assert.fail("$count/$total: Shouldn't successfully pass tests")
     }
 }
 class TestErrorListener : BaseErrorListener() {
