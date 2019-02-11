@@ -63,7 +63,7 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
             ctx.unaryOper().MINUS() != null -> Expression.UnaryOperator.UMinus(e)
             ctx.unaryOper().LEN()   != null -> Expression.UnaryOperator.ULen(e)
             ctx.unaryOper().ORD()   != null -> Expression.UnaryOperator.UOrd(e)
-            ctx.unaryOper().CHR()   != null -> Expression.UnaryOperator.UChar(e)
+            ctx.unaryOper().CHR()   != null -> Expression.UnaryOperator.UChr(e)
             else -> throw InvalidParameterException("Unary Op does not exist")
         }
     }

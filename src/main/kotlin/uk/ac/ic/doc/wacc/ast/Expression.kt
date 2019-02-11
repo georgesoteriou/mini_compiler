@@ -39,7 +39,7 @@ sealed class Expression {
         data class UMinus(var expression: Expression): UnaryOperator()
         data class ULen  (var expression: Expression): UnaryOperator()
         data class UOrd  (var expression: Expression): UnaryOperator()
-        data class UChar (var expression: Expression): UnaryOperator()
+        data class UChr (var expression: Expression): UnaryOperator()
     }
 
     data class ArrayElem(var array: Expression, var indexes: Expression): Expression()

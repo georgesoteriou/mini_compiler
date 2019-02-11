@@ -221,6 +221,55 @@ fun exprType(expr: Expression, activeScope: ActiveScope, functions: List<Functio
             }
         }
 
+        is Expression.UnaryOperator.UNot -> {
+            val eType = exprType(expr.expression,activeScope,functions)
+
+            if (eType is Type.TBool) {
+                Type.TBool
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.UnaryOperator.UMinus -> {
+            val eType = exprType(expr.expression,activeScope,functions)
+
+            if (eType is Type.TInt) {
+                Type.TInt
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.UnaryOperator.ULen -> {
+            val eType = exprType(expr.expression,activeScope,functions)
+
+            if (eType is Type.TArray) {
+                Type.TInt
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.UnaryOperator.UOrd -> {
+            val eType = exprType(expr.expression,activeScope,functions)
+
+            if (eType is Type.TChar) {
+                Type.TInt
+            } else {
+                Type.TError
+            }
+        }
+
+        is Expression.UnaryOperator.UChr -> {
+            val eType = exprType(expr.expression,activeScope,functions)
+
+            if (eType is Type.TInt) {
+                Type.TChar
+            } else {
+                Type.TError
+            }
+        }
 
 
         else -> Type.TError
