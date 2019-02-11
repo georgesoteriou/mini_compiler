@@ -4,18 +4,18 @@ import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.ast.Function
 import uk.ac.ic.doc.wacc.visitors.ActiveScope
 
-fun semanticCheck (prog: Program) {
+fun semanticCheck (prog: Program): Boolean {
     var valid = true
     prog.functions.forEach{
         val scope = (it.block as Statement.Block).scope
-        (it.params as Expression.ExpressionList).expressions.forEach{
-            scope.variables.add(it)
+        (it.params as Expression.ExpressionList).expressions.forEach{ i ->
+            scope.variables.add(i)
         }
         valid = valid && checkStatements(it.block as Statement.Block, ActiveScope(Scope(),null),it.returnType, prog.functions)
     }
 
-    // TODO to go over the main block of the program
-
+    valid = valid && checkStatements(prog.block as Statement.Block, ActiveScope(Scope(),null),Type.TError, prog.functions)
+    return valid
 }
 
 
@@ -23,7 +23,13 @@ fun checkStatements(block: Statement.Block, activeScope: ActiveScope, returnType
     val newActiveScope = ActiveScope(block.scope, activeScope)
     var valid = true
     block.statements.forEach{
-        valid = valid && checkStatement(it, newActiveScope, returnType, functions)
+
+        val check = checkStatement(it, newActiveScope, returnType, functions)
+        if (!check)
+        {
+            println(it.location)
+        }
+        valid = valid && check
     }
     return valid
 }
@@ -305,38 +311,16 @@ fun exprType(expr: Expression, activeScope: ActiveScope, functions: List<Functio
         }
         else -> Type.TError
     }
-        /* FOR PRINT:
-            evaluate expression recursively to see if:
-                expression has a uniform type
-                if no then problem
-                if yes then check if type is printable
-
-         */
-
-    /*      FOR RETURN
-            evaluate expression recursively to see if uniform type
-            if uniform type then see if returnable
-            if not uniform then problem
-
-         */
-
-    /*
-        REALLY FANCY AND USEFUL
-    var lhsType = activeScope.findType((param.lhs as Expression.Identifier))
-
-
-
-     */
 }
 
 fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type, functions : List<Function>): Boolean {
     return when (param) {
         is Statement.Block -> checkStatements(param, activeScope,returnType, functions)
 
-        is Statement.While -> exprType(param.condition, activeScope, functions) !is Type.TBool
+        is Statement.While -> exprType(param.condition, activeScope, functions) is Type.TBool
                 && checkStatements(param.then as Statement.Block, activeScope,returnType, functions)
 
-        is Statement.If -> exprType(param.condition, activeScope, functions) !is Type.TBool
+        is Statement.If -> exprType(param.condition, activeScope, functions) is Type.TBool
                 && checkStatements(param.ifThen as Statement.Block, activeScope,returnType, functions)
                 && checkStatements(param.elseThen as Statement.Block, activeScope,returnType, functions)
 
@@ -347,7 +331,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type, 
 
         is Statement.Print -> exprType(param.expression,activeScope, functions) !is Type.TError
 
-        is Statement.Exit -> exprType(param.expression,activeScope, functions) !is Type.TInt
+        is Statement.Exit -> exprType(param.expression,activeScope, functions) is Type.TInt
 
 
         is Statement.Return -> {
@@ -367,7 +351,6 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type, 
 
             }
         }
-
 
 
         is Statement.FreeVariable -> {

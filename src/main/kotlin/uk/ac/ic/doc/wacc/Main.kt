@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.CommonTokenStream
 import uk.ac.ic.doc.wacc.grammar.WaccLexer
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
+import kotlin.system.exitProcess
 
 fun main(args : Array<String>) {
 
@@ -20,7 +21,9 @@ fun main(args : Array<String>) {
     val visitor = ProgramVisitor()
     val program = parseResource(args[0]).accept(visitor)
 
-    //semanticChecker(program)
+    if(!semanticCheck(program)) {
+        exitProcess(200)
+    }
     println(program.toString())
 }
 
