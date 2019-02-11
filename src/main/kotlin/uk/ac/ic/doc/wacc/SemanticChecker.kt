@@ -45,6 +45,19 @@ fun exprType(expr: Expression, activeScope: ActiveScope, functions: List<Functio
 
         is Expression.ExpressionPair -> Type.TPair(exprType(expr.e1,activeScope,functions), exprType(expr.e2,activeScope,functions))
 
+        /*
+            if something is an identifier, IT HAS TO EXIST in the scope so check it here
+    else error
+         */
+        is Expression.Identifier -> activeScope.findType(expr)
+
+        is Expression.Literal.LInt -> Type.TInt
+        is Expression.Literal.LBool -> Type.TBool
+        is Expression.Literal.LChar -> Type.TChar
+        is Expression.Literal.LString-> Type.TString
+        is Expression.Literal.LPair -> Type.TPairSimple
+
+
         else -> Type.TError
     }
         /* FOR PRINT:
@@ -66,8 +79,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope, functions: List<Functio
         REALLY FANCY AND USEFUL
     var lhsType = activeScope.findType((param.lhs as Expression.Identifier))
 
-    if something is an identifier, IT HAS TO EXIST in the scope so check it here
-    else error
+
 
      */
 }
