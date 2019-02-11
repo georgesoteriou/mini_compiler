@@ -8,8 +8,10 @@ fun semanticCheck (prog: Program): Boolean {
     var valid = true
     prog.functions.forEach{
         val scope = (it.block as Statement.Block).scope
-        (it.params as Expression.ExpressionList).expressions.forEach{ i ->
-            scope.variables.add(i)
+        if(it.params != null) {
+            it.params!!.forEach { i ->
+                scope.variables.add(i)
+            }
         }
         valid = valid && checkStatements(it.block as Statement.Block, ActiveScope(Scope(),null),it.returnType, prog.functions)
     }

@@ -7,7 +7,6 @@ import java.security.InvalidParameterException
 
 class ExprVisitor: WaccParserBaseVisitor<Expression>() {
 
-
     override fun visitArg_list(ctx: WaccParser.Arg_listContext): Expression
             = Expression.ExpressionList(ctx.expr().map { it.accept(this) })
 

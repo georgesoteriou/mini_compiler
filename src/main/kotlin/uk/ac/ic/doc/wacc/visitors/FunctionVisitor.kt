@@ -11,7 +11,10 @@ class FunctionVisitor: WaccParserBaseVisitor<Function>() {
     override fun visitFunc(ctx: WaccParser.FuncContext): Function {
         val name = Expression.Identifier(ctx.IDENT().toString())
         val params = if (ctx.param_list() != null) {
-            Expression.ExpressionList(ctx.param_list().param().map { it.accept(ExprVisitor()) })
+            ctx.param_list().param().map {
+                Expression.Variable(Expression.Identifier(it.IDENT().toString()),
+                    it.type().accept(TypeVisitor()))
+            }
         } else {
             null
         }
