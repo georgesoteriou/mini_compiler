@@ -1,7 +1,6 @@
 package uk.ac.ic.doc.wacc
 
 import uk.ac.ic.doc.wacc.ast.*
-import uk.ac.ic.doc.wacc.ast.Function
 import uk.ac.ic.doc.wacc.visitors.ActiveScope
 
 fun semanticCheck (prog: Program) {
@@ -35,6 +34,13 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
 
          */
 
+    /*      FOR RETURN 
+            evaluate expression recursively to see if uniform type
+            if uniform type then see if returnable
+            if not uniform then problem
+
+         */
+
     return Type.TError
 }
 
@@ -59,14 +65,24 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
         is Statement.Exit -> exprType(param.expression,activeScope) !is Type.TInt
 
 
-        is Statement.Return -> true
+        is Statement.Return -> {
+            if (returnType is Type.TError) {
+               false
+            } else {
+                when (returnType) {
+                    is Type.TInt-> exprType(param.expression,activeScope) is Type.TInt
+                    is Type.TBool-> exprType(param.expression,activeScope) is Type.TBool
+                    is Type.TChar-> exprType(param.expression,activeScope) is Type.TChar
+                    is Type.TString-> exprType(param.expression,activeScope) is Type.TString
+                    is Type.TArray-> exprType(param.expression,activeScope) is Type.TArray
+                    is Type.TPair -> exprType(param.expression,activeScope) is Type.TPair
+                    is Type.TPairSimple -> exprType(param.expression,activeScope) is Type.TPairSimple
+                    else -> false
+                }
+            }
+        }
 
-        /*
-            evaluate expression recursively to see if uniform type
-            if uniform type then see if returnable
-            if not uniform then problem
 
-         */
 
         is Statement.FreeVariable -> true
         /*
