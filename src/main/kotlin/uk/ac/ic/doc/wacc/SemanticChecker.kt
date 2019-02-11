@@ -34,7 +34,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
 
          */
 
-    /*      FOR RETURN 
+    /*      FOR RETURN
             evaluate expression recursively to see if uniform type
             if uniform type then see if returnable
             if not uniform then problem
@@ -79,16 +79,21 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
                     is Type.TPairSimple -> exprType(param.expression,activeScope) is Type.TPairSimple
                     else -> false
                 }
+
             }
         }
 
 
 
-        is Statement.FreeVariable -> true
-        /*
-
-
-         */
+        is Statement.FreeVariable -> {
+            when (exprType(param.expression, activeScope)) {
+                is Type.TArray -> true
+                is Type.TPair -> true
+                is Type.TPairSimple -> true
+                is Type.TString -> true
+                else -> false
+            }
+        }
 
         is Statement.ReadInput -> true
         /*
