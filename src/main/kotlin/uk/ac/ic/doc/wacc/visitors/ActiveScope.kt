@@ -23,6 +23,15 @@ class ActiveScope(var currentScope: Scope, var parentScope: ActiveScope?) {
         val ret = findVar(s)
         return ret?.type ?: Type.TError
     }
+
+    fun isVarInCurrScope(s: Expression.Identifier): Boolean {
+        currentScope.variables.forEach {
+            when(it) {
+                is Expression.Variable -> if (it.name == s) { return true }
+            }
+        }
+        return false
+    }
 }
 
 var activeScope: ActiveScope? = ActiveScope(Scope(), null)
