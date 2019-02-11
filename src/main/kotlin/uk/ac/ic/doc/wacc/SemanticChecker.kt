@@ -10,10 +10,25 @@ fun semanticCheck (prog: Program) {
 }
 
 
-fun checkStatement(param: Statement, scope: ActiveScope) {
+fun checkStatements(block: Statement.Block, activeScope: ActiveScope): Boolean {
+    val newActiveScope = ActiveScope(block.scope, activeScope)
+    var valid = true
+    block.statements.forEach{
+        valid = valid && checkStatement(it, newActiveScope)
+    }
+    return valid
+}
 
-    when (param) {
-        is Statement.VariableDeclaration -> {}
+
+
+fun checkStatement(param: Statement, activeScope: ActiveScope): Boolean {
+
+    return when (param) {
+        is Statement.Block -> checkStatements(param, activeScope)
+
+
+
+        is Statement.VariableDeclaration -> true
         /* check if lhs var exists in scope
             if it does then proboem
             else:
@@ -23,12 +38,7 @@ fun checkStatement(param: Statement, scope: ActiveScope) {
                         add to activescope
          */
 
-        is Statement.VariableAssignment -> {}
+        is Statement.VariableAssignment -> true
+        else -> false
     }
-}
-
-
-fun semanticChecker (prog: Program)
-{
-
 }

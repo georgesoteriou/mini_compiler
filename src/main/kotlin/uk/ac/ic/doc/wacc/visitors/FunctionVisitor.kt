@@ -1,13 +1,11 @@
 package uk.ac.ic.doc.wacc.visitors
 
-import com.ibm.icu.impl.InvalidFormatException
 import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Function
 import uk.ac.ic.doc.wacc.ast.Statement
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 import java.lang.RuntimeException
-import java.util.*
 
 class FunctionVisitor: WaccParserBaseVisitor<Function>() {
     override fun visitFunc(ctx: WaccParser.FuncContext): Function {
