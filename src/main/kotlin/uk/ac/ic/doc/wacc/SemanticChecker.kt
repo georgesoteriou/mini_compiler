@@ -37,8 +37,8 @@ fun checkStatement(param: Statement, activeScope: ActiveScope): Boolean {
                 && checkStatements(param.elseThen as Statement.Block, activeScope)
 
 
-        is Statement.PrintLn -> true
-        
+        is Statement.PrintLn -> exprType(param.expression,activeScope) !is Type.TError
+
         /*
             evaluate expression recursively to see if:
                 expression has a uniform type
@@ -47,7 +47,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope): Boolean {
 
          */
 
-        is Statement.Print -> true
+        is Statement.Print -> exprType(param.expression,activeScope) !is Type.TError
         /*
             same as above
          */
