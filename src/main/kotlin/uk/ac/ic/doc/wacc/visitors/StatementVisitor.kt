@@ -21,7 +21,7 @@ class StatementVisitor: WaccParserBaseVisitor<Statement>() {
             ctx.type().accept(TypeVisitor())
         )
         val rhs = ctx.assign_rhs().accept(ExprVisitor())
-        activeScope!!.currentScope.variables.add(lhs)
+
         return Statement.VariableDeclaration(lhs, rhs)
             .at(ctx.start)
     }
