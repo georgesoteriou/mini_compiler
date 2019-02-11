@@ -41,6 +41,15 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
 
          */
 
+    /*
+        REALLY FANCY AND USEFUL
+    var lhsType = activeScope.findType((param.lhs as Expression.Identifier))
+
+    if something is an identifier, IT HAS TO EXIST in the scope so check it here
+    else error
+
+     */
+
     return Type.TError
 }
 
@@ -97,19 +106,18 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
 
         is Statement.ReadInput -> true
         /*
-
+            nothing to check for semantically here, any errors will be a runtime error and not a
+            semantic error
          */
 
-        is Statement.VariableAssignment -> true
-        /*
+        is Statement.VariableAssignment -> {
 
-            check if lhs var exists in scope
-            if it doesnt -> problem
-            if it does:
-                evaluate rhs to see what type
-                if types dont match -> problem
-                else : //todo
-         */
+            val lhsType = exprType(param.lhs,activeScope)
+            val rhsType = exprType(param.rhs,activeScope)
+            lhsType::class == rhsType::class
+
+
+        }
 
         is Statement.VariableDeclaration -> true
         /* check if lhs var exists in scope
