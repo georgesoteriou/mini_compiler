@@ -370,7 +370,13 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type, 
             }
         }
 
-        is Statement.ReadInput -> true
+        is Statement.ReadInput -> {
+            when (exprType(param.expression, activeScope, functions)) {
+                is Type.TInt -> true
+                is Type.TChar -> true
+                else -> false
+            }
+        }
         /*
             nothing to check for semantically here, any errors will be a runtime error and not a
             semantic error
