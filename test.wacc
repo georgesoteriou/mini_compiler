@@ -7,7 +7,7 @@
 
 begin
   pair(pair, pair) p = newpair(null, null) ;
-  print[] p ;
+  print p ;
   print " = (" ;
   pair(pair, pair) q = fst p ;
   print q ;

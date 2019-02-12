@@ -5,6 +5,8 @@ plugins {
     id 'application'
 }
 
+mainClassName = 'uk.ac.ic.doc.wacc.MainKt'
+
 group 'uk.ac.ic.doc'
 version '1.0-SNAPSHOT'
 
@@ -44,5 +46,3 @@ generateGrammarSource {
 clean {
     project.delete fileTree('build').include('*.*')
 }
-
-mainClassName = 'uk.ac.ic.doc.wacc.MainKt'
