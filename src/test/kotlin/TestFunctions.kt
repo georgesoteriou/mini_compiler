@@ -47,12 +47,12 @@ fun testInvalidSemantics (pathname: String) {
     var total = 0
     File(pathname).listFiles().forEach {
         if (it.extension == "wacc") {
-            //println("Trying: ${it.name}")
+            println("Trying: ${it.name}")
             if(!semanticCheck(parseResource(it.absolutePath))) {
                 count++
-                //println("Success: ${it.name}")
+                println("Passed Test: ${it.name}")
             } else {
-                println("Failed: ${it.name}")
+                println("Failed Test: ${it.name}")
             }
             total++
         }

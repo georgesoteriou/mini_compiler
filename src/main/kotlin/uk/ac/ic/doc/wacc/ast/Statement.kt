@@ -5,7 +5,7 @@ sealed class Statement {
     var location = Location(0, 0)
 
     class Skip : Statement()
-    data class VariableDeclaration(var lhs: Expression, var rhs: Expression) : Statement()
+    data class VariableDeclaration(var lhs: Definition, var rhs: Expression) : Statement()
     data class VariableAssignment(var lhs: Expression, var rhs: Expression) : Statement()
     data class ReadInput(var expression: Expression) : Statement()
     data class FreeVariable(var expression: Expression) : Statement()
