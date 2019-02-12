@@ -28,19 +28,4 @@ open class Type {
             return false
         }
     }
-
-    override fun equals(other: Any?): Boolean {
-        if(this is TError || other is TError) return false
-        if(this::class == other!!::class) return true
-        if(this is TAny || other is TAny) return true
-        if(this is TPair && other is TPair) {
-            return compare(this.t1, other.t1) && compare(this.t2, other.t2)
-        }
-        return false
-    }
-
-    override fun hashCode(): Int {
-        return javaClass.hashCode()
-    }
-
 }
