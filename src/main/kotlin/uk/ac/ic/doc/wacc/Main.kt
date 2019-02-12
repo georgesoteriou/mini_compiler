@@ -14,6 +14,7 @@ fun main(args : Array<String>) {
         return
     }
 
+
     fun lexerForResource(resourceName: String) = WaccLexer(CharStreams.fromFileName(resourceName))
     fun tokenStream(resourceName: String) = CommonTokenStream(lexerForResource(resourceName))
     fun parseResource(resourceName: String) = WaccParser(tokenStream(resourceName)).prog()

@@ -1,2 +1,2 @@
 
-./gradlew run -Dargs="$1"
+./gradlew run -Dargs="$1"; gradlew_return_code=$?

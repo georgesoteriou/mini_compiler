@@ -36,7 +36,8 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
             return valid
         }
 
-        is Statement.While -> exprType(param.condition, activeScope) is Type.TBool
+        is Statement.While ->
+            exprType(param.condition, activeScope) is Type.TBool
                 && checkStatement(param.then as Statement.Block, activeScope,returnType)
 
         is Statement.If -> exprType(param.condition, activeScope) is Type.TBool
@@ -93,7 +94,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
                             next && type.first == exprType(type.second, activeScope)
                         }
             } else {
-                lhsType == rhsType
+                Type.compare(lhsType, rhsType)
             }
         }
 
@@ -124,6 +125,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
                 return false
             }
             return if(lhs.type == rhsType) {
+                lhs.type = rhsType
                 activeScope.add(lhs)
                 true
             } else {
@@ -283,7 +285,8 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type &&
+
+            return if (Type.compare(e1Type, e2Type) &&
                 e1Type !is Type.TError )
             {
                 Type.TBool
