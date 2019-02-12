@@ -1,15 +1,18 @@
-# program performs boolean operations on arrays
+# print a pair of null pairs
 
 # Output:
-# #semantic_error#
-
-# Exit:
-# 200
+# #addrs# = ((nil),(nil))
 
 # Program:
 
 begin
-  int x = 1;
-  int y = 2;
-  println x > y
+  pair(pair, pair) p = newpair(null, null) ;
+  print p ;
+  print " = (" ;
+  pair(pair, pair) q = fst p ;
+  print q ;
+  print "," ;
+  pair(int, bool) r = snd p ;
+  print r ;
+  println ")"
 end

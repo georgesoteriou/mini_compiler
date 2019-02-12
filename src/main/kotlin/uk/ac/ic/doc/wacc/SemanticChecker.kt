@@ -36,7 +36,8 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
             return valid
         }
 
-        is Statement.While -> exprType(param.condition, activeScope) is Type.TBool
+        is Statement.While ->
+            exprType(param.condition, activeScope) is Type.TBool
                 && checkStatement(param.then as Statement.Block, activeScope,returnType)
 
         is Statement.If -> exprType(param.condition, activeScope) is Type.TBool
@@ -88,12 +89,12 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
                 if(funType.params.size != rhs.params.size) {
                     return false
                 }
-                return lhsType == funType.type &&
+                return Type.compare(lhsType, funType.type) &&
                         funType.params.zip(rhs.params).foldRight(true) { type, next ->
-                            next && type.first == exprType(type.second, activeScope)
+                            next && Type.compare(type.first, exprType(type.second, activeScope))
                         }
             } else {
-                lhsType == rhsType
+                Type.compare(lhsType, rhsType)
             }
         }
 
@@ -108,9 +109,9 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
                 if(funType.params.size != rhs.params.size) {
                     return false
                 }
-                val funtype = lhs.type == funType.type &&
+                val funtype = Type.compare(lhs.type,funType.type) &&
                         funType.params.zip(rhs.params).foldRight(true) { type, next ->
-                            next && type.first == exprType(type.second, activeScope)
+                            next && Type.compare(type.first, exprType(type.second, activeScope))
                         }
 
                 if (!funtype || activeScope.isVarInCurrScope(lhs.name)) {
@@ -123,7 +124,8 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
             if (activeScope.isVarInCurrScope(lhs.name)) {
                 return false
             }
-            return if(lhs.type == rhsType) {
+            return if(Type.compare(lhs.type,rhsType)) {
+                lhs.type = rhsType
                 activeScope.add(lhs)
                 true
             } else {
@@ -155,7 +157,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type && e1Type is Type.TInt)
+            return if (Type.compare(e1Type, e2Type) && e1Type is Type.TInt)
             {
                 Type.TInt
             } else {
@@ -167,7 +169,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type && e1Type is Type.TInt)
+            return if (Type.compare(e1Type, e2Type) && e1Type is Type.TInt)
             {
                 Type.TInt
             } else {
@@ -179,7 +181,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type && e1Type is Type.TInt)
+            return if (Type.compare(e1Type, e2Type) && e1Type is Type.TInt)
             {
                 Type.TInt
             } else {
@@ -191,7 +193,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type && e1Type is Type.TInt)
+            return if (Type.compare(e1Type, e2Type) && e1Type is Type.TInt)
             {
                 Type.TInt
             } else {
@@ -203,7 +205,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type && e1Type is Type.TInt)
+            return if (Type.compare(e1Type, e2Type) && e1Type is Type.TInt)
             {
                 Type.TInt
             } else {
@@ -215,7 +217,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type &&
+            return if (Type.compare(e1Type, e2Type) &&
                 ( e1Type is Type.TInt || e1Type is Type.TChar))
             {
                 Type.TBool
@@ -228,7 +230,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type &&
+            return if (Type.compare(e1Type, e2Type) &&
                 ( e1Type is Type.TInt || e1Type is Type.TChar))
             {
                 Type.TBool
@@ -241,7 +243,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type &&
+            return if (Type.compare(e1Type, e2Type) &&
                 ( e1Type is Type.TInt || e1Type is Type.TChar))
             {
                 Type.TBool
@@ -254,7 +256,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type &&
+            return if (Type.compare(e1Type, e2Type) &&
                 ( e1Type is Type.TInt || e1Type is Type.TChar))
             {
                 Type.TBool
@@ -267,7 +269,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type &&
+            return if (Type.compare(e1Type, e2Type) &&
                  e1Type !is Type.TError)
             {
                 Type.TBool
@@ -283,7 +285,8 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type &&
+
+            return if (Type.compare(e1Type, e2Type) &&
                 e1Type !is Type.TError )
             {
                 Type.TBool
@@ -296,7 +299,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type &&
+            return if (Type.compare(e1Type, e2Type) &&
                 e1Type is Type.TBool)
             {
                 Type.TBool
@@ -309,7 +312,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
 
-            return if (e1Type == e2Type &&
+            return if (Type.compare(e1Type, e2Type) &&
                 e1Type is Type.TBool)
             {
                 Type.TBool
@@ -378,7 +381,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             var arrType = activeScope.findDef(expr.array).orElse(Type.TError)
             repeat(expr.indexes.size) {
                 when (arrType) {
-                    is Type.TArray -> arrType = (arrType as Type.TArray).type
+                    is Type.TArray -> Type.compare(arrType, (arrType as Type.TArray).type)
                     else -> arrType = Type.TError
                 }
             }

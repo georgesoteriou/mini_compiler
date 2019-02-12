@@ -36,7 +36,7 @@ class TypeVisitor: WaccParserBaseVisitor<Type>() {
         return if(ctx.PAIR() == null) {
             super.visitPair_elem_type(ctx)
         } else {
-            Type.TPairSimple
+            Type.TPair(Type.TAny,Type.TAny)
         }
     }
 
