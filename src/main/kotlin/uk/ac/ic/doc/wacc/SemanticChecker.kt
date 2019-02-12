@@ -88,9 +88,10 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
                 if(funType.params.size != rhs.params.size) {
                     return false
                 }
-                return funType.params.zip(rhs.params).foldRight(true) { type, next ->
-                        next && type.first == exprType(type.second, activeScope) } &&
-                        lhsType == funType.type
+                return lhsType == funType.type &&
+                        funType.params.zip(rhs.params).foldRight(true) { type, next ->
+                            next && type.first == exprType(type.second, activeScope)
+                        }
             } else {
                 lhsType == rhsType
             }
@@ -100,7 +101,6 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
             val lhs = param.lhs
             val rhsType = exprType(param.rhs, activeScope)
 
-            var funtype = true
             val rhs = param.rhs
             if(rhs is Expression.CallFunction) {
                 val funType = activeScope.findDef(rhs.name).orElse(Type.TError) as? Type.TFunction ?: return false
@@ -108,12 +108,19 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
                 if(funType.params.size != rhs.params.size) {
                     return false
                 }
-                funtype = funType.params.zip(rhs.params).foldRight(true) { type, next ->
-                    next && type.first == exprType(type.second, activeScope) } &&
-                        lhs.type == funType.type
+                val funtype = lhs.type == funType.type &&
+                        funType.params.zip(rhs.params).foldRight(true) { type, next ->
+                            next && type.first == exprType(type.second, activeScope)
+                        }
+
+                if (!funtype || activeScope.isVarInCurrScope(lhs.name)) {
+                    return false
+                }
+                activeScope.add(lhs)
+                return true
             }
 
-            if (!funtype || activeScope.isVarInCurrScope(lhs.name)) {
+            if (activeScope.isVarInCurrScope(lhs.name)) {
                 return false
             }
             return if(lhs.type == rhsType) {
@@ -131,17 +138,17 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
 
 fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
 
-    when (expr) {
-        is Expression.CallFunction -> return activeScope.findDef(expr.name).orElse(Type.TError)
+    return when (expr) {
+        is Expression.CallFunction -> activeScope.findDef(expr.name).orElse(Type.TError)
 
-        is Expression.Identifier -> return activeScope.findDef(expr.name).orElse(Type.TError)
+        is Expression.Identifier -> activeScope.findDef(expr.name).orElse(Type.TError)
 
-        is Expression.Literal.LInt -> return Type.TInt
-        is Expression.Literal.LBool -> return Type.TBool
-        is Expression.Literal.LChar -> return Type.TChar
-        is Expression.Literal.LString-> return Type.TString
-        is Expression.Literal.LPair -> return Type.TPair(Type.TAny, Type.TAny)
-        is Expression.NewPair -> return Type.TPair(exprType(expr.e1,activeScope), exprType(expr.e2,activeScope))
+        is Expression.Literal.LInt -> Type.TInt
+        is Expression.Literal.LBool -> Type.TBool
+        is Expression.Literal.LChar -> Type.TChar
+        is Expression.Literal.LString-> Type.TString
+        is Expression.Literal.LPair -> Type.TPair(Type.TAny, Type.TAny)
+        is Expression.NewPair -> Type.TPair(exprType(expr.e1,activeScope), exprType(expr.e2,activeScope))
 
 
         is Expression.BinaryOperator.BMult -> {
