@@ -1,13 +1,2 @@
-#!/usr/bin/ruby
-# Ruby front-end for your compiler.
-# You are free to change the language used for this script,
-# but do *not* change its name.
 
-#if ARGV.empty?
-#    puts "no file found"
-#elsif File.extname(ARGV[0]) != ".wacc"
-#    puts "File provided is not a wacc file"
-#else
-#    x = kotlinc src/kotlin/uk/ac/ic/doc/wacc/*.kt -d wacc.jar
-#    exec x
-#end
+./gradlew run -Dargs="$1"
