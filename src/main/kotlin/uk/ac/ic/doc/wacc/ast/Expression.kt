@@ -2,11 +2,9 @@ package uk.ac.ic.doc.wacc.ast
 
 sealed class Expression {
 
-    data class Variable(var name: Identifier, var type: Type): Expression()
-    data class CallFunction(var name: Identifier, var params: Expression?): Expression()
+    data class CallFunction(var name: String, var params: List<Expression>): Expression()
 
-    data class ExpressionList(var expressions: List<Expression>) : Expression()
-    data class ExpressionPair(var e1: Expression, var e2: Expression) : Expression()
+    data class NewPair(var e1: Expression, var e2: Expression) : Expression()
 
     data class Identifier(var name: String): Expression()
 
@@ -15,6 +13,7 @@ sealed class Expression {
         data class LBool(var bool: Boolean): Literal()
         data class LChar(var char: Char): Literal()
         data class LString(var string: String): Literal()
+        data class LArray(var params: List<Expression>): Literal()
         object LPair: Literal()
     }
 
@@ -42,7 +41,7 @@ sealed class Expression {
         data class UChr (var expression: Expression): UnaryOperator()
     }
 
-    data class ArrayElem(var array: Expression, var indexes: Expression): Expression()
+    data class ArrayElem(var array: String, var indexes: List<Expression>): Expression()
     data class Fst  (var expression: Expression): Expression()
     data class Snd  (var expression: Expression): Expression()
 

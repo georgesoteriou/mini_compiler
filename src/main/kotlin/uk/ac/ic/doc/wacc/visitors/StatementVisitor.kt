@@ -1,6 +1,7 @@
 package uk.ac.ic.doc.wacc.visitors
 
 import org.antlr.v4.runtime.Token
+import uk.ac.ic.doc.wacc.ast.Definition
 import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Scope
 import uk.ac.ic.doc.wacc.ast.Statement
@@ -16,8 +17,8 @@ class StatementVisitor: WaccParserBaseVisitor<Statement>() {
     }
 
     override fun visitDeclare(ctx: WaccParser.DeclareContext): Statement {
-        val lhs = Expression.Variable(
-            Expression.Identifier(ctx.IDENT().toString()),
+        val lhs = Definition(
+            ctx.IDENT().toString(),
             ctx.type().accept(TypeVisitor())
         )
         val rhs = ctx.assign_rhs().accept(ExprVisitor())
@@ -83,9 +84,7 @@ class StatementVisitor: WaccParserBaseVisitor<Statement>() {
 
     override fun visitStat_list(ctx: WaccParser.Stat_listContext): Statement {
         val scope = Scope()
-        activeScope = ActiveScope(scope, activeScope)
         val block = Statement.Block(ctx.stat().map { it.accept(this) }, scope)
-        activeScope = activeScope!!.parentScope
         return block.at(ctx.start)
     }
 

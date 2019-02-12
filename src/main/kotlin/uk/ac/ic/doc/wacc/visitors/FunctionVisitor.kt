@@ -1,27 +1,33 @@
 package uk.ac.ic.doc.wacc.visitors
 
-import uk.ac.ic.doc.wacc.ast.Expression
+import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.ast.Function
-import uk.ac.ic.doc.wacc.ast.Statement
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 import java.lang.RuntimeException
+import java.util.*
 
 class FunctionVisitor: WaccParserBaseVisitor<Function>() {
     override fun visitFunc(ctx: WaccParser.FuncContext): Function {
-        val name = Expression.Identifier(ctx.IDENT().toString())
-        val params = if (ctx.param_list() != null) {
+        val name = ctx.IDENT().toString()
+        val paramNames = if (ctx.param_list() != null) {
             ctx.param_list().param().map {
-                Expression.Variable(Expression.Identifier(it.IDENT().toString()),
-                    it.type().accept(TypeVisitor()))
+                it.IDENT().toString()
             }
         } else {
-            null
+            Collections.emptyList()
+        }
+        val paramTypes = if (ctx.param_list() != null) {
+            ctx.param_list().param().map {
+                it.type().accept(TypeVisitor())
+            }
+        } else {
+            Collections.emptyList()
         }
         val block = ctx.stat_list().accept(StatementVisitor())
         checkReturn(block as Statement.Block)
-        val thisRetType = ctx.type().accept(TypeVisitor())
-        return Function(name, params, block,thisRetType)
+        val funType = Type.TFunction(ctx.type().accept(TypeVisitor()), paramTypes)
+        return Function(name, paramNames, block, funType)
     }
 }
 

@@ -1,5 +1,5 @@
 package uk.ac.ic.doc.wacc.ast
 
 class Scope {
-    var variables: MutableList<Expression> = arrayListOf()
+    var definitions: MutableMap<String, Type> = hashMapOf()
 }

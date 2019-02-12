@@ -4,18 +4,15 @@ import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 import java.security.InvalidParameterException
+import java.util.*
 
 class ExprVisitor: WaccParserBaseVisitor<Expression>() {
 
-    override fun visitArg_list(ctx: WaccParser.Arg_listContext): Expression
-            = Expression.ExpressionList(ctx.expr().map { it.accept(this) })
-
     override fun visitCallFunc(ctx: WaccParser.CallFuncContext): Expression {
-        val name = Expression.Identifier(ctx.IDENT().toString())
-        return when {
-            ctx.arg_list() != null -> Expression.CallFunction(name, ctx.arg_list().accept(this))
-            else -> Expression.CallFunction(name,null)
-        }
+        val name = ctx.IDENT().toString()
+        return Expression.CallFunction(name, ctx.arg_list()?.expr()?.map {
+            it.accept(this) } ?: Collections.emptyList() )
+
     }
 
     override fun visitBinaryOp(ctx: WaccParser.BinaryOpContext): Expression {
@@ -39,19 +36,6 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
             else -> throw InvalidParameterException("Binary Op does not exist")
         }
 
-        /*
-        when (a)  {
-            is Expression.BinaryOperator.BMult -> // repeat onwards for BPlus, BMinus, BMult, BMod, BDiv
-                /*
-                    Type x = evaluate e1 recursively to obtain overall type
-                    Type y = evaluate e2 recursively to obtain overall type
-
-                    add an extra type : error type
-
-                    if x or y is an errortype then problem
-                        if x and y dont have the same type then problem
-
-                 */ */
     }
 
 
@@ -93,16 +77,16 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
     override fun visitNewPair(ctx: WaccParser.NewPairContext): Expression {
         val e1 = ctx.expr(0).accept(this)
         val e2 = ctx.expr(1).accept(this)
-        return Expression.ExpressionPair(e1, e2)
+        return Expression.NewPair(e1, e2)
     }
 
     override fun visitArray_liter(ctx: WaccParser.Array_literContext): Expression {
-        return Expression.ExpressionList(ctx.expr().map { it.accept(this) })
+        return Expression.Literal.LArray(ctx.expr().map { it.accept(this) })
     }
 
     override fun visitArray_elem(ctx: WaccParser.Array_elemContext): Expression {
-        val array =  Expression.Identifier(ctx.IDENT().toString())
-        val indexes = Expression.ExpressionList(ctx.expr().map { it.accept(this) })
+        val array =  ctx.IDENT().toString()
+        val indexes = ctx.expr().map { it.accept(this) }
         return Expression.ArrayElem(array, indexes)
     }
 
