@@ -1,6 +1,6 @@
 import org.junit.Test
 
-class SemanticTests {
+class InvalidTests {
 
     @Test
     fun invalidExit() {
@@ -60,6 +60,51 @@ class SemanticTests {
     @Test
     fun invalidWhile() {
         testSynAndSem("src/test/resources/invalid/semanticErr/while/", 200)
+    }
+
+    @Test
+    fun invalidSyntaxErrBasic() {
+        testSynAndSem("src/test/resources/invalid/syntaxErr/basic/", 100)
+    }
+
+    @Test
+    fun invalidSyntaxErrArray() {
+        testSynAndSem("src/test/resources/invalid/syntaxErr/array/", 100)
+    }
+
+    @Test
+    fun invalidSyntaxErrExpressions() {
+        testSynAndSem("src/test/resources/invalid/syntaxErr/expressions/", 100)
+    }
+
+    @Test
+    fun invalidSyntaxErrFunction() {
+        testSynAndSem("src/test/resources/invalid/syntaxErr/function/", 100)
+    }
+
+    @Test
+    fun invalidSyntaxErrIf() {
+        testSynAndSem("src/test/resources/invalid/syntaxErr/if/", 100)
+    }
+
+    @Test
+    fun invalidSyntaxErrPairs() {
+        testSynAndSem("src/test/resources/invalid/syntaxErr/pairs/", 100)
+    }
+
+    @Test
+    fun invalidSyntaxErrSequence() {
+        testSynAndSem("src/test/resources/invalid/syntaxErr/sequence/", 100)
+    }
+
+    @Test
+    fun invalidSyntaxErrVariables() {
+        testSynAndSem("src/test/resources/invalid/syntaxErr/variables/", 100)
+    }
+
+    @Test
+    fun invalidSyntaxErrWhile() {
+        testSynAndSem("src/test/resources/invalid/syntaxErr/while/", 100)
     }
 
 }

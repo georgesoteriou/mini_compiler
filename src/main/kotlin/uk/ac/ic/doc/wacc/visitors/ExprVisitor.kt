@@ -3,7 +3,6 @@ package uk.ac.ic.doc.wacc.visitors
 import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
-import java.security.InvalidParameterException
 import java.util.*
 
 class ExprVisitor : WaccParserBaseVisitor<Expression>() {
@@ -24,7 +23,7 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
             ctx.MULT() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.MULT)
             ctx.DIV() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.DIV)
             ctx.MOD() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.MOD)
-            else -> throw InvalidParameterException("Binary Op does not exist")
+            else -> throw RuntimeException("Binary Op does not exist")
         }
     }
 
@@ -35,7 +34,7 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
         return when {
             ctx.PLUS() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.PLUS)
             ctx.MINUS() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.MINUS)
-            else -> throw InvalidParameterException("Binary Op does not exist")
+            else -> throw RuntimeException("Binary Op does not exist")
         }
     }
 
@@ -48,7 +47,7 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
             ctx.GTE() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.GTE)
             ctx.LT() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.LT)
             ctx.LTE() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.LTE)
-            else -> throw InvalidParameterException("Binary Op does not exist")
+            else -> throw RuntimeException("Binary Op does not exist")
         }
     }
 
@@ -59,7 +58,7 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
         return when {
             ctx.EQ() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.EQ)
             ctx.NOTEQ() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.NOTEQ)
-            else -> throw InvalidParameterException("Binary Op does not exist")
+            else -> throw RuntimeException("Binary Op does not exist")
         }
     }
 
@@ -84,7 +83,7 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
             ctx.unaryOper().LEN() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.LEN)
             ctx.unaryOper().ORD() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.ORD)
             ctx.unaryOper().CHR() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.CHR)
-            else -> throw InvalidParameterException("Unary Op does not exist")
+            else -> throw RuntimeException("Unary Op does not exist")
         }
     }
 
