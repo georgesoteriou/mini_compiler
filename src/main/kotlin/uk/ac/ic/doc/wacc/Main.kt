@@ -29,7 +29,6 @@ fun main(args : Array<String>) {
     try {
         val visitor = ProgramVisitor()
         val program = parseResource(args[0]).accept(visitor)
-        //println(program.toString())
 
         if(!semanticCheck(program)) {
             exitProcess(200)
