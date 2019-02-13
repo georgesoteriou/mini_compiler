@@ -17,29 +17,17 @@ sealed class Expression {
         object LPair: Literal()
     }
 
-    sealed class BinaryOperator: Expression() {
-        data class BMult (var e1: Expression, var e2: Expression): BinaryOperator()
-        data class BDiv  (var e1: Expression, var e2: Expression): BinaryOperator()
-        data class BMod  (var e1: Expression, var e2: Expression): BinaryOperator()
-        data class BPlus (var e1: Expression, var e2: Expression): BinaryOperator()
-        data class BMinus(var e1: Expression, var e2: Expression): BinaryOperator()
-        data class BGT   (var e1: Expression, var e2: Expression): BinaryOperator()
-        data class BGTE  (var e1: Expression, var e2: Expression): BinaryOperator()
-        data class BLT   (var e1: Expression, var e2: Expression): BinaryOperator()
-        data class BLTE  (var e1: Expression, var e2: Expression): BinaryOperator()
-        data class BEQ   (var e1: Expression, var e2: Expression): BinaryOperator()
-        data class BNotEQ(var e1: Expression, var e2: Expression): BinaryOperator()
-        data class BAnd  (var e1: Expression, var e2: Expression): BinaryOperator()
-        data class BOr   (var e1: Expression, var e2: Expression): BinaryOperator()
+    enum class BinaryOperator{
+        MULT, DIV, MOD, PLUS, MINUS, GT, GTE, LT, LTE, EQ, NOTEQ, AND, OR
     }
 
-    sealed class UnaryOperator: Expression() {
-        data class UNot  (var expression: Expression): UnaryOperator()
-        data class UMinus(var expression: Expression): UnaryOperator()
-        data class ULen  (var expression: Expression): UnaryOperator()
-        data class UOrd  (var expression: Expression): UnaryOperator()
-        data class UChr (var expression: Expression): UnaryOperator()
+    data class BinaryOperation(var e1: Expression, var e2: Expression, var operator: BinaryOperator): Expression()
+
+    enum class UnaryOperator{
+        NOT, MINUS, LEN, ORD, CHR
     }
+
+    data class UnaryOperation(var expression: Expression, var operator: UnaryOperator): Expression()
 
     data class ArrayElem(var array: String, var indexes: List<Expression>): Expression()
     data class Fst  (var expression: Expression): Expression()

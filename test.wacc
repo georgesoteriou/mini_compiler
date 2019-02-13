@@ -1,18 +1,21 @@
-# print a pair of null pairs
+# Tests scoping with most variable types
 
 # Output:
-# #addrs# = ((nil),(nil))
+# ( [1, 2, 3] , [a, b, c] )
+# [ #addrs# = (a, true), #addrs# = (b, false) ]
+# 1, 2
+# array, of, strings
+# true, false, true
+# xyz
+# 1, 2, 3
+# this is a string
+# true
+# x
+# 5
 
 # Program:
 
 begin
-  pair(pair, pair) p = newpair(null, null) ;
-  print p ;
-  print " = (" ;
-  pair(pair, pair) q = fst p ;
-  print q ;
-  print "," ;
-  pair(int, bool) r = snd p ;
-  print r ;
-  println ")"
+	pair(int, int) p = null ;
+	read fst p
 end

@@ -3,6 +3,23 @@ package uk.ac.ic.doc.wacc
 import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.visitors.ActiveScope
 
+fun errorLog(it: Statement) {
+    when(it) {
+        is Statement.Block -> println("Error within Block starting at line ${it.location.lineNum}")
+        is Statement.While -> println("Error within While starting at line ${it.location.lineNum}")
+        is Statement.If -> println("Error within If starting at line ${it.location.lineNum}")
+        is Statement.Print -> println("Error in print at line ${it.location.lineNum}")
+        is Statement.PrintLn -> println("Error in println at line ${it.location.lineNum}")
+        is Statement.Exit -> println("Error in exit at line ${it.location.lineNum}")
+        is Statement.Return -> println("Error in return at line ${it.location.lineNum}")
+        is Statement.FreeVariable -> println("Error in free at line ${it.location.lineNum}")
+        is Statement.ReadInput -> println("Error in read at line ${it.location.lineNum}")
+        is Statement.VariableAssignment -> println("Error in assignment at line ${it.location.lineNum}")
+        is Statement.VariableDeclaration -> println("Error in declaration at line ${it.location.lineNum}")
+        is Statement.Skip -> println("Error in skip at line ${it.location.lineNum}")
+    }
+}
+
 fun semanticCheck (prog: Program): Boolean {
     var valid = true
     val activeScope = ActiveScope(Scope(), null)
@@ -29,7 +46,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
                 val check = checkStatement(it, newActiveScope, returnType)
                 if (!check)
                 {
-                    println(it.location)
+                    errorLog(it)
                 }
                 valid = valid && check
             }
@@ -138,6 +155,8 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
 }
 
 
+
+
 fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
 
     return when (expr) {
@@ -150,225 +169,104 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
         is Expression.Literal.LChar -> Type.TChar
         is Expression.Literal.LString-> Type.TString
         is Expression.Literal.LPair -> Type.TPair(Type.TAny, Type.TAny)
+        is Expression.Literal.LArray -> {
+            var arrayElemType:Type  = Type.TAny
+            expr.params.forEach {
+                val itType = exprType(it,activeScope)
+                if (Type.compare(itType, arrayElemType)) {
+                    arrayElemType = itType
+                } else {
+                    arrayElemType = Type.TError
+                }
+            }
+            val array = Type.TArray(arrayElemType)
+            array.size = expr.params.size
+            return array
+        }
         is Expression.NewPair -> Type.TPair(exprType(expr.e1,activeScope), exprType(expr.e2,activeScope))
 
 
-        is Expression.BinaryOperator.BMult -> {
+        is Expression.BinaryOperation -> {
             val e1Type = exprType(expr.e1,activeScope)
             val e2Type = exprType(expr.e2,activeScope)
-
-            return if (Type.compare(e1Type, e2Type) && e1Type is Type.TInt)
-            {
-                Type.TInt
+            val op = expr.operator
+            return if (Type.compare(e1Type, e2Type)) {
+                when(op) {
+                    Expression.BinaryOperator.MULT,
+                    Expression.BinaryOperator.DIV,
+                    Expression.BinaryOperator.MOD,
+                    Expression.BinaryOperator.PLUS,
+                    Expression.BinaryOperator.MINUS ->
+                        if(e1Type is Type.TInt) {
+                            Type.TInt
+                        } else {
+                            Type.TError
+                        }
+                    Expression.BinaryOperator.GT,
+                    Expression.BinaryOperator.GTE,
+                    Expression.BinaryOperator.LT,
+                    Expression.BinaryOperator.LTE ->
+                        if(e1Type is Type.TInt || e1Type is Type.TChar) {
+                            Type.TBool
+                        } else {
+                            Type.TError
+                        }
+                    Expression.BinaryOperator.EQ,
+                    Expression.BinaryOperator.NOTEQ ->
+                        if(e1Type !is Type.TError) {
+                            Type.TBool
+                        } else {
+                            Type.TError
+                        }
+                    Expression.BinaryOperator.AND,
+                    Expression.BinaryOperator.OR ->
+                        if(e1Type is Type.TBool) {
+                            Type.TBool
+                        } else {
+                            Type.TError
+                        }
+                }
             } else {
                 Type.TError
             }
         }
 
-        is Expression.BinaryOperator.BDiv -> {
-            val e1Type = exprType(expr.e1,activeScope)
-            val e2Type = exprType(expr.e2,activeScope)
-
-            return if (Type.compare(e1Type, e2Type) && e1Type is Type.TInt)
-            {
-                Type.TInt
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.BinaryOperator.BMod -> {
-            val e1Type = exprType(expr.e1,activeScope)
-            val e2Type = exprType(expr.e2,activeScope)
-
-            return if (Type.compare(e1Type, e2Type) && e1Type is Type.TInt)
-            {
-                Type.TInt
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.BinaryOperator.BPlus -> {
-            val e1Type = exprType(expr.e1,activeScope)
-            val e2Type = exprType(expr.e2,activeScope)
-
-            return if (Type.compare(e1Type, e2Type) && e1Type is Type.TInt)
-            {
-                Type.TInt
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.BinaryOperator.BMinus -> {
-            val e1Type = exprType(expr.e1,activeScope)
-            val e2Type = exprType(expr.e2,activeScope)
-
-            return if (Type.compare(e1Type, e2Type) && e1Type is Type.TInt)
-            {
-                Type.TInt
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.BinaryOperator.BGT -> {
-            val e1Type = exprType(expr.e1,activeScope)
-            val e2Type = exprType(expr.e2,activeScope)
-
-            return if (Type.compare(e1Type, e2Type) &&
-                ( e1Type is Type.TInt || e1Type is Type.TChar))
-            {
-                Type.TBool
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.BinaryOperator.BGTE -> {
-            val e1Type = exprType(expr.e1,activeScope)
-            val e2Type = exprType(expr.e2,activeScope)
-
-            return if (Type.compare(e1Type, e2Type) &&
-                ( e1Type is Type.TInt || e1Type is Type.TChar))
-            {
-                Type.TBool
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.BinaryOperator.BLT -> {
-            val e1Type = exprType(expr.e1,activeScope)
-            val e2Type = exprType(expr.e2,activeScope)
-
-            return if (Type.compare(e1Type, e2Type) &&
-                ( e1Type is Type.TInt || e1Type is Type.TChar))
-            {
-                Type.TBool
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.BinaryOperator.BLTE -> {
-            val e1Type = exprType(expr.e1,activeScope)
-            val e2Type = exprType(expr.e2,activeScope)
-
-            return if (Type.compare(e1Type, e2Type) &&
-                ( e1Type is Type.TInt || e1Type is Type.TChar))
-            {
-                Type.TBool
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.BinaryOperator.BEQ -> {
-            val e1Type = exprType(expr.e1,activeScope)
-            val e2Type = exprType(expr.e2,activeScope)
-
-            return if (Type.compare(e1Type, e2Type) &&
-                 e1Type !is Type.TError)
-            {
-                Type.TBool
-            } else if ( (e1Type is Type.TPair && e2Type is Type.TPairSimple) ||
-                (e1Type is Type.TPairSimple && e2Type is Type.TPair)) {
-                Type.TBool
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.BinaryOperator.BNotEQ -> {
-            val e1Type = exprType(expr.e1,activeScope)
-            val e2Type = exprType(expr.e2,activeScope)
-
-
-            return if (Type.compare(e1Type, e2Type) &&
-                e1Type !is Type.TError )
-            {
-                Type.TBool
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.BinaryOperator.BAnd -> {
-            val e1Type = exprType(expr.e1,activeScope)
-            val e2Type = exprType(expr.e2,activeScope)
-
-            return if (Type.compare(e1Type, e2Type) &&
-                e1Type is Type.TBool)
-            {
-                Type.TBool
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.BinaryOperator.BOr -> {
-            val e1Type = exprType(expr.e1,activeScope)
-            val e2Type = exprType(expr.e2,activeScope)
-
-            return if (Type.compare(e1Type, e2Type) &&
-                e1Type is Type.TBool)
-            {
-                Type.TBool
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.UnaryOperator.UNot -> {
+        is Expression.UnaryOperation -> {
             val eType = exprType(expr.expression,activeScope)
-
-            return if (eType is Type.TBool) {
-                Type.TBool
-            } else {
-                Type.TError
+            val op = expr.operator
+            return when(op) {
+                Expression.UnaryOperator.NOT ->
+                    if (eType is Type.TBool) {
+                        Type.TBool
+                    } else {
+                        Type.TError
+                    }
+                Expression.UnaryOperator.MINUS ->
+                    if (eType is Type.TInt) {
+                        Type.TInt
+                    } else {
+                        Type.TError
+                    }
+                Expression.UnaryOperator.LEN ->
+                    if (eType is Type.TArray) {
+                        Type.TInt
+                    } else {
+                        Type.TError
+                    }
+                Expression.UnaryOperator.ORD ->
+                    if (eType is Type.TChar) {
+                        Type.TInt
+                    } else {
+                        Type.TError
+                    }
+                Expression.UnaryOperator.CHR ->
+                    if (eType is Type.TInt) {
+                        Type.TChar
+                    } else {
+                        Type.TError
+                    }
             }
-        }
 
-        is Expression.UnaryOperator.UMinus -> {
-            val eType = exprType(expr.expression,activeScope)
-
-            return if (eType is Type.TInt) {
-                Type.TInt
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.UnaryOperator.ULen -> {
-            val eType = exprType(expr.expression,activeScope)
-
-            return if (eType is Type.TArray) {
-                Type.TInt
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.UnaryOperator.UOrd -> {
-            val eType = exprType(expr.expression,activeScope)
-
-            return if (eType is Type.TChar) {
-                Type.TInt
-            } else {
-                Type.TError
-            }
-        }
-
-        is Expression.UnaryOperator.UChr -> {
-            val eType = exprType(expr.expression,activeScope)
-
-            return if (eType is Type.TInt) {
-                Type.TChar
-            } else {
-                Type.TError
-            }
         }
 
         is Expression.ArrayElem -> {
@@ -381,7 +279,8 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
             var arrType = activeScope.findDef(expr.array).orElse(Type.TError)
             repeat(expr.indexes.size) {
                 when (arrType) {
-                    is Type.TArray -> Type.compare(arrType, (arrType as Type.TArray).type)
+                    is Type.TArray  -> arrType = (arrType as Type.TArray).type
+                    is Type.TString -> arrType = Type.TChar
                     else -> arrType = Type.TError
                 }
             }
@@ -405,7 +304,5 @@ fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
                 else -> Type.TError
             }
         }
-
-        else -> return Type.TError
     }
 }
