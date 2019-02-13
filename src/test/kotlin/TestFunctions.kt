@@ -39,7 +39,7 @@ fun testSynAndSem(pathname: String, expectedExit: Int){
             }
             if(exit != expectedExit) {
                 fail = true
-                print("Failed: ${it.name}, Expected $expectedExit but got $exit")
+                println("Failed: ${it.name}, Expected $expectedExit but got $exit")
             }
         }
     }
