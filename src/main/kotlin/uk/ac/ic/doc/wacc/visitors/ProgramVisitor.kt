@@ -6,9 +6,9 @@ import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 import kotlin.system.exitProcess
 
-class ProgramVisitor: WaccParserBaseVisitor<Program>() {
+class ProgramVisitor : WaccParserBaseVisitor<Program>() {
     override fun visitProg(ctx: WaccParser.ProgContext): Program {
-        val functions = ctx.func().map {it.accept(FunctionVisitor())}
+        val functions = ctx.func().map { it.accept(FunctionVisitor()) }
         //
         val prog = ctx.stat_list().accept(StatementVisitor())
         return Program(functions, prog)

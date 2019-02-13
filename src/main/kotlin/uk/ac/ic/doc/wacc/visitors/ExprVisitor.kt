@@ -6,12 +6,13 @@ import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 import java.security.InvalidParameterException
 import java.util.*
 
-class ExprVisitor: WaccParserBaseVisitor<Expression>() {
+class ExprVisitor : WaccParserBaseVisitor<Expression>() {
 
     override fun visitCallFunc(ctx: WaccParser.CallFuncContext): Expression {
         val name = ctx.IDENT().toString()
         return Expression.CallFunction(name, ctx.arg_list()?.expr()?.map {
-            it.accept(this) } ?: Collections.emptyList() )
+            it.accept(this)
+        } ?: Collections.emptyList())
 
     }
 
@@ -32,7 +33,7 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
         val e2 = ctx.expr(1).accept(this)
 
         return when {
-            ctx.PLUS()  != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.PLUS)
+            ctx.PLUS() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.PLUS)
             ctx.MINUS() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.MINUS)
             else -> throw InvalidParameterException("Binary Op does not exist")
         }
@@ -43,10 +44,10 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
         val e2 = ctx.expr(1).accept(this)
 
         return when {
-            ctx.GT()    != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.GT)
-            ctx.GTE()   != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.GTE)
-            ctx.LT()    != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.LT)
-            ctx.LTE()   != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.LTE)
+            ctx.GT() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.GT)
+            ctx.GTE() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.GTE)
+            ctx.LT() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.LT)
+            ctx.LTE() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.LTE)
             else -> throw InvalidParameterException("Binary Op does not exist")
         }
     }
@@ -56,7 +57,7 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
         val e2 = ctx.expr(1).accept(this)
 
         return when {
-            ctx.EQ()    != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.EQ)
+            ctx.EQ() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.EQ)
             ctx.NOTEQ() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.NOTEQ)
             else -> throw InvalidParameterException("Binary Op does not exist")
         }
@@ -78,37 +79,35 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
     override fun visitUnaryOp(ctx: WaccParser.UnaryOpContext): Expression {
         val e = ctx.expr().accept(this)
         return when {
-            ctx.unaryOper().NOT()   != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.NOT)
+            ctx.unaryOper().NOT() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.NOT)
             ctx.unaryOper().MINUS() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.MINUS)
-            ctx.unaryOper().LEN()   != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.LEN)
-            ctx.unaryOper().ORD()   != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.ORD)
-            ctx.unaryOper().CHR()   != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.CHR)
+            ctx.unaryOper().LEN() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.LEN)
+            ctx.unaryOper().ORD() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.ORD)
+            ctx.unaryOper().CHR() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.CHR)
             else -> throw InvalidParameterException("Unary Op does not exist")
         }
     }
 
-    override fun visitParenth(ctx: WaccParser.ParenthContext): Expression
-        = ctx.expr().accept(this)
+    override fun visitParenth(ctx: WaccParser.ParenthContext): Expression = ctx.expr().accept(this)
 
-    override fun visitIntLit(ctx: WaccParser.IntLitContext): Expression
-        = Expression.Literal.LInt(
+    override fun visitIntLit(ctx: WaccParser.IntLitContext): Expression = Expression.Literal.LInt(
         if (ctx.MINUS() != null) {
-            "-"+ctx.INT_LITER().toString()
+            "-" + ctx.INT_LITER().toString()
         } else {
             ctx.INT_LITER().toString()
-        })
+        }
+    )
 
-    override fun visitBoolLit(ctx: WaccParser.BoolLitContext): Expression
-            = Expression.Literal.LBool(ctx.BOOL_LITER().toString().toBoolean())
+    override fun visitBoolLit(ctx: WaccParser.BoolLitContext): Expression =
+        Expression.Literal.LBool(ctx.BOOL_LITER().toString().toBoolean())
 
-    override fun visitCharLit(ctx: WaccParser.CharLitContext): Expression
-            = Expression.Literal.LChar(ctx.CHAR_LITER().toString().first())
+    override fun visitCharLit(ctx: WaccParser.CharLitContext): Expression =
+        Expression.Literal.LChar(ctx.CHAR_LITER().toString().first())
 
-    override fun visitStrLit(ctx: WaccParser.StrLitContext): Expression
-            = Expression.Literal.LString(ctx.STR_LITER().toString())
+    override fun visitStrLit(ctx: WaccParser.StrLitContext): Expression =
+        Expression.Literal.LString(ctx.STR_LITER().toString())
 
-    override fun visitPairLit(ctx: WaccParser.PairLitContext): Expression
-            = Expression.Literal.LPair
+    override fun visitPairLit(ctx: WaccParser.PairLitContext): Expression = Expression.Literal.LPair
 
     override fun visitNewPair(ctx: WaccParser.NewPairContext): Expression {
         val e1 = ctx.expr(0).accept(this)
@@ -121,21 +120,18 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
     }
 
     override fun visitArray_elem(ctx: WaccParser.Array_elemContext): Expression {
-        val array =  ctx.IDENT().toString()
+        val array = ctx.IDENT().toString()
         val indexes = ctx.expr().map { it.accept(this) }
         return Expression.ArrayElem(array, indexes)
     }
 
-    override fun visitIdent(ctx: WaccParser.IdentContext): Expression
-            = Expression.Identifier(ctx.IDENT().toString())
+    override fun visitIdent(ctx: WaccParser.IdentContext): Expression = Expression.Identifier(ctx.IDENT().toString())
 
-    override fun visitLhsIdent(ctx: WaccParser.LhsIdentContext): Expression
-            = Expression.Identifier(ctx.IDENT().toString())
+    override fun visitLhsIdent(ctx: WaccParser.LhsIdentContext): Expression =
+        Expression.Identifier(ctx.IDENT().toString())
 
-    override fun visitFst(ctx: WaccParser.FstContext): Expression
-        = Expression.Fst(ctx.expr().accept(this))
+    override fun visitFst(ctx: WaccParser.FstContext): Expression = Expression.Fst(ctx.expr().accept(this))
 
-    override fun visitSnd(ctx: WaccParser.SndContext): Expression
-        = Expression.Snd(ctx.expr().accept(this))
+    override fun visitSnd(ctx: WaccParser.SndContext): Expression = Expression.Snd(ctx.expr().accept(this))
 
 }

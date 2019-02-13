@@ -9,7 +9,7 @@ class SemanticTests {
 
     @Test
     fun invalidExpressions() {
-        testSynAndSem("src/test/resources/invalid/semanticErr/expressions/",200)
+        testSynAndSem("src/test/resources/invalid/semanticErr/expressions/", 200)
     }
 
     @Test

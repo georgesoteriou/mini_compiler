@@ -10,9 +10,9 @@ import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
 import java.lang.RuntimeException
 import kotlin.system.exitProcess
 
-fun main(args : Array<String>) {
+fun main(args: Array<String>) {
 
-    if(args.isEmpty()) {
+    if (args.isEmpty()) {
         println("Please enter a file")
         return
     }
@@ -30,7 +30,7 @@ fun main(args : Array<String>) {
         val visitor = ProgramVisitor()
         val program = parseResource(args[0]).accept(visitor)
 
-        if(!semanticCheck(program)) {
+        if (!semanticCheck(program)) {
             exitProcess(200)
         }
     } catch (e: ParseCancellationException) {
