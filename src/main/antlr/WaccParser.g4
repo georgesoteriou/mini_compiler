@@ -5,7 +5,12 @@ options {
 }
 
 expr: array_elem                            #arrayElem
-| expr op=binaryOperPres expr               #binaryOp
+| expr (MULT | DIV | MOD) expr              #binaryOp1
+| expr (PLUS | MINUS) expr                  #binaryOp2
+| expr (GT | GTE | LT | LTE )expr           #binaryOp3
+| expr (EQ | NOTEQ) expr                    #binaryOp4
+| expr (AND) expr                           #binaryOp5
+| expr (OR) expr                            #binaryOp6
 | unaryOper expr                            #unaryOp
 | OPEN_PARENTHESES expr CLOSE_PARENTHESES   #parenth
 | (MINUS | PLUS)? INT_LITER                 #intLit
@@ -15,13 +20,7 @@ expr: array_elem                            #arrayElem
 | PAIR_LITER                                #pairLit
 | IDENT                                     #ident
 ;
-binaryOperPres: (MULT | DIV | MOD)
-| (PLUS | MINUS)
-| (GT | GTE | LT | LTE)
-| (EQ | NOTEQ)
-| (AND)
-| (OR)
-;
+
 unaryOper: NOT | MINUS | LEN | ORD | CHR ;
 
 assign_lhs: IDENT    #lhsIdent

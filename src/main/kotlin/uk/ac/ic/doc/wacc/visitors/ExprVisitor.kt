@@ -15,38 +15,74 @@ class ExprVisitor: WaccParserBaseVisitor<Expression>() {
 
     }
 
-    override fun visitBinaryOp(ctx: WaccParser.BinaryOpContext): Expression {
+    override fun visitBinaryOp1(ctx: WaccParser.BinaryOp1Context): Expression {
         val e1 = ctx.expr(0).accept(this)
         val e2 = ctx.expr(1).accept(this)
 
         return when {
-            ctx.op.MULT()  != null -> Expression.BinaryOperator.BMult(e1, e2)
-            ctx.op.DIV()   != null -> Expression.BinaryOperator.BDiv(e1, e2)
-            ctx.op.MOD()   != null -> Expression.BinaryOperator.BMod(e1, e2)
-            ctx.op.PLUS()  != null -> Expression.BinaryOperator.BPlus(e1, e2)
-            ctx.op.MINUS() != null -> Expression.BinaryOperator.BMinus(e1, e2)
-            ctx.op.GT()    != null -> Expression.BinaryOperator.BGT(e1, e2)
-            ctx.op.GTE()   != null -> Expression.BinaryOperator.BGTE(e1, e2)
-            ctx.op.LT()    != null -> Expression.BinaryOperator.BLT(e1, e2)
-            ctx.op.LTE()   != null -> Expression.BinaryOperator.BLTE(e1, e2)
-            ctx.op.EQ()    != null -> Expression.BinaryOperator.BEQ(e1, e2)
-            ctx.op.NOTEQ() != null -> Expression.BinaryOperator.BNotEQ(e1, e2)
-            ctx.op.AND()   != null -> Expression.BinaryOperator.BAnd(e1, e2)
-            ctx.op.OR()    != null -> Expression.BinaryOperator.BOr(e1, e2)
+            ctx.MULT() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.MULT)
+            ctx.DIV() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.DIV)
+            ctx.MOD() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.MOD)
             else -> throw InvalidParameterException("Binary Op does not exist")
         }
+    }
 
+    override fun visitBinaryOp2(ctx: WaccParser.BinaryOp2Context): Expression {
+        val e1 = ctx.expr(0).accept(this)
+        val e2 = ctx.expr(1).accept(this)
+
+        return when {
+            ctx.PLUS()  != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.PLUS)
+            ctx.MINUS() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.MINUS)
+            else -> throw InvalidParameterException("Binary Op does not exist")
+        }
+    }
+
+    override fun visitBinaryOp3(ctx: WaccParser.BinaryOp3Context): Expression {
+        val e1 = ctx.expr(0).accept(this)
+        val e2 = ctx.expr(1).accept(this)
+
+        return when {
+            ctx.GT()    != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.GT)
+            ctx.GTE()   != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.GTE)
+            ctx.LT()    != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.LT)
+            ctx.LTE()   != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.LTE)
+            else -> throw InvalidParameterException("Binary Op does not exist")
+        }
+    }
+
+    override fun visitBinaryOp4(ctx: WaccParser.BinaryOp4Context): Expression {
+        val e1 = ctx.expr(0).accept(this)
+        val e2 = ctx.expr(1).accept(this)
+
+        return when {
+            ctx.EQ()    != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.EQ)
+            ctx.NOTEQ() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.NOTEQ)
+            else -> throw InvalidParameterException("Binary Op does not exist")
+        }
+    }
+
+    override fun visitBinaryOp5(ctx: WaccParser.BinaryOp5Context): Expression {
+        val e1 = ctx.expr(0).accept(this)
+        val e2 = ctx.expr(1).accept(this)
+        return Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.AND)
+    }
+
+    override fun visitBinaryOp6(ctx: WaccParser.BinaryOp6Context): Expression {
+        val e1 = ctx.expr(0).accept(this)
+        val e2 = ctx.expr(1).accept(this)
+        return Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.OR)
     }
 
 
     override fun visitUnaryOp(ctx: WaccParser.UnaryOpContext): Expression {
         val e = ctx.expr().accept(this)
         return when {
-            ctx.unaryOper().NOT()   != null -> Expression.UnaryOperator.UNot(e)
-            ctx.unaryOper().MINUS() != null -> Expression.UnaryOperator.UMinus(e)
-            ctx.unaryOper().LEN()   != null -> Expression.UnaryOperator.ULen(e)
-            ctx.unaryOper().ORD()   != null -> Expression.UnaryOperator.UOrd(e)
-            ctx.unaryOper().CHR()   != null -> Expression.UnaryOperator.UChr(e)
+            ctx.unaryOper().NOT()   != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.NOT)
+            ctx.unaryOper().MINUS() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.MINUS)
+            ctx.unaryOper().LEN()   != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.LEN)
+            ctx.unaryOper().ORD()   != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.ORD)
+            ctx.unaryOper().CHR()   != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.CHR)
             else -> throw InvalidParameterException("Unary Op does not exist")
         }
     }
