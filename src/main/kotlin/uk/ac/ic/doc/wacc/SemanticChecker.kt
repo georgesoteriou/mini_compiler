@@ -29,7 +29,7 @@ fun semanticCheck (prog: Program): Boolean {
     prog.functions.forEach { f ->
         val definitions = f.params.zip(f.type.params).map { def -> Pair(def.first, def.second) }
         f.block.scope.definitions.putAll(definitions)
-        valid = valid && checkStatement(f.block, activeScope, f.type)
+        valid = valid && checkStatement(f.block, activeScope, f.type.type)
     }
 
     valid = valid && checkStatement(prog.block as Statement.Block, activeScope,Type.TError)
@@ -72,7 +72,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
             if (returnType is Type.TError) {
                 false
             } else {
-                exprType(param.expression,activeScope) == returnType
+                Type.compare(exprType(param.expression,activeScope), returnType)
             }
         }
 
@@ -142,7 +142,9 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
                 return false
             }
             return if(Type.compare(lhs.type,rhsType)) {
-                lhs.type = rhsType
+                if(!Type.compare(Type.TPair(Type.TAny,Type.TAny),rhsType)) {
+                    lhs.type = rhsType
+                }
                 activeScope.add(lhs)
                 true
             } else {
@@ -160,7 +162,13 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType:Type):
 fun exprType(expr: Expression, activeScope: ActiveScope) : Type {
 
     return when (expr) {
-        is Expression.CallFunction -> activeScope.findDef(expr.name).orElse(Type.TError)
+        is Expression.CallFunction -> {
+            val type = activeScope.findDef(expr.name).orElse(Type.TError)
+            when(type) {
+                is Type.TFunction -> type.type
+                else -> Type.TError
+            }
+        }
 
         is Expression.Identifier -> activeScope.findDef(expr.name).orElse(Type.TError)
 

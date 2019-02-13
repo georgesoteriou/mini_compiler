@@ -1,21 +1,23 @@
-# Tests scoping with most variable types
-
-# Output:
-# ( [1, 2, 3] , [a, b, c] )
-# [ #addrs# = (a, true), #addrs# = (b, false) ]
-# 1, 2
-# array, of, strings
-# true, false, true
-# xyz
-# 1, 2, 3
-# this is a string
-# true
-# x
-# 5
-
-# Program:
+# This program is interactive. We implement a hash table containing integers and we play with it.
+#
+# A hash table is represented by an array of node lists. Each node in a node list is represented
+# by pair(int, pair). The first element of the pair is the integer at that node, the second element
+# is the pointer to the next node (or null if no more node).
+#
+# Integers those mapped to the same index are stored on the list (in any order) in that index.
 
 begin
-	pair(int, int) p = null ;
-	read fst p
+    int askForInt(char[] message) is
+		print message ;
+		int x = 0 ;
+		read x ;
+		print "You have entered: " ;
+		println x ;
+		return x
+	end
+	bool handleMenuInsert(pair(int, pair)[] table) is
+		int x = call askForInt("Please enter an integer to insert: ") ;
+		return true
+	end
+	exit 1
 end
