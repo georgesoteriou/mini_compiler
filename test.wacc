@@ -7,17 +7,13 @@
 # Integers those mapped to the same index are stored on the list (in any order) in that index.
 
 begin
-    int askForInt(char[] message) is
-		print message ;
-		int x = 0 ;
-		read x ;
-		print "You have entered: " ;
-		println x ;
-		return x
-	end
-	bool handleMenuInsert(pair(int, pair)[] table) is
-		int x = call askForInt("Please enter an integer to insert: ") ;
-		return true
-	end
-	exit 1
+    int f() is
+        return 0
+    end
+    int f() is
+        return 1
+    end
+    int x = call f();
+    println x
 end
+

@@ -24,7 +24,11 @@ fun semanticCheck (prog: Program): Boolean {
     var valid = true
     val activeScope = ActiveScope(Scope(), null)
 
-    activeScope.addAll(prog.functions.map { Definition(it.name, it.type) })
+
+
+    if(!activeScope.addAll(prog.functions.map { Definition(it.name, it.type) })) {
+        return false
+    }
     
     prog.functions.forEach { f ->
         val definitions = f.params.zip(f.type.params).map { def -> Pair(def.first, def.second) }
