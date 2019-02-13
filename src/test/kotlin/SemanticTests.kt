@@ -4,62 +4,62 @@ class SemanticTests {
 
     @Test
     fun invalidExit() {
-        testInvalidSemantics("src/test/resources/invalid/semanticErr/exit/")
+        testSynAndSem("src/test/resources/invalid/semanticErr/exit/", 200)
     }
 
     @Test
     fun invalidExpressions() {
-        testInvalidSemantics("src/test/resources/invalid/semanticErr/expressions/")
+        testSynAndSem("src/test/resources/invalid/semanticErr/expressions/",200)
     }
 
     @Test
     fun invalidFunction() {
-        testInvalidSemantics("src/test/resources/invalid/semanticErr/function/")
+        testSynAndSem("src/test/resources/invalid/semanticErr/function/", 200)
     }
 
     @Test
     fun invalidIf() {
-        testInvalidSemantics("src/test/resources/invalid/semanticErr/if/")
+        testSynAndSem("src/test/resources/invalid/semanticErr/if/", 200)
     }
 
     @Test
     fun invalidIO() {
-        testInvalidSemantics("src/test/resources/invalid/semanticErr/IO/")
+        testSynAndSem("src/test/resources/invalid/semanticErr/IO/", 200)
     }
 
     @Test
     fun invalidMultiple() {
-        testInvalidSemantics("src/test/resources/invalid/semanticErr/multiple/")
+        testSynAndSem("src/test/resources/invalid/semanticErr/multiple/", 200)
     }
 
     @Test
     fun invalidPairs() {
-        testInvalidSemantics("src/test/resources/invalid/semanticErr/pairs/")
+        testSynAndSem("src/test/resources/invalid/semanticErr/pairs/", 200)
     }
 
     @Test
     fun invalidPrint() {
-        testInvalidSemantics("src/test/resources/invalid/semanticErr/print/")
+        testSynAndSem("src/test/resources/invalid/semanticErr/print/", 200)
     }
 
     @Test
     fun invalidRead() {
-        testInvalidSemantics("src/test/resources/invalid/semanticErr/read/")
+        testSynAndSem("src/test/resources/invalid/semanticErr/read/", 200)
     }
 
     @Test
     fun invalidScope() {
-        testInvalidSemantics("src/test/resources/invalid/semanticErr/scope/")
+        testSynAndSem("src/test/resources/invalid/semanticErr/scope/", 200)
     }
 
     @Test
     fun invalidVariables() {
-        testInvalidSemantics("src/test/resources/invalid/semanticErr/variables/")
+        testSynAndSem("src/test/resources/invalid/semanticErr/variables/", 200)
     }
 
     @Test
     fun invalidWhile() {
-        testInvalidSemantics("src/test/resources/invalid/semanticErr/while/")
+        testSynAndSem("src/test/resources/invalid/semanticErr/while/", 200)
     }
 
 }

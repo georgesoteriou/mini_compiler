@@ -6,153 +6,153 @@ class SyntaxTests {
 
     @Test
     fun validAdvanced() {
-        testValid("src/test/resources/valid/advanced/")
+        testSynAndSem("src/test/resources/valid/advanced/", 0)
     }
 
     @Test
     fun validArray() {
-        testValid("src/test/resources/valid/array/")
+        testSynAndSem("src/test/resources/valid/array/", 0)
     }
 
     @Test
     fun validBasicExit() {
-        testValid("src/test/resources/valid/basic/exit/")
+        testSynAndSem("src/test/resources/valid/basic/exit/", 0)
     }
 
     @Test
     fun validBasicSkip() {
-        testValid("src/test/resources/valid/basic/skip/")
+        testSynAndSem("src/test/resources/valid/basic/skip/", 0)
     }
 
     @Test
     fun validExpressions() {
-        testValid("src/test/resources/valid/expressions/")
+        testSynAndSem("src/test/resources/valid/expressions/", 0)
     }
 
     @Test
     fun validFunctionNestedFunctions() {
-        testValid("src/test/resources/valid/function/nested_functions")
+        testSynAndSem("src/test/resources/valid/function/nested_functions", 0)
     }
 
     @Test
     fun validFunctionSimpleFunctions() {
-        testValid("src/test/resources/valid/function/simple_functions")
+        testSynAndSem("src/test/resources/valid/function/simple_functions", 0)
     }
 
     @Test
     fun validIf() {
-        testValid("src/test/resources/valid/if/")
+        testSynAndSem("src/test/resources/valid/if/", 0)
     }
 
     @Test
     fun validIO() {
-        testValid("src/test/resources/valid/IO/basic")
+        testSynAndSem("src/test/resources/valid/IO/basic", 0)
     }
 
     @Test
     fun validIOPrint() {
-        testValid("src/test/resources/valid/IO/print/")
+        testSynAndSem("src/test/resources/valid/IO/print/", 0)
     }
 
     @Test
     fun validIORead() {
-        testValid("src/test/resources/valid/IO/read/")
+        testSynAndSem("src/test/resources/valid/IO/read/", 0)
     }
 
     @Test
     fun validPairs() {
-        testValid("src/test/resources/valid/pairs/")
+        testSynAndSem("src/test/resources/valid/pairs/", 0)
     }
 
     @Test
     fun validRuntimeErrArrayOutOfBounds() {
-        testValid("src/test/resources/valid/runtimeErr/arrayOutOfBounds/")
+        testSynAndSem("src/test/resources/valid/runtimeErr/arrayOutOfBounds/", 0)
     }
 
     @Test
     fun validRuntimeErrDivideByZero() {
-        testValid("src/test/resources/valid/runtimeErr/divideByZero/")
+        testSynAndSem("src/test/resources/valid/runtimeErr/divideByZero/", 0)
     }
 
     @Test
     fun validRuntimeErrDoubleFrees() {
-        testValid("src/test/resources/valid/runtimeErr/doubleFrees/")
+        testSynAndSem("src/test/resources/valid/runtimeErr/doubleFrees/", 0)
     }
 
     @Test
     fun validRuntimeErrIntegerOverflow() {
-        testValid("src/test/resources/valid/runtimeErr/integerOverflow/")
+        testSynAndSem("src/test/resources/valid/runtimeErr/integerOverflow/", 0)
     }
 
     @Test
     fun validRuntimeErrNullDereference() {
-        testValid("src/test/resources/valid/runtimeErr/nullDereference/")
+        testSynAndSem("src/test/resources/valid/runtimeErr/nullDereference/", 0)
     }
 
     @Test
     fun validScope() {
-        testValid("src/test/resources/valid/scope/")
+        testSynAndSem("src/test/resources/valid/scope/", 0)
     }
 
     @Test
     fun validSequence() {
-        testValid("src/test/resources/valid/sequence/")
+        testSynAndSem("src/test/resources/valid/sequence/", 0)
     }
 
     @Test
     fun validVariables() {
-        testValid("src/test/resources/valid/variables/")
+        testSynAndSem("src/test/resources/valid/variables/", 0)
     }
 
     @Test
     fun validWhile() {
-        testValid("src/test/resources/valid/while/")
+        testSynAndSem("src/test/resources/valid/while/", 0)
     }
 
     // INVALIDS:
 
     @Test
     fun invalidSyntaxErrBasic() {
-        testInvalid("src/test/resources/invalid/syntaxErr/basic/")
+        testSynAndSem("src/test/resources/invalid/syntaxErr/basic/", 100)
     }
 
     @Test
     fun invalidSyntaxErrArray() {
-        testInvalid("src/test/resources/invalid/syntaxErr/array/")
+        testSynAndSem("src/test/resources/invalid/syntaxErr/array/", 100)
     }
 
     @Test
     fun invalidSyntaxErrExpressions() {
-        testInvalid("src/test/resources/invalid/syntaxErr/expressions/")
+        testSynAndSem("src/test/resources/invalid/syntaxErr/expressions/", 100)
     }
 
     @Test
     fun invalidSyntaxErrFunction() {
-        testInvalid("src/test/resources/invalid/syntaxErr/function/")
+        testSynAndSem("src/test/resources/invalid/syntaxErr/function/", 100)
     }
 
     @Test
     fun invalidSyntaxErrIf() {
-        testInvalid("src/test/resources/invalid/syntaxErr/if/")
+        testSynAndSem("src/test/resources/invalid/syntaxErr/if/", 100)
     }
 
     @Test
     fun invalidSyntaxErrPairs() {
-        testInvalid("src/test/resources/invalid/syntaxErr/pairs/")
+        testSynAndSem("src/test/resources/invalid/syntaxErr/pairs/", 100)
     }
 
     @Test
     fun invalidSyntaxErrSequence() {
-        testInvalid("src/test/resources/invalid/syntaxErr/sequence/")
+        testSynAndSem("src/test/resources/invalid/syntaxErr/sequence/", 100)
     }
 
     @Test
     fun invalidSyntaxErrVariables() {
-        testInvalid("src/test/resources/invalid/syntaxErr/variables/")
+        testSynAndSem("src/test/resources/invalid/syntaxErr/variables/", 100)
     }
 
     @Test
     fun invalidSyntaxErrWhile() {
-        testInvalid("src/test/resources/invalid/syntaxErr/while/")
+        testSynAndSem("src/test/resources/invalid/syntaxErr/while/", 100)
     }
 }
