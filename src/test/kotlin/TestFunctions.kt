@@ -1,4 +1,5 @@
 import org.antlr.v4.runtime.*
+import org.antlr.v4.runtime.misc.ParseCancellationException
 import org.junit.Assert
 import uk.ac.ic.doc.wacc.ast.Program
 import uk.ac.ic.doc.wacc.grammar.WaccLexer
@@ -7,60 +8,46 @@ import uk.ac.ic.doc.wacc.semanticCheck
 import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
 import java.io.File
 
-fun lexerForResource(resourceName: String) = WaccLexer(CharStreams.fromFileName(resourceName))
-fun tokenStream(resourceName: String) = CommonTokenStream(lexerForResource(resourceName))
-fun parseResource(resourceName: String): Program {
-    val visitor = ProgramVisitor()
-    val parser = WaccParser(tokenStream(resourceName))
-    parser.removeErrorListeners()
-    parser.addErrorListener(TestErrorListener())
-    return parser.prog().accept(visitor)
-}
 
-fun testValid(pathname: String) {
+fun testSynAndSem(pathname: String, expectedExit: Int){
+    fun lexerForResource(resourceName: String) = WaccLexer(CharStreams.fromFileName(resourceName))
+    fun tokenStream(resourceName: String) = CommonTokenStream(lexerForResource(resourceName))
+    fun parseResource(resourceName: String): WaccParser.ProgContext {
+        val parser = WaccParser(tokenStream(resourceName))
+        parser.errorHandler = BailErrorStrategy()
+        parser.removeErrorListeners()
+        parser.addErrorListener(TestErrorListener())
+        return parser.prog()
+    }
+
+    var fail = false
     File(pathname).listFiles().forEach {
         if (it.extension == "wacc") {
+
+            var exit = 0
             try {
-                parseResource(it.absolutePath)
-            } catch (e: RuntimeException) {
-                Assert.fail("Cannot parse " + it.name + "\nReason: " + e)
+                val visitor = ProgramVisitor()
+                val program = parseResource(it.absolutePath).accept(visitor)
+
+                if (!semanticCheck(program)) {
+                    exit = 200
+                }
+            } catch (e: ParseCancellationException) {
+                exit = 100
+            } catch (e: java.lang.RuntimeException) {
+                exit = 100
+            }
+            if(exit != expectedExit) {
+                fail = true
+                print("Failed: ${it.name}, Expected $expectedExit but got $exit")
             }
         }
+    }
+    if(fail) {
+        Assert.fail("At least one file failed")
     }
 }
 
-fun testInvalid(pathname: String) {
-    File(pathname).listFiles().forEach {
-        if (it.extension == "wacc") {
-            try {
-                parseResource(it.absolutePath)
-            } catch (e: RuntimeException) {
-                return@forEach
-            }
-            Assert.fail("Shouldn't successfully parse " + it.name)
-        }
-    }
-}
-
-fun testInvalidSemantics (pathname: String) {
-    var count = 0
-    var total = 0
-    File(pathname).listFiles().forEach {
-        if (it.extension == "wacc") {
-            println("Trying: ${it.name}")
-            if(!semanticCheck(parseResource(it.absolutePath))) {
-                count++
-                println("Passed Test: ${it.name}")
-            } else {
-                println("Failed Test: ${it.name}")
-            }
-            total++
-        }
-    }
-    if(count < total) {
-        Assert.fail("$count/$total: Shouldn't successfully pass tests")
-    }
-}
 class TestErrorListener : BaseErrorListener() {
     override fun syntaxError(
         recognizer: Recognizer<*, *>?,

@@ -8,6 +8,7 @@ import uk.ac.ic.doc.wacc.ast.Program
 import uk.ac.ic.doc.wacc.grammar.WaccLexer
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
+import java.lang.RuntimeException
 import kotlin.system.exitProcess
 
 fun main(args : Array<String>) {
@@ -35,6 +36,8 @@ fun main(args : Array<String>) {
             exitProcess(200)
         }
     } catch (e: ParseCancellationException) {
+        exitProcess(100)
+    } catch (e: RuntimeException) {
         exitProcess(100)
     }
 }
