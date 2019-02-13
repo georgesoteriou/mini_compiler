@@ -5,7 +5,7 @@ options {
 }
 
 expr: array_elem                            #arrayElem
-| expr binaryOperPres expr                  #binaryOp
+| expr op=binaryOperPres expr               #binaryOp
 | unaryOper expr                            #unaryOp
 | OPEN_PARENTHESES expr CLOSE_PARENTHESES   #parenth
 | (MINUS | PLUS)? INT_LITER                 #intLit
@@ -15,25 +15,25 @@ expr: array_elem                            #arrayElem
 | PAIR_LITER                                #pairLit
 | IDENT                                     #ident
 ;
-binaryOperPres: (MULT | DIV | MOD)          #multDivMod
-| (PLUS | MINUS)                            #plusMunus
-| (GT | GTE | LT | LTE)                     #gtGteLtLte
-| (EQ | NOTEQ)                              #eqNotEq
-| (AND)                                     #and
-| (OR)                                      #or
+binaryOperPres: (MULT | DIV | MOD)
+| (PLUS | MINUS)
+| (GT | GTE | LT | LTE)
+| (EQ | NOTEQ)
+| (AND)
+| (OR)
 ;
 unaryOper: NOT | MINUS | LEN | ORD | CHR ;
 
-assign_lhs: IDENT
-| array_elem
-| pair_elem
+assign_lhs: IDENT    #lhsIdent
+| array_elem         #lhsArray
+| pair_elem          #lhsPair
 ;
 
-assign_rhs: expr
-| array_liter
-| NEWPAIR OPEN_PARENTHESES expr COMMA expr CLOSE_PARENTHESES
-| pair_elem
-| CALL IDENT OPEN_PARENTHESES arg_list? CLOSE_PARENTHESES
+assign_rhs: expr                                                #expression
+| array_liter                                                   #arrayLit
+| NEWPAIR OPEN_PARENTHESES expr COMMA expr CLOSE_PARENTHESES    #newPair
+| pair_elem                                                     #pairElem
+| CALL IDENT OPEN_PARENTHESES arg_list? CLOSE_PARENTHESES       #callFunc
 ;
 
 arg_list: expr (COMMA expr)* ;
@@ -45,7 +45,7 @@ param_list: param (COMMA param)* ;
 stat_list: stat (SEMICOL stat)* ;
 
 stat: SKIP_S                                        #skip
-| type IDENT ASSIGN assign_rhs                      #declarae
+| type IDENT ASSIGN assign_rhs                      #declare
 | assign_lhs ASSIGN assign_rhs                      #assign
 | READ_S assign_lhs                                 #read
 | FREE_S expr                                       #free

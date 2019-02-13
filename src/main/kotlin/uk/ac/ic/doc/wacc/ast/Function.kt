@@ -1,7 +1,3 @@
 package uk.ac.ic.doc.wacc.ast
 
-class Function {
-
-    var params: List<Expression.Variable> = ArrayList()
-    var block: Statement.Block = Statement.Block(ArrayList())
-}
+data class Function(var name: String, var params: List<String>, var block: Statement.Block, var type: Type.TFunction)

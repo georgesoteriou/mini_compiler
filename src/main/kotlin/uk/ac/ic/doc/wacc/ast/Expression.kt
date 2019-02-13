@@ -2,17 +2,18 @@ package uk.ac.ic.doc.wacc.ast
 
 sealed class Expression {
 
-    data class Variable(var name: String, var type: Type): Expression()
-    data class CallFunction(var name: String, var params: ArrayList<Expression>): Expression()
+    data class CallFunction(var name: String, var params: List<Expression>): Expression()
 
-    data class ArrayElem(var name: String, var indexes: ArrayList<Expression>): Expression()
+    data class NewPair(var e1: Expression, var e2: Expression) : Expression()
 
+    data class Identifier(var name: String): Expression()
 
     sealed class Literal: Expression() {
-        data class LInt(var int: Int): Literal()
+        data class LInt(var int: String): Literal()
         data class LBool(var bool: Boolean): Literal()
         data class LChar(var char: Char): Literal()
         data class LString(var string: String): Literal()
+        data class LArray(var params: List<Expression>): Literal()
         object LPair: Literal()
     }
 
@@ -37,11 +38,12 @@ sealed class Expression {
         data class UMinus(var expression: Expression): UnaryOperator()
         data class ULen  (var expression: Expression): UnaryOperator()
         data class UOrd  (var expression: Expression): UnaryOperator()
-        data class UChar (var expression: Expression): UnaryOperator()
+        data class UChr (var expression: Expression): UnaryOperator()
     }
 
-    data class UFst  (var expression: Expression): Expression()
-    data class USnd  (var expression: Expression): Expression()
+    data class ArrayElem(var array: String, var indexes: List<Expression>): Expression()
+    data class Fst  (var expression: Expression): Expression()
+    data class Snd  (var expression: Expression): Expression()
 
 
 }
