@@ -8,7 +8,7 @@ import uk.ac.ic.doc.wacc.ast.Statement
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 
-class StatementVisitor: WaccParserBaseVisitor<Statement>() {
+class StatementVisitor : WaccParserBaseVisitor<Statement>() {
 
     private fun Statement.at(token: Token): Statement {
         location.lineNum = token.line
@@ -50,44 +50,39 @@ class StatementVisitor: WaccParserBaseVisitor<Statement>() {
             .at(ctx.start)
     }
 
-    override fun visitBegin(ctx: WaccParser.BeginContext): Statement
-            = ctx.stat_list().accept(this)
-                .at(ctx.start)
+    override fun visitBegin(ctx: WaccParser.BeginContext): Statement = ctx.stat_list().accept(this)
+        .at(ctx.start)
 
-    override fun visitSkip(ctx: WaccParser.SkipContext): Statement
-            = Statement.Skip()
-                .at(ctx.start)
+    override fun visitSkip(ctx: WaccParser.SkipContext): Statement = Statement.Skip()
+        .at(ctx.start)
 
-    override fun visitRead(ctx: WaccParser.ReadContext): Statement
-            = Statement.ReadInput(ctx.assign_lhs().accept(ExprVisitor()))
-                .at(ctx.start)
+    override fun visitRead(ctx: WaccParser.ReadContext): Statement =
+        Statement.ReadInput(ctx.assign_lhs().accept(ExprVisitor()))
+            .at(ctx.start)
 
-    override fun visitFree(ctx: WaccParser.FreeContext): Statement
-            = Statement.FreeVariable(ctx.expr().accept(ExprVisitor()))
-                .at(ctx.start)
+    override fun visitFree(ctx: WaccParser.FreeContext): Statement =
+        Statement.FreeVariable(ctx.expr().accept(ExprVisitor()))
+            .at(ctx.start)
 
-    override fun visitReturn(ctx: WaccParser.ReturnContext): Statement
-            = Statement.Return(ctx.expr().accept(ExprVisitor()))
-                .at(ctx.start)
+    override fun visitReturn(ctx: WaccParser.ReturnContext): Statement =
+        Statement.Return(ctx.expr().accept(ExprVisitor()))
+            .at(ctx.start)
 
-    override fun visitExit(ctx: WaccParser.ExitContext): Statement
-            = Statement.Exit(ctx.expr().accept(ExprVisitor()))
-                .at(ctx.start)
+    override fun visitExit(ctx: WaccParser.ExitContext): Statement = Statement.Exit(ctx.expr().accept(ExprVisitor()))
+        .at(ctx.start)
 
-    override fun visitPrint(ctx: WaccParser.PrintContext): Statement
-            = Statement.Print(ctx.expr().accept(ExprVisitor()))
-                .at(ctx.start)
+    override fun visitPrint(ctx: WaccParser.PrintContext): Statement = Statement.Print(ctx.expr().accept(ExprVisitor()))
+        .at(ctx.start)
 
-    override fun visitPrintln(ctx: WaccParser.PrintlnContext): Statement
-            = Statement.PrintLn(ctx.expr().accept(ExprVisitor()))
-                .at(ctx.start)
+    override fun visitPrintln(ctx: WaccParser.PrintlnContext): Statement =
+        Statement.PrintLn(ctx.expr().accept(ExprVisitor()))
+            .at(ctx.start)
 
     override fun visitStat_list(ctx: WaccParser.Stat_listContext): Statement {
         val scope = Scope()
         val block = Statement.Block(ctx.stat().map { it.accept(this) }, scope)
         return block.at(ctx.start)
     }
-
 
 
 }

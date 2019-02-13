@@ -1,7 +1,6 @@
 import org.antlr.v4.runtime.*
 import org.antlr.v4.runtime.misc.ParseCancellationException
 import org.junit.Assert
-import uk.ac.ic.doc.wacc.ast.Program
 import uk.ac.ic.doc.wacc.grammar.WaccLexer
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.semanticCheck
@@ -9,7 +8,7 @@ import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
 import java.io.File
 
 
-fun testSynAndSem(pathname: String, expectedExit: Int){
+fun testSynAndSem(pathname: String, expectedExit: Int) {
     fun lexerForResource(resourceName: String) = WaccLexer(CharStreams.fromFileName(resourceName))
     fun tokenStream(resourceName: String) = CommonTokenStream(lexerForResource(resourceName))
     fun parseResource(resourceName: String): WaccParser.ProgContext {
@@ -37,13 +36,13 @@ fun testSynAndSem(pathname: String, expectedExit: Int){
             } catch (e: java.lang.RuntimeException) {
                 exit = 100
             }
-            if(exit != expectedExit) {
+            if (exit != expectedExit) {
                 fail = true
                 println("Failed: ${it.name}, Expected $expectedExit but got $exit")
             }
         }
     }
-    if(fail) {
+    if (fail) {
         Assert.fail("At least one file failed")
     }
 }
