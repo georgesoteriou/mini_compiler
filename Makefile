@@ -1,7 +1,10 @@
-all: build
+all: build  dist
 
 build:
 	./gradlew assemble
+
+dist:
+	./gradlew installDist
 
 clean:
 	./gradlew clean
@@ -9,4 +12,4 @@ clean:
 test:
 	./gradlew test
 
-.PHONY: all build clean test
+.PHONY: all build dist clean test
