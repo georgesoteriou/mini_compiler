@@ -6,7 +6,7 @@ stages:
 assemble:
   stage: assemble
   script:
-    - make build
+    - make
 
 test:
   stage: test
