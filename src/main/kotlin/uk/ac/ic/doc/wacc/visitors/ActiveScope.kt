@@ -6,11 +6,11 @@ import uk.ac.ic.doc.wacc.ast.Type
 import java.util.*
 
 class ActiveScope(private var currentScope: Scope, private var parentScope: ActiveScope?) {
-    fun findDef(s: String): Optional<Type>
-        = Optional.ofNullable(currentScope.definitions[s]).or { parentScope?.findDef(s) ?: Optional.empty() }
+    fun findDef(s: String): Optional<Type> =
+        Optional.ofNullable(currentScope.definitions[s]).or { parentScope?.findDef(s) ?: Optional.empty() }
 
     fun isVarInCurrScope(s: String): Boolean {
-        if(currentScope.definitions[s] != null) {
+        if (currentScope.definitions[s] != null) {
             println("Error, $s already defined")
             return true
         }
@@ -23,7 +23,7 @@ class ActiveScope(private var currentScope: Scope, private var parentScope: Acti
 
     fun addAll(defs: List<Definition>): Boolean {
         defs.forEach {
-            if(isVarInCurrScope(it.name)) {
+            if (isVarInCurrScope(it.name)) {
                 return false
             }
             add(it)
@@ -31,8 +31,7 @@ class ActiveScope(private var currentScope: Scope, private var parentScope: Acti
         return true
     }
 
-    fun newSubScope(scope: Scope = Scope()): ActiveScope
-        = ActiveScope(scope, this)
+    fun newSubScope(scope: Scope = Scope()): ActiveScope = ActiveScope(scope, this)
 
 }
 

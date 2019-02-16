@@ -7,7 +7,7 @@ import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 import java.lang.RuntimeException
 import java.util.*
 
-class FunctionVisitor: WaccParserBaseVisitor<Function>() {
+class FunctionVisitor : WaccParserBaseVisitor<Function>() {
     override fun visitFunc(ctx: WaccParser.FuncContext): Function {
         val name = ctx.IDENT().toString()
         val paramNames = if (ctx.param_list() != null) {
@@ -32,15 +32,15 @@ class FunctionVisitor: WaccParserBaseVisitor<Function>() {
 }
 
 
-fun checkReturn(block: Statement.Block): Boolean{
+fun checkReturn(block: Statement.Block): Boolean {
     val stat = (block).statements.last()
     return when (stat) {
         is Statement.Return -> true
         is Statement.Exit -> true
-        is Statement.While  -> checkReturn((stat.then as Statement.Block))
-        is Statement.If     -> {
+        is Statement.While -> checkReturn((stat.then as Statement.Block))
+        is Statement.If -> {
             checkReturn((stat.ifThen as Statement.Block)) && checkReturn((stat.elseThen as Statement.Block))
         }
-        else -> throw RuntimeException("Line "+stat.location.lineNum+": Function missing return statement")
+        else -> throw RuntimeException("Line " + stat.location.lineNum + ": Function missing return statement")
     }
 }
