@@ -1,6 +1,6 @@
-all: build  dist
+all: build
 
-build:
+build: dist
 	./gradlew assemble
 
 dist:
@@ -9,7 +9,7 @@ dist:
 clean:
 	./gradlew clean
 
-test:
+test: all
 	./gradlew test
 
-.PHONY: all build dist clean test
+.PHONY: all build clean test

@@ -43,6 +43,10 @@ generateGrammarSource {
     }
 }
 
+test {
+    
+}
+
 clean {
     project.delete fileTree('build').include('*.*')
 }
