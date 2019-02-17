@@ -33,6 +33,8 @@ fun main(args: Array<String>) {
         if (!semanticCheck(program)) {
             exitProcess(200)
         }
+
+        val code = codeGenerator(program)
     } catch (e: ParseCancellationException) {
         exitProcess(100)
     } catch (e: RuntimeException) {
