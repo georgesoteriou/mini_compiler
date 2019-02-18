@@ -24,6 +24,7 @@ class CodeGenerator(var program: Program) {
                 instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
                 statement.statements.forEach { compileStatement(it) }
                 labelCounter++
+                // TODO add later: increment label counter : if name not like ".L<Int>"
                 instructions.add(Instruction.LDR(Operand.Register(0), Operand.Literal("0")))
                 instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
             }
