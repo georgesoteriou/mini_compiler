@@ -10,6 +10,7 @@ class CodeGenerator(var program: Program) {
 
     var labelCounter = 0
     var instructions: MutableList<Instruction> = arrayListOf()
+    var data: MutableList<Instruction> = arrayListOf()
 
     fun compile() {
         instructions.add(Instruction.GlobalMain(".global main"))

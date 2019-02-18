@@ -1,14 +1,11 @@
-# negating biggest possible negative integer
+# simple println statement
 
 # Output:
-# -2147483648
-# #runtime_error#
-
-# Exit:
-# 255
+# Hello World!
 
 # Program:
 
 begin
-exit -1
+  println "idc"
+
 end
