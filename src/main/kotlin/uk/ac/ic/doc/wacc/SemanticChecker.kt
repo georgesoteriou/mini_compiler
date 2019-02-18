@@ -36,7 +36,7 @@ fun semanticCheck(prog: Program): Boolean {
         valid = valid && checkStatement(f.block, activeScope, f.type.type)
     }
 
-    valid = valid && checkStatement(prog.block as Statement.Block, activeScope, Type.TError)
+    valid = valid && checkStatement(prog.block, activeScope, Type.TError)
     return valid
 }
 
