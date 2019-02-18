@@ -5,7 +5,7 @@ sealed class Operand {
     data class Register(var number:Int): Operand(){
         override fun toString(): String = "r$number"
     }
-    data class Literal(var value:Int): Operand() {
+    data class Literal(var value:String): Operand() {
         override fun toString(): String = "=$value"
     }
     object Lr: Operand() {

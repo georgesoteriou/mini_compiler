@@ -9,7 +9,7 @@ sealed class Expression {
     data class Identifier(var name: String) : Expression()
 
     sealed class Literal : Expression() {
-        data class LInt(var int: Int) : Literal()
+        data class LInt(var int: String) : Literal()
         data class LBool(var bool: Boolean) : Literal()
         data class LChar(var char: Char) : Literal()
         data class LString(var string: String) : Literal()

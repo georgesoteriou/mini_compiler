@@ -1,11 +1,14 @@
-# This program is interactive. We implement a hash table containing integers and we play with it.
-#
-# A hash table is represented by an array of node lists. Each node in a node list is represented
-# by pair(int, pair). The first element of the pair is the integer at that node, the second element
-# is the pointer to the next node (or null if no more node).
-#
-# Integers those mapped to the same index are stored on the list (in any order) in that index.
+# negating biggest possible negative integer
+
+# Output:
+# -2147483648
+# #runtime_error#
+
+# Exit:
+# 255
+
+# Program:
 
 begin
-    exit -1
+exit -1
 end

@@ -24,7 +24,7 @@ class CodeGenerator(var program: Program) {
                 instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
                 statement.statements.forEach { compileStatement(it) }
                 labelCounter++
-                instructions.add(Instruction.LDR(Operand.Register(0), Operand.Literal(0)))
+                instructions.add(Instruction.LDR(Operand.Register(0), Operand.Literal("0")))
                 instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
             }
             is Statement.Skip -> {}
@@ -66,7 +66,7 @@ class CodeGenerator(var program: Program) {
                 when(expression.operator) {
                     Expression.UnaryOperator.MINUS -> {
                         instructions.add(Instruction.MOV(Operand.Register(4),
-                            Operand.Literal(-(expression.expression as Expression.Literal.LInt).int)))
+                            Operand.Literal("-${(expression.expression as Expression.Literal.LInt).int}")))
                     }
                     Expression.UnaryOperator.CHR,
                     Expression.UnaryOperator.LEN,

@@ -91,9 +91,9 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
 
     override fun visitIntLit(ctx: WaccParser.IntLitContext): Expression = Expression.Literal.LInt(
         if (ctx.MINUS() != null) {
-            Integer.parseInt("-" + ctx.INT_LITER().toString())
+            "-" + ctx.INT_LITER().toString()
         } else {
-            Integer.parseInt(ctx.INT_LITER().toString())
+            ctx.INT_LITER().toString()
         }
     )
 
