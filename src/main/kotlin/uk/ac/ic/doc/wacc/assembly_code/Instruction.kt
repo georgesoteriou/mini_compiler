@@ -1,6 +1,9 @@
 package uk.ac.ic.doc.wacc.assembly_code
 
 sealed class Instruction {
+    data class GlobalMain(var name: String) : Instruction() {
+        override fun toString(): String = name
+    }
     data class LABEL(var name: String) : Instruction() {
         override fun toString(): String = "$name:"
     }

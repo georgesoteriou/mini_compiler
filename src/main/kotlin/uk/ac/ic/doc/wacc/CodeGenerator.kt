@@ -12,7 +12,7 @@ class CodeGenerator(var program: Program) {
     var instructions: MutableList<Instruction> = arrayListOf()
 
     fun compile() {
-        instructions.add(Instruction.LABEL(".global main"))
+        instructions.add(Instruction.GlobalMain(".global main"))
         compileStatement(program.block, "main")
         instructions.forEach {System.out.println(it.toString())}
     }
@@ -53,7 +53,7 @@ class CodeGenerator(var program: Program) {
             is Expression.Identifier -> {}
 
             is Expression.Literal.LInt -> {
-                instructions.add(Instruction.MOV(Operand.Register(4), Operand.Literal(expression.int)))
+                instructions.add(Instruction.LDR(Operand.Register(4), Operand.Literal(expression.int)))
             }
             is Expression.Literal.LBool -> {}
             is Expression.Literal.LChar -> {}
@@ -65,7 +65,7 @@ class CodeGenerator(var program: Program) {
             is Expression.UnaryOperation -> {
                 when(expression.operator) {
                     Expression.UnaryOperator.MINUS -> {
-                        instructions.add(Instruction.MOV(Operand.Register(4),
+                        instructions.add(Instruction.LDR(Operand.Register(4),
                             Operand.Literal("-${(expression.expression as Expression.Literal.LInt).int}")))
                     }
                     Expression.UnaryOperator.CHR,
