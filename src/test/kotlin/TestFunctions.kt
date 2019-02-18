@@ -12,6 +12,7 @@ fun testSynAndSem(pathname: String, expectedExit: Int) {
             val process = Runtime.getRuntime().exec("./compile ${it.absolutePath}")
             val exitCode = process.waitFor()
             if(exitCode != expectedExit) {
+                System.out.println("Failed: ${it.canonicalPath}")
                 fail = true
             }
         }
