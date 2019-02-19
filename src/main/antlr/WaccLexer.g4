@@ -78,7 +78,7 @@ CALL: 'call' ;
 INT_LITER: DIGIT+ {
   Long n = Long.parseLong(getText());
   if (!(n <= ((long) Integer.MAX_VALUE) + 1)) {
-    throw new RuntimeException("Integer overflow while parsing");
+    throw new ParseCancellationException("Integer overflow while parsing");
   }
 };
 BOOL_LITER: 'true' | 'false' ;

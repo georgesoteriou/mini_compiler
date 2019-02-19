@@ -1,5 +1,6 @@
 package uk.ac.ic.doc.wacc.visitors
 
+import org.antlr.v4.runtime.misc.ParseCancellationException
 import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.ast.Function
 import uk.ac.ic.doc.wacc.grammar.WaccParser
@@ -41,6 +42,6 @@ fun checkReturn(block: Statement.Block): Boolean {
         is Statement.If -> {
             checkReturn((stat.ifThen as Statement.Block)) && checkReturn((stat.elseThen as Statement.Block))
         }
-        else -> throw RuntimeException("Line " + stat.location.lineNum + ": Function missing return statement")
+        else -> throw ParseCancellationException("Line " + stat.location.lineNum + ": Function missing return statement")
     }
 }
