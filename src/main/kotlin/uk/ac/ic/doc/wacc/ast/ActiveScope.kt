@@ -2,31 +2,30 @@ package uk.ac.ic.doc.wacc.ast
 
 import java.util.*
 
-class ActiveScope(private var currentScope: Scope, private var parentScope: ActiveScope?) {
+class ActiveScope(var currentScope: Scope, var parentScope: ActiveScope?) {
 
     fun getSize(): Int {
         return currentScope.getSize() + (parentScope?.getSize() ?: 0)
     }
 
     fun getPosition(name: String): Int {
-       // var pos = currentScope.getPosition(name).orElse(parentScope?.currentScope?.getPosition(name)?.get() ?: -1)
-        val pos = currentScope.getPosition(name)
-        return if(pos.isPresent) {
-            getSize() - (pos.get() + (parentScope?.getSize() ?: 0))
-        } else {
-            currentScope.getSize() + parentScope!!.getPosition(name)
+        return currentScope.getPosition(name).orElse(currentScope.getSize() + parentScope!!.getPosition(name))
+    }
+
+    fun findType(s: String): Optional<Type> =
+        Optional.ofNullable(currentScope.definitions[s]?.type).or { parentScope?.findType(s) ?: Optional.empty() }
+
+    fun declare(s: String) {
+        val def = currentScope.definitions[s]
+        when (def) {
+            null -> parentScope!!.declare(s)
+            else -> def.isDeclared = true
         }
     }
 
-    fun findDef(s: String): Optional<Type> =
-        Optional.ofNullable(currentScope.definitions[s]?.type).or { parentScope?.findDef(s) ?: Optional.empty() }
 
     fun isVarInCurrScope(s: String): Boolean {
-        if (currentScope.definitions[s] != null) {
-            println("Error, $s already defined")
-            return true
-        }
-        return false
+        return currentScope.definitions[s] != null
     }
 
     fun add(def: Definition) {

@@ -1,6 +1,6 @@
 package uk.ac.ic.doc.wacc.ast
 
-open class Type {
+sealed class Type {
 
     object TAny : Type()
     object TInt : Type()

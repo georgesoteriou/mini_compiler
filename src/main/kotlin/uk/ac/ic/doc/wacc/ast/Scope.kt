@@ -27,7 +27,7 @@ class Scope {
        return if(!found) {
            Optional.empty()
        } else {
-           Optional.of(size)
+           Optional.of(getSize() - size)
        }
     }
 

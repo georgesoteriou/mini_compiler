@@ -28,5 +28,8 @@ sealed class Instruction {
     data class BL(var name: String): Instruction() {
         override fun toString(): String = "BL $name"
     }
+    data class STR(var register: Operand, var addrBase: Operand, var addrOffset: Operand): Instruction() {
+        override fun toString(): String = "STR $register, [$addrBase, $addrOffset]"
+    }
 
 }

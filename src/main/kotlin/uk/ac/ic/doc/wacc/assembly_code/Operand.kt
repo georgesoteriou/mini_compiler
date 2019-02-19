@@ -20,6 +20,9 @@ sealed class Operand {
             override fun toString(): String = "TODO"
         }
     }
+    data class Offset(var value: Int): Operand() {
+        override fun toString(): String = "#$value"
+    }
     object Lr: Operand() {
         override fun toString(): String = "lr"
     }

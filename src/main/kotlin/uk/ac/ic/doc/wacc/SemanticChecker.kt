@@ -104,7 +104,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
 
             val rhs = param.rhs
             if (rhs is Expression.CallFunction) {
-                val funType = activeScope.findDef(rhs.name).orElse(Type.TError) as? Type.TFunction ?: return false
+                val funType = activeScope.findType(rhs.name).orElse(Type.TError) as? Type.TFunction ?: return false
 
                 if (funType.params.size != rhs.params.size) {
                     return false
@@ -124,7 +124,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
 
             val rhs = param.rhs
             if (rhs is Expression.CallFunction) {
-                val funType = activeScope.findDef(rhs.name).orElse(Type.TError) as? Type.TFunction ?: return false
+                val funType = activeScope.findType(rhs.name).orElse(Type.TError) as? Type.TFunction ?: return false
 
                 if (funType.params.size != rhs.params.size) {
                     return false
@@ -164,14 +164,14 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
 
     return when (expr) {
         is Expression.CallFunction -> {
-            val type = activeScope.findDef(expr.name).orElse(Type.TError)
+            val type = activeScope.findType(expr.name).orElse(Type.TError)
             when (type) {
                 is Type.TFunction -> type.type
                 else -> Type.TError
             }
         }
 
-        is Expression.Identifier -> activeScope.findDef(expr.name).orElse(Type.TError)
+        is Expression.Identifier -> activeScope.findType(expr.name).orElse(Type.TError)
 
         is Expression.Literal.LInt -> Type.TInt
         is Expression.Literal.LBool -> Type.TBool
@@ -285,7 +285,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
                 }
             }
 
-            var arrType = activeScope.findDef(expr.array).orElse(Type.TError)
+            var arrType = activeScope.findType(expr.array).orElse(Type.TError)
             repeat(expr.indexes.size) {
                 when (arrType) {
                     is Type.TArray -> arrType = (arrType as Type.TArray).type

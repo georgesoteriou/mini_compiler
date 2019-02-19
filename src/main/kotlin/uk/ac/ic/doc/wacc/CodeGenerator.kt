@@ -24,18 +24,18 @@ class CodeGenerator(var program: Program) {
                 instructions.add(Instruction.LABEL(name))
                 instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
                 activeScope = activeScope.newSubScope(statement.scope)
-                var declarations = activeScope.getSize()
-                for (i in 0..statement.scope.getSize() step 1024) {
+                var declarationsSize = statement.scope.getSize()
+                for (i in 1..statement.scope.getSize() step 1024) {
                     instructions.add(
                         Instruction.SUB(
                             Operand.Sp,
                             Operand.Sp,
                             Operand.Literal.LInt(
-                                if (declarations > 1024) {
-                                    declarations -= 1024
+                                if (declarationsSize > 1024) {
+                                    declarationsSize -= 1024
                                     "1024"
                                 } else {
-                                    "$declarations"
+                                    "$declarationsSize"
                                 }
                             )
                         )
@@ -52,7 +52,16 @@ class CodeGenerator(var program: Program) {
             is Statement.VariableDeclaration -> {
                 when (statement.lhs.type) {
                     is Type.TInt -> {
-
+                        instructions.add(Instruction.LDR(
+                            Operand.Register(4),
+                            Operand.Literal.LInt((statement.rhs as Expression.Literal.LInt).int)
+                        ))
+                        instructions.add(Instruction.STR(
+                            Operand.Register(4),
+                            Operand.Sp,
+                            Operand.Offset(activeScope.getPosition(statement.lhs.name))
+                        ))
+                        activeScope.declare(statement.lhs.name)
                     }
                 }
             }
