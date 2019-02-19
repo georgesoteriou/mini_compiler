@@ -5,6 +5,7 @@ import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Program
 import uk.ac.ic.doc.wacc.ast.Statement
+import uk.ac.ic.doc.wacc.ast.Type
 
 class CodeGenerator(var program: Program) {
 
@@ -13,9 +14,9 @@ class CodeGenerator(var program: Program) {
     var data: MutableList<Instruction> = arrayListOf()
 
     fun compile() {
-        instructions.add(Instruction.GlobalMain(".global main"))
+        instructions.add(Instruction.Flag(".global main"))
         compileStatement(program.block, "main")
-        instructions.forEach {System.out.println(it.toString())}
+        instructions.forEach { println(it.toString()) }
     }
 
     fun compileStatement(statement: Statement, name: String = ".L$labelCounter") {
@@ -23,63 +24,132 @@ class CodeGenerator(var program: Program) {
             is Statement.Block -> {
                 instructions.add(Instruction.LABEL(name))
                 instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
+                var declarations = statement.scope.definitions.size
+                for (i in 0..statement.scope.definitions.size step 1024) {
+                    instructions.add(
+                        Instruction.SUB(
+                            Operand.Sp,
+                            Operand.Sp,
+                            Operand.Literal.LInt(
+                                if (declarations > 1024) {
+                                    declarations -= 1024
+                                    "1024"
+                                } else {
+                                    "$declarations"
+                                }
+                            )
+                        )
+                    )
+                }
+
                 statement.statements.forEach { compileStatement(it) }
                 labelCounter++
                 // TODO add later: increment label counter : if name not like ".L<Int>"
-                instructions.add(Instruction.LDR(Operand.Register(0), Operand.Literal("0")))
+                instructions.add(Instruction.LDR(Operand.Register(0), Operand.Literal.LInt("0")))
                 instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
             }
-            is Statement.Skip -> {}
-            is Statement.VariableDeclaration -> {}
-            is Statement.VariableAssignment -> {}
-            is Statement.ReadInput -> {}
-            is Statement.FreeVariable -> {}
-            is Statement.Return -> {}
+            is Statement.Skip -> {
+            }
+            is Statement.VariableDeclaration -> {
+                when (statement.lhs.type) {
+                    is Type.TInt -> {
+
+                    }
+                }
+            }
+            is Statement.VariableAssignment -> {
+            }
+            is Statement.ReadInput -> {
+            }
+            is Statement.FreeVariable -> {
+            }
+            is Statement.Return -> {
+            }
             is Statement.Exit -> {
                 compileExpression(statement.expression)
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
                 instructions.add(Instruction.BL("exit"))
             }
-            is Statement.Print -> {}
-            is Statement.PrintLn -> {}
-            is Statement.If -> {}
-            is Statement.While -> {}
+            is Statement.Print -> {
+            }
+            is Statement.PrintLn -> {
+            }
+            is Statement.If -> {
+            }
+            is Statement.While -> {
+            }
         }
 
     }
 
     fun compileExpression(expression: Expression) {
         when (expression) {
-            is Expression.CallFunction -> {}
-            is Expression.NewPair -> {}
-            is Expression.Identifier -> {}
+            is Expression.CallFunction -> {
+            }
+            is Expression.NewPair -> {
+            }
+            is Expression.Identifier -> {
+            }
 
             is Expression.Literal.LInt -> {
-                instructions.add(Instruction.LDR(Operand.Register(4), Operand.Literal(expression.int)))
+                instructions.add(
+                    Instruction.LDR(
+                        Operand.Register(4),
+                        Operand.Literal.LInt(expression.int)
+                    )
+                )
             }
-            is Expression.Literal.LBool -> {}
-            is Expression.Literal.LChar -> {}
-            is Expression.Literal.LString -> {}
-            is Expression.Literal.LArray -> {}
-            is Expression.Literal.LPair -> {}
+            is Expression.Literal.LBool -> {
+                instructions.add(
+                    Instruction.LDR(
+                        Operand.Register(4),
+                        Operand.Literal.LBool(expression.bool)
+                    )
+                )
+            }
+            is Expression.Literal.LChar -> {
+                instructions.add(
+                    Instruction.LDR(
+                        Operand.Register(4),
+                        Operand.Literal.LChar(expression.char)
+                    )
+                )
+            }
+            is Expression.Literal.LString -> {
+            }
+            is Expression.Literal.LArray -> {
+            }
+            is Expression.Literal.LPair -> {
+            }
 
-            is Expression.BinaryOperation -> {}
+            is Expression.BinaryOperation -> {
+            }
             is Expression.UnaryOperation -> {
-                when(expression.operator) {
+                when (expression.operator) {
                     Expression.UnaryOperator.MINUS -> {
-                        instructions.add(Instruction.LDR(Operand.Register(4),
-                            Operand.Literal("-${(expression.expression as Expression.Literal.LInt).int}")))
+                        instructions.add(
+                            Instruction.LDR(
+                                Operand.Register(4),
+                                Operand.Literal.LInt(
+                                    "-${(expression.expression as Expression.Literal.LInt).int}"
+                                )
+                            )
+                        )
                     }
                     Expression.UnaryOperator.CHR,
                     Expression.UnaryOperator.LEN,
                     Expression.UnaryOperator.NOT,
-                    Expression.UnaryOperator.ORD -> {}
+                    Expression.UnaryOperator.ORD -> {
+                    }
                 }
             }
 
-            is Expression.ArrayElem -> {}
-            is Expression.Fst -> {}
-            is Expression.Snd -> {}
+            is Expression.ArrayElem -> {
+            }
+            is Expression.Fst -> {
+            }
+            is Expression.Snd -> {
+            }
         }
     }
 }

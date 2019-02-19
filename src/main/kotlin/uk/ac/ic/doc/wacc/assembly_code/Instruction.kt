@@ -1,7 +1,7 @@
 package uk.ac.ic.doc.wacc.assembly_code
 
 sealed class Instruction {
-    data class GlobalMain(var name: String) : Instruction() {
+    data class Flag(var name: String) : Instruction() {
         override fun toString(): String = name
     }
     data class LABEL(var name: String) : Instruction() {
@@ -9,6 +9,9 @@ sealed class Instruction {
     }
     data class ADD(var rd: Operand, var rn: Operand, var operand: Operand): Instruction() {
         override fun toString(): String = "ADD $rd, $rn, $operand"
+    }
+    data class SUB(var rd: Operand, var rn: Operand, var operand: Operand): Instruction() {
+        override fun toString(): String = "SUB $rd, $rn, $operand"
     }
     data class LDR(var rd: Operand, var addr_mode2: Operand): Instruction() {
         override fun toString(): String = "LDR $rd, $addr_mode2"
