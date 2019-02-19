@@ -2,19 +2,18 @@ package uk.ac.ic.doc.wacc
 
 import uk.ac.ic.doc.wacc.assembly_code.Instruction
 import uk.ac.ic.doc.wacc.assembly_code.Operand
-import uk.ac.ic.doc.wacc.ast.Expression
-import uk.ac.ic.doc.wacc.ast.Program
-import uk.ac.ic.doc.wacc.ast.Statement
-import uk.ac.ic.doc.wacc.ast.Type
+import uk.ac.ic.doc.wacc.ast.*
 
 class CodeGenerator(var program: Program) {
 
     var labelCounter = 0
     var instructions: MutableList<Instruction> = arrayListOf()
     var data: MutableList<Instruction> = arrayListOf()
+    var activeScope = ActiveScope(Scope(), null)
 
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
+        //TODO: Add functions to active scope
         compileStatement(program.block, "main")
         instructions.forEach { println(it.toString()) }
     }
@@ -24,8 +23,9 @@ class CodeGenerator(var program: Program) {
             is Statement.Block -> {
                 instructions.add(Instruction.LABEL(name))
                 instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
-                var declarations = statement.scope.definitions.size
-                for (i in 0..statement.scope.definitions.size step 1024) {
+                activeScope = activeScope.newSubScope(statement.scope)
+                var declarations = activeScope.getSize()
+                for (i in 0..statement.scope.getSize() step 1024) {
                     instructions.add(
                         Instruction.SUB(
                             Operand.Sp,
@@ -41,7 +41,6 @@ class CodeGenerator(var program: Program) {
                         )
                     )
                 }
-
                 statement.statements.forEach { compileStatement(it) }
                 labelCounter++
                 // TODO add later: increment label counter : if name not like ".L<Int>"

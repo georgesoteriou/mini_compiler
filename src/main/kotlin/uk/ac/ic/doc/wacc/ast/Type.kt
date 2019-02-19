@@ -30,5 +30,19 @@ open class Type {
             }
             return false
         }
+
+        fun size(t: Type): Int{
+            return when (t) {
+                is Type.TInt      -> 4
+                is Type.TBool     -> 1
+                is Type.TChar     -> 1
+                is Type.TString   -> 4
+                is Type.TArray    -> 4
+                is Type.TPair     -> 8
+                is Type.TAny      -> 4
+                is Type.TFunction -> 4
+                else              -> 0
+            }
+        }
     }
 }

@@ -1,7 +1,7 @@
 package uk.ac.ic.doc.wacc
 
 import uk.ac.ic.doc.wacc.ast.*
-import uk.ac.ic.doc.wacc.visitors.ActiveScope
+import uk.ac.ic.doc.wacc.ast.ActiveScope
 
 fun errorLog(it: Statement) {
     when (it) {
@@ -31,7 +31,7 @@ fun semanticCheck(prog: Program): Boolean {
     }
 
     prog.functions.forEach { f ->
-        val definitions = f.params.zip(f.type.params).map { def -> Pair(def.first, def.second) }
+        val definitions = f.params.zip(f.type.params).map { def -> Pair(def.first, Scope.Definition(def.second, false)) }
         f.block.scope.definitions.putAll(definitions)
         valid = valid && checkStatement(f.block, activeScope, f.type.type)
     }
