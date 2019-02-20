@@ -35,8 +35,7 @@ fun main(args: Array<String>) {
         }
         //CodeGenerator(program).compile()
     } catch (e: ParseCancellationException) {
-        exitProcess(100)
-    } catch (e: RuntimeException) {
+        println("Syntax error ")
         exitProcess(100)
     }
 
