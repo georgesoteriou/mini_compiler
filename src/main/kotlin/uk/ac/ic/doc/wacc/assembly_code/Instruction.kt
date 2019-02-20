@@ -34,5 +34,8 @@ sealed class Instruction {
     data class WORD(var length: Int) : Instruction() {
         override fun toString(): String = ".word $length"
     }
+    data class ASCII(var contents: String) : Instruction() {
+        override fun toString(): String = ".ascii \"$contents\""
+    }
 
 }
