@@ -1,5 +1,6 @@
 package uk.ac.ic.doc.wacc
 
+
 import uk.ac.ic.doc.wacc.assembly_code.Instruction
 import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.*
@@ -44,6 +45,21 @@ class CodeGenerator(var program: Program) {
                 statement.statements.forEach { compileStatement(it) }
                 labelCounter++
                 // TODO add later: increment label counter : if name not like ".L<Int>"
+                declarationsSize = statement.scope.fullSize
+                for (i in 1..statement.scope.fullSize step 1024) {
+                    instructions.add(Instruction.ADD(
+                        Operand.Sp,
+                        Operand.Sp,
+                        Operand.Offset(
+                            if (declarationsSize > 1024) {
+                                declarationsSize -= 1024
+                                1024
+                            } else {
+                                declarationsSize
+                            }
+                        )
+                    ))
+                }
                 instructions.add(Instruction.LDR(Operand.Register(0), Operand.Literal.LInt("0")))
                 instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
             }
@@ -62,6 +78,17 @@ class CodeGenerator(var program: Program) {
                             Operand.Offset(activeScope.getPosition(statement.lhs.name))
                         ))
                         activeScope.declare(statement.lhs.name)
+                    }
+                    is Type.TBool -> {
+                        instructions.add(Instruction.MOV(
+                            Operand.Register(4),
+                            Operand.Literal.LBool((statement.rhs as Expression.Literal.LBool).bool)
+                        ))
+                        instructions.add(Instruction.STRB(
+                            Operand.Register(4),
+                            Operand.Sp,
+                            Operand.Offset(activeScope.getPosition(statement.lhs.name))
+                        ))
                     }
                 }
             }

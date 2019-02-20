@@ -31,5 +31,8 @@ sealed class Instruction {
     data class STR(var register: Operand, var addrBase: Operand, var addrOffset: Operand): Instruction() {
         override fun toString(): String = "STR $register, [$addrBase, $addrOffset]"
     }
+    data class STRB(var register: Operand, var addrBase: Operand, var addrOffset: Operand): Instruction() {
+        override fun toString(): String = "STRB $register, [$addrBase, $addrOffset]"
+    }
 
 }
