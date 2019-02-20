@@ -134,7 +134,7 @@ class CodeGenerator(var program: Program) {
                             Type.compare(statement.expression.exprType, Type.TPair(Type.TAny, Type.TAny))
                     -> {
                         printReference = true
-                        instructions.add(Instruction.BL("p_print_int"))
+                        instructions.add(Instruction.BL("p_print_reference"))
                     }
 
 
@@ -142,6 +142,7 @@ class CodeGenerator(var program: Program) {
                         instructions.add(Instruction.BL("putchar"))
 
                     }
+
                     Type.compare(statement.expression.exprType, Type.TString)
                     -> {
                         printString = true
@@ -162,6 +163,7 @@ class CodeGenerator(var program: Program) {
                         printBool = true
                         instructions.add(Instruction.BL("p_print_bool"))
                     }
+
                 }
             }
             is Statement.PrintLn -> {

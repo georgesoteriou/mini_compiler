@@ -1,3 +1,4 @@
 begin 
-print 5
+pair(int,int) x = newpair(10,3); 
+print x
 end
