@@ -38,7 +38,7 @@ sealed class Type {
                 is Type.TChar     -> 1
                 is Type.TString   -> 4
                 is Type.TArray    -> 4
-                is Type.TPair     -> 8
+                is Type.TPair     -> 4
                 is Type.TAny      -> 4
                 is Type.TFunction -> 4
                 else              -> 0

@@ -5,6 +5,7 @@ build/
 out/
 src/main/gen/
 .idea/misc.xml
+test.wacc
 
 
 # Created by https://www.gitignore.io/api/java,macos,maven,gradle,kotlin,intellij

@@ -3,6 +3,7 @@ package uk.ac.ic.doc.wacc
 import uk.ac.ic.doc.wacc.assembly_code.Instruction
 import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.*
+import java.lang.IllegalArgumentException
 
 class CodeGenerator(var program: Program) {
 
@@ -31,45 +32,38 @@ class CodeGenerator(var program: Program) {
                 instructions.add(Instruction.LABEL(name))
                 instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
                 activeScope = activeScope.newSubScope(statement.scope)
-                var declarationsSize = statement.scope.fullSize
-                for (i in 1..statement.scope.fullSize step 1024) {
-                    instructions.add(Instruction.SUB(
-                        Operand.Sp,
-                        Operand.Sp,
-                        Operand.Offset(
-                            if (declarationsSize > 1024) {
-                                declarationsSize -= 1024
-                                1024
-                            } else {
-                                declarationsSize
-                            }
-                        )
-                    ))
-                }
+                decreaseSP(statement)
                 statement.statements.forEach { compileStatement(it) }
                 labelCounter++
                 // TODO add later: increment label counter : if name not like ".L<Int>"
-                instructions.add(Instruction.LDR(Operand.Register(0), Operand.Literal.LInt("0")))
+                increaseSP(statement)
+                instructions.add(Instruction.LDRSimple(Operand.Register(0), Operand.Literal.LInt("0")))
                 instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
             }
             is Statement.Skip -> {
             }
             is Statement.VariableDeclaration -> {
-                when (statement.lhs.type) {
+                var type = statement.lhs.type
+                when (type) {
                     is Type.TInt -> {
-                        instructions.add(Instruction.LDR(
-                            Operand.Register(4),
-                            Operand.Literal.LInt((statement.rhs as Expression.Literal.LInt).int)
-                        ))
-                        instructions.add(Instruction.STR(
-                            Operand.Register(4),
-                            Operand.Sp,
-                            Operand.Offset(activeScope.getPosition(statement.lhs.name))
-                        ))
-                        activeScope.declare(statement.lhs.name)
+                        intDeclInstructions(statement)
+                    }
+                    is Type.TBool -> {
+                        boolDeclInstructions(statement)
+                    }
+                    is Type.TChar -> {
+                        charDeclInstructions(statement)
+                    }
+                    is Type.TArray -> {
+                        arrayDeclInstructions(statement)
+                    }
+                    is Type.TPair -> {
+                        pairDeclInstructions(statement)
+                        //TODO: deal with null pairs
                     }
                 }
             }
+
             is Statement.VariableAssignment -> {
             }
             is Statement.ReadInput -> {
@@ -128,6 +122,311 @@ class CodeGenerator(var program: Program) {
 
     }
 
+    private fun pairDeclInstructions(statement: Statement.VariableDeclaration) {
+        instructions.add(
+            Instruction.LDRSimple(
+                Operand.Register(0),
+                Operand.Literal.LInt("8")
+            )
+        )
+        instructions.add(Instruction.BL("malloc"))
+        instructions.add(
+            Instruction.MOV(
+                Operand.Register(4),
+                Operand.Register(0)
+            )
+        )
+        var typeL = (statement.rhs.exprType as Type.TPair).t1
+        var typeR = (statement.rhs.exprType as Type.TPair).t2
+        var e1 = (statement.rhs as Expression.NewPair).e1
+        var e2 = (statement.rhs as Expression.NewPair).e2
+        pairElemDeclInstructions(typeL, e1)
+
+        instructions.add(
+            Instruction.LDRSimple(
+                Operand.Register(0),
+                Operand.Literal.LInt(Type.size(e1.exprType).toString())
+            )
+        )
+
+        instructions.add(Instruction.BL("malloc"))
+
+        instructions.add(
+            Instruction.STRSimple(
+                Operand.Register(5),
+                Operand.Register(0)
+            )
+        )
+
+        instructions.add(
+            Instruction.STRSimple(
+                Operand.Register(0),
+                Operand.Register(4)
+            )
+        )
+
+        pairElemDeclInstructions(typeR, e2)
+
+        instructions.add(
+            Instruction.LDRSimple(
+                Operand.Register(0),
+                Operand.Literal.LInt(Type.size(e1.exprType).toString())
+            )
+        )
+
+        instructions.add(Instruction.BL("malloc"))
+
+        instructions.add(
+            Instruction.STRSimple(
+                Operand.Register(5),
+                Operand.Register(0)
+            )
+        )
+
+        instructions.add(
+            Instruction.STROffset(
+                Operand.Register(0),
+                Operand.Register(4),
+                Operand.Offset(4)
+            )
+        )
+
+        instructions.add(
+            Instruction.STROffset(
+                Operand.Register(4),
+                Operand.Sp,
+                Operand.Offset(activeScope.getPosition(statement.lhs.name))
+            )
+        )
+    }
+
+    private fun pairElemDeclInstructions(type: Type, expr: Expression) {
+        when (type) {
+            is Type.TArray -> {
+                addPointerLDR(expr)
+            }
+            is Type.TPair -> {
+                addPointerLDR(expr)
+            }
+            else -> {
+                instructions.add(
+                    Instruction.LDRSimple(
+                        Operand.Register(5),
+                        when (type) {
+                            is Type.TInt -> Operand.Literal.LInt((expr as Expression.Literal.LInt).int)
+                            is Type.TBool -> Operand.Literal.LBool((expr as Expression.Literal.LBool).bool)
+                            is Type.TChar -> Operand.Literal.LChar((expr as Expression.Literal.LChar).char)
+                            else -> throw IllegalArgumentException()
+                        }
+                    )
+                )
+            }
+        }
+    }
+
+    private fun arrayDeclInstructions(statement: Statement.VariableDeclaration) {
+        instructions.add(
+            Instruction.LDRSimple(
+                Operand.Register(0),
+                Operand.Literal.LInt(
+                    (((statement.rhs as Expression.Literal.LArray).params.size) *
+                            Type.size(statement.lhs.type) + 4).toString()
+                )
+            )
+        )
+        instructions.add(Instruction.BL("malloc"))
+        instructions.add(
+            Instruction.MOV(
+                Operand.Register(4),
+                Operand.Register(0)
+            )
+        )
+        var offset = Type.size(statement.lhs.type)
+        var type = (statement.rhs.exprType as Type.TArray).type
+        (statement.rhs as Expression.Literal.LArray).params.forEach {
+            when (type) {
+                is Type.TArray -> {
+                    addPointerLDR(it)
+                    instructions.add(
+                        Instruction.STROffset(
+                            Operand.Register(5),
+                            Operand.Register(4),
+                            Operand.Offset(offset)
+                        )
+                    )
+                }
+                is Type.TPair -> {
+                    addPointerLDR(it)
+                    instructions.add(
+                        Instruction.STROffset(
+                            Operand.Register(5),
+                            Operand.Register(4),
+                            Operand.Offset(offset)
+                        )
+                    )
+                }
+                else -> {
+                    instructions.add(
+                        Instruction.LDRSimple(
+                            Operand.Register(5),
+                            when (type) {
+                                is Type.TInt -> Operand.Literal.LInt((it as Expression.Literal.LInt).int)
+                                is Type.TBool -> Operand.Literal.LBool((it as Expression.Literal.LBool).bool)
+                                is Type.TChar -> Operand.Literal.LChar((it as Expression.Literal.LChar).char)
+                                else -> throw IllegalArgumentException()
+                            }
+                        )
+                    )
+
+                    instructions.add(
+                        Instruction.STROffset(
+                            Operand.Register(5),
+                            Operand.Register(4),
+                            Operand.Offset(offset)
+                        )
+                    )
+                }
+            }
+            offset += Type.size(statement.lhs.type)
+        }
+
+        //Storing no. of array elems
+        instructions.add(
+            Instruction.LDRSimple(
+                Operand.Register(5),
+                Operand.Literal.LInt((statement.rhs as Expression.Literal.LArray).params.size.toString())
+            )
+        )
+        instructions.add(
+            Instruction.STRSimple(
+                Operand.Register(5),
+                Operand.Register(4)
+            )
+        )
+        //Store array to sp
+        var pos = activeScope.getPosition(statement.lhs.name)
+        instructions.add(
+            when (pos) {
+                0 -> Instruction.STRSimple(
+                    Operand.Register(4),
+                    Operand.Sp
+                )
+                else -> Instruction.STROffset(
+                    Operand.Register(4),
+                    Operand.Sp,
+                    Operand.Offset(pos)
+                )
+            }
+        )
+    }
+
+    private fun charDeclInstructions(statement: Statement.VariableDeclaration) {
+        instructions.add(
+            Instruction.MOV(
+                Operand.Register(4),
+                Operand.Literal.LChar((statement.rhs as Expression.Literal.LChar).char)
+            )
+        )
+        instructions.add(
+            Instruction.STRB(
+                Operand.Register(4),
+                Operand.Sp,
+                Operand.Offset(activeScope.getPosition(statement.lhs.name))
+            )
+        )
+    }
+
+    private fun boolDeclInstructions(statement: Statement.VariableDeclaration) {
+        instructions.add(
+            Instruction.MOV(
+                Operand.Register(4),
+                Operand.Literal.LBool((statement.rhs as Expression.Literal.LBool).bool)
+            )
+        )
+        instructions.add(
+            Instruction.STRB(
+                Operand.Register(4),
+                Operand.Sp,
+                Operand.Offset(activeScope.getPosition(statement.lhs.name))
+            )
+        )
+    }
+
+    private fun intDeclInstructions(statement: Statement.VariableDeclaration) {
+        instructions.add(
+            Instruction.LDRSimple(
+                Operand.Register(4),
+                Operand.Literal.LInt((statement.rhs as Expression.Literal.LInt).int)
+            )
+        )
+        var pos = activeScope.getPosition(statement.lhs.name)
+        if (pos != 0) {
+            instructions.add(
+                Instruction.STROffset(
+                    Operand.Register(4),
+                    Operand.Sp,
+                    Operand.Offset(pos)
+                )
+            )
+        } else {
+            instructions.add(
+                Instruction.STRSimple(
+                    Operand.Register(4),
+                    Operand.Sp
+                )
+            )
+        }
+        activeScope.declare(statement.lhs.name)
+    }
+
+    private fun addPointerLDR(e1: Expression) {
+        var pos = activeScope.getPosition((e1 as Expression.Identifier).name)
+        instructions.add(
+            Instruction.LDRRegister(
+                Operand.Register(5),
+                Operand.Sp,
+                Operand.Offset(pos)
+            )
+        )
+    }
+
+    private fun increaseSP(statement: Statement.Block) {
+        var declarationsSize = statement.scope.fullSize
+        for (i in 1..statement.scope.fullSize step 1024) {
+            instructions.add(
+                Instruction.ADD(
+                    Operand.Sp, Operand.Sp, Operand.Offset(
+                        if (declarationsSize > 1024) {
+                            declarationsSize -= 1024
+                            1024
+                        } else {
+                            declarationsSize
+                        }
+                    )
+                )
+            )
+        }
+    }
+
+    private fun decreaseSP(statement: Statement.Block): Int {
+        var declarationsSize = statement.scope.fullSize
+        for (i in 1..statement.scope.fullSize step 1024) {
+            instructions.add(
+                Instruction.SUB(
+                    Operand.Sp, Operand.Sp, Operand.Offset(
+                        if (declarationsSize > 1024) {
+                            declarationsSize -= 1024
+                            1024
+                        } else {
+                            declarationsSize
+                        }
+                    )
+                )
+            )
+        }
+        return declarationsSize
+    }
+
     fun compileExpression(expression: Expression) {
         when (expression) {
             is Expression.CallFunction -> {
@@ -139,7 +438,7 @@ class CodeGenerator(var program: Program) {
 
             is Expression.Literal.LInt -> {
                 instructions.add(
-                    Instruction.LDR(
+                    Instruction.LDRSimple(
                         Operand.Register(4),
                         Operand.Literal.LInt(expression.int)
                     )
@@ -147,7 +446,7 @@ class CodeGenerator(var program: Program) {
             }
             is Expression.Literal.LBool -> {
                 instructions.add(
-                    Instruction.LDR(
+                    Instruction.LDRSimple(
                         Operand.Register(4),
                         Operand.Literal.LBool(expression.bool)
                     )
@@ -155,7 +454,7 @@ class CodeGenerator(var program: Program) {
             }
             is Expression.Literal.LChar -> {
                 instructions.add(
-                    Instruction.LDR(
+                    Instruction.LDRSimple(
                         Operand.Register(4),
                         Operand.Literal.LChar(expression.char)
                     )
@@ -174,7 +473,7 @@ class CodeGenerator(var program: Program) {
                 when (expression.operator) {
                     Expression.UnaryOperator.MINUS -> {
                         instructions.add(
-                            Instruction.LDR(
+                            Instruction.LDRSimple(
                                 Operand.Register(4),
                                 Operand.Literal.LInt(
                                     "-${(expression.expression as Expression.Literal.LInt).int}"

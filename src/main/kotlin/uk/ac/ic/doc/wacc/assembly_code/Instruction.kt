@@ -13,8 +13,11 @@ sealed class Instruction {
     data class SUB(var rd: Operand, var rn: Operand, var operand: Operand): Instruction() {
         override fun toString(): String = "SUB $rd, $rn, $operand"
     }
-    data class LDR(var rd: Operand, var addr_mode2: Operand): Instruction() {
-        override fun toString(): String = "LDR $rd, $addr_mode2"
+    data class LDRSimple(var rd: Operand, var value: Operand): Instruction() {
+        override fun toString(): String = "LDR $rd, $value"
+    }
+    data class LDRRegister(var rd: Operand, var addrBase: Operand,  var addrOffset: Operand): Instruction() {
+        override fun toString(): String = "LDR $rd, [$addrBase, $addrOffset]"
     }
     data class PUSH(var regList : List<Operand>): Instruction() {
         override fun toString(): String = "PUSH {${regList.joinToString(separator = ", ")}}"
@@ -28,9 +31,14 @@ sealed class Instruction {
     data class BL(var name: String): Instruction() {
         override fun toString(): String = "BL $name"
     }
-    data class STR(var register: Operand, var addrBase: Operand, var addrOffset: Operand): Instruction() {
+    data class STRSimple(var register: Operand, var addr: Operand): Instruction() {
+        override fun toString(): String = "STR $register, [$addr]"
+    }
+    data class STROffset(var register: Operand, var addrBase: Operand, var addrOffset: Operand): Instruction() {
         override fun toString(): String = "STR $register, [$addrBase, $addrOffset]"
     }
+    data class STRB(var register: Operand, var addrBase: Operand, var addrOffset: Operand): Instruction() {
+        override fun toString(): String = "STRB $register, [$addrBase, $addrOffset]"
     data class WORD(var length: Int) : Instruction() {
         override fun toString(): String = ".word $length"
     }

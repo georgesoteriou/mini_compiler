@@ -196,7 +196,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
             }
             val array = Type.TArray(arrayElemType)
             array.size = expr.params.size
-            return array
+            array
         }
         is Expression.NewPair -> Type.TPair(exprType(expr.e1, activeScope), exprType(expr.e2, activeScope))
 
@@ -205,7 +205,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
             val e1Type = exprType(expr.e1, activeScope)
             val e2Type = exprType(expr.e2, activeScope)
             val op = expr.operator
-            return if (Type.compare(e1Type, e2Type)) {
+            if (Type.compare(e1Type, e2Type)) {
                 when (op) {
                     Expression.BinaryOperator.MULT,
                     Expression.BinaryOperator.DIV,
@@ -249,7 +249,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
         is Expression.UnaryOperation -> {
             val eType = exprType(expr.expression, activeScope)
             val op = expr.operator
-            return when (op) {
+            when (op) {
                 Expression.UnaryOperator.NOT ->
                     if (eType is Type.TBool) {
                         Type.TBool
@@ -293,18 +293,18 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
 
             var arrType = activeScope.findType(expr.array).orElse(Type.TError)
             repeat(expr.indexes.size) {
-                when (arrType) {
-                    is Type.TArray -> arrType = (arrType as Type.TArray).type
-                    is Type.TString -> arrType = Type.TChar
-                    else -> arrType = Type.TError
+                arrType = when (arrType) {
+                    is Type.TArray -> (arrType as Type.TArray).type
+                    is Type.TString -> Type.TChar
+                    else -> Type.TError
                 }
             }
-            return arrType
+            arrType
         }
 
         is Expression.Fst -> {
             val pairType = exprType(expr.expression, activeScope)
-            return when (pairType) {
+            when (pairType) {
                 is Type.TPair -> pairType.t1
                 is Type.TPairSimple -> Type.TPairSimple
                 else -> Type.TError
@@ -313,7 +313,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
 
         is Expression.Snd -> {
             val pairType = exprType(expr.expression, activeScope)
-            return when (pairType) {
+            when (pairType) {
                 is Type.TPair -> pairType.t2
                 is Type.TPairSimple -> Type.TPairSimple
                 else -> Type.TError
