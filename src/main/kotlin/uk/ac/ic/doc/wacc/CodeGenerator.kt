@@ -10,6 +10,7 @@ class CodeGenerator(var program: Program) {
     var labelCounter = 0
     var instructions: MutableList<Instruction> = arrayListOf()
     var data: MutableList<Instruction> = arrayListOf()
+    var wholeProgram: MutableList<Instruction> = arrayListOf()
     var activeScope = ActiveScope(Scope(), null)
     var messageCounter = 0
     var printString = false
@@ -25,31 +26,32 @@ class CodeGenerator(var program: Program) {
 
 
         if (printString) {
-            messageTagGenerator("%.*s\\0")
+            messageTagGenerator("%.*s\\0", true)
             add_pPrintString(messageCounter - 1)
         }
 
         if (printBool) {
-            messageTagGenerator("true\\0")
-            messageTagGenerator("false\\0")
+            messageTagGenerator("true\\0", true)
+            messageTagGenerator("false\\0", true)
             add_pPrintBool(messageCounter - 1)
         }
 
         if (printInt) {
-            messageTagGenerator("%d\\0")
+            messageTagGenerator("%d\\0", true)
             add_pPrintInt(messageCounter-1)
         }
 
         if (printReference) {
-            messageTagGenerator("%p\\0")
+            messageTagGenerator("%p\\0", true)
             add_pPrintReference(messageCounter-1)
         }
 
         if (printLnTag) {
-            messageTagGenerator("\\0")
+            messageTagGenerator("\\0", true)
 
         }
 
+        data.forEach { println(it.toString()) }
         instructions.forEach { println(it.toString()) }
     }
 
@@ -330,9 +332,13 @@ class CodeGenerator(var program: Program) {
         }
     }
 
-    fun messageTagGenerator(content: String) {
-        data.add(Instruction.Flag("msg_$messageCounter"))
-        data.add(Instruction.WORD(content.length))
+    fun messageTagGenerator(content: String, flag:Boolean = false) {
+        var length:Int = content.length
+        if (flag) {
+            length-=1
+        }
+        data.add(Instruction.Flag("msg_$messageCounter:"))
+        data.add(Instruction.WORD(length))
         data.add(Instruction.ASCII(content))
         messageCounter += 1
     }
@@ -342,7 +348,7 @@ class CodeGenerator(var program: Program) {
         // The required message for this: %.*s\0 resides at tagValue (= messageCounter - 1)
         instructions.addAll(
             arrayListOf(
-                (Instruction.LABEL("p_print_string:")),
+                (Instruction.LABEL("p_print_string")),
                 (Instruction.LDRSimple(Operand.Register(1), Operand.Register(0))),
                 (Instruction.ADD(
                         Operand.Register(2),
@@ -391,6 +397,7 @@ class CodeGenerator(var program: Program) {
             arrayListOf(
                 Instruction.LABEL("p_print_int"),
                 Instruction.PUSH(arrayListOf(Operand.Lr)),
+                Instruction.MOV(Operand.Register(1),Operand.Register(0)),
                 Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue)),
                 Instruction.ADD(
                     Operand.Register(0),
