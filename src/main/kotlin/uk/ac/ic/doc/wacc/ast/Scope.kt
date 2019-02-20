@@ -6,8 +6,10 @@ class Scope {
     data class Definition(var type: Type, var isDeclared: Boolean)
     var definitions: LinkedHashMap<String, Definition> = linkedMapOf()
 
-    fun getSize(): Int {
-        return definitions.values.fold(0) { next, def ->
+    var fullSize = 0
+
+    fun findFullSize() {
+        fullSize = definitions.values.fold(0) { next, def ->
             next + Type.size(def.type)
         }
     }
@@ -27,7 +29,7 @@ class Scope {
        return if(!found) {
            Optional.empty()
        } else {
-           Optional.of(getSize() - size)
+           Optional.of(fullSize - size)
        }
     }
 

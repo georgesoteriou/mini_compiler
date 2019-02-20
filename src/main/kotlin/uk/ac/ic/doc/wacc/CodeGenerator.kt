@@ -15,31 +15,31 @@ class CodeGenerator(var program: Program) {
         instructions.add(Instruction.Flag(".global main"))
         //TODO: Add functions to active scope
         compileStatement(program.block, "main")
+        instructions.add(Instruction.Flag(".ltorg"))
         instructions.forEach { println(it.toString()) }
     }
 
     fun compileStatement(statement: Statement, name: String = ".L$labelCounter") {
         when (statement) {
             is Statement.Block -> {
+                statement.scope.findFullSize()
                 instructions.add(Instruction.LABEL(name))
                 instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
                 activeScope = activeScope.newSubScope(statement.scope)
-                var declarationsSize = statement.scope.getSize()
-                for (i in 1..statement.scope.getSize() step 1024) {
-                    instructions.add(
-                        Instruction.SUB(
-                            Operand.Sp,
-                            Operand.Sp,
-                            Operand.Literal.LInt(
-                                if (declarationsSize > 1024) {
-                                    declarationsSize -= 1024
-                                    "1024"
-                                } else {
-                                    "$declarationsSize"
-                                }
-                            )
+                var declarationsSize = statement.scope.fullSize
+                for (i in 1..statement.scope.fullSize step 1024) {
+                    instructions.add(Instruction.SUB(
+                        Operand.Sp,
+                        Operand.Sp,
+                        Operand.Offset(
+                            if (declarationsSize > 1024) {
+                                declarationsSize -= 1024
+                                1024
+                            } else {
+                                declarationsSize
+                            }
                         )
-                    )
+                    ))
                 }
                 statement.statements.forEach { compileStatement(it) }
                 labelCounter++

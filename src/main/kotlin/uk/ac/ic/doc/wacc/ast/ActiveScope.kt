@@ -5,11 +5,16 @@ import java.util.*
 class ActiveScope(var currentScope: Scope, var parentScope: ActiveScope?) {
 
     fun getSize(): Int {
-        return currentScope.getSize() + (parentScope?.getSize() ?: 0)
+        return currentScope.fullSize + (parentScope?.getSize() ?: 0)
     }
 
     fun getPosition(name: String): Int {
-        return currentScope.getPosition(name).orElse(currentScope.getSize() + parentScope!!.getPosition(name))
+        val pos =  currentScope.getPosition(name)
+        return if(pos.isPresent) {
+            currentScope.getPosition(name).get()
+        } else {
+            currentScope.fullSize + parentScope!!.getPosition(name)
+        }
     }
 
     fun findType(s: String): Optional<Type> =
