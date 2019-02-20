@@ -20,6 +20,10 @@ sealed class Operand {
             override fun toString(): String = "TODO"
         }
     }
+
+    data class MessageTag(var tagNumber: Int) : Operand() {
+        override fun toString(): String = "=msg_$tagNumber"
+    }
     data class Constant(var value: Int): Operand() {
         override fun toString(): String = "#$value"
     }
