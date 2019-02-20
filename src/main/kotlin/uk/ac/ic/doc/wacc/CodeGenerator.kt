@@ -1,5 +1,6 @@
 package uk.ac.ic.doc.wacc
 
+
 import uk.ac.ic.doc.wacc.assembly_code.Instruction
 import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.*
@@ -31,24 +32,11 @@ class CodeGenerator(var program: Program) {
                 instructions.add(Instruction.LABEL(name))
                 instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
                 activeScope = activeScope.newSubScope(statement.scope)
-                var declarationsSize = statement.scope.fullSize
-                for (i in 1..statement.scope.fullSize step 1024) {
-                    instructions.add(Instruction.SUB(
-                        Operand.Sp,
-                        Operand.Sp,
-                        Operand.Offset(
-                            if (declarationsSize > 1024) {
-                                declarationsSize -= 1024
-                                1024
-                            } else {
-                                declarationsSize
-                            }
-                        )
-                    ))
-                }
+                decreaseSP(statement)
                 statement.statements.forEach { compileStatement(it) }
                 labelCounter++
                 // TODO add later: increment label counter : if name not like ".L<Int>"
+                increaseSP(statement)
                 instructions.add(Instruction.LDR(Operand.Register(0), Operand.Literal.LInt("0")))
                 instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
             }
@@ -67,6 +55,28 @@ class CodeGenerator(var program: Program) {
                             Operand.Offset(activeScope.getPosition(statement.lhs.name))
                         ))
                         activeScope.declare(statement.lhs.name)
+                    }
+                    is Type.TBool -> {
+                        instructions.add(Instruction.MOV(
+                            Operand.Register(4),
+                            Operand.Literal.LBool((statement.rhs as Expression.Literal.LBool).bool)
+                        ))
+                        instructions.add(Instruction.STRB(
+                            Operand.Register(4),
+                            Operand.Sp,
+                            Operand.Offset(activeScope.getPosition(statement.lhs.name))
+                        ))
+                    }
+                    is Type.TChar -> {
+                        instructions.add(Instruction.MOV(
+                            Operand.Register(4),
+                            Operand.Literal.LChar((statement.rhs as Expression.Literal.LChar).char)
+                        ))
+                        instructions.add(Instruction.STRB(
+                            Operand.Register(4),
+                            Operand.Sp,
+                            Operand.Offset(activeScope.getPosition(statement.lhs.name))
+                        ))
                     }
                 }
             }
@@ -129,6 +139,43 @@ class CodeGenerator(var program: Program) {
             }
         }
 
+    }
+
+    private fun increaseSP(statement: Statement.Block) {
+        var declarationsSize = statement.scope.fullSize
+        for (i in 1..statement.scope.fullSize step 1024) {
+            instructions.add(
+                Instruction.ADD(
+                    Operand.Sp, Operand.Sp, Operand.Offset(
+                        if (declarationsSize > 1024) {
+                            declarationsSize -= 1024
+                            1024
+                        } else {
+                            declarationsSize
+                        }
+                    )
+                )
+            )
+        }
+    }
+
+    private fun decreaseSP(statement: Statement.Block): Int {
+        var declarationsSize = statement.scope.fullSize
+        for (i in 1..statement.scope.fullSize step 1024) {
+            instructions.add(
+                Instruction.SUB(
+                    Operand.Sp, Operand.Sp, Operand.Offset(
+                        if (declarationsSize > 1024) {
+                            declarationsSize -= 1024
+                            1024
+                        } else {
+                            declarationsSize
+                        }
+                    )
+                )
+            )
+        }
+        return declarationsSize
     }
 
     fun compileExpression(expression: Expression) {

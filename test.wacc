@@ -1,3 +1,13 @@
+<<<<<<< HEAD
+=======
+# creates 257 variables
+
+# Output:
+# #empty#
+
+# Program:
+
+>>>>>>> variables
 begin
 string x = "abcd"; 
 print x
