@@ -40,7 +40,10 @@ class CodeGenerator(var program: Program) {
             add_pPrintInt(messageCounter-1)
         }
 
-
+        if (printReference) {
+            messageTagGenerator("%p\\0")
+            add_pPrintReference(messageCounter-1)
+        }
 
 
         instructions.forEach { println(it.toString()) }
@@ -344,6 +347,26 @@ class CodeGenerator(var program: Program) {
         instructions.addAll(
             arrayListOf(
                 Instruction.LABEL("p_print_int"),
+                Instruction.PUSH(arrayListOf(Operand.Lr)),
+                Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue)),
+                Instruction.ADD(
+                    Operand.Register(0),
+                    Operand.Register(0),
+                    Operand.Constant(4)),
+                Instruction.BL("printf"),
+                Instruction.MOV(Operand.Register(0), Operand.Constant(0)),
+                Instruction.BL("fflush"),
+                Instruction.POP(arrayListOf(Operand.Pc))
+            )
+        )
+    }
+
+    fun add_pPrintReference( tagValue: Int) {
+        // This should be called at the end of the program after checking the flags
+        // The required messages for this : %p\0 resides at tagValue ( = messageCounter - 1 )
+        instructions.addAll(
+            arrayListOf(
+                Instruction.LABEL("p_print_reference"),
                 Instruction.PUSH(arrayListOf(Operand.Lr)),
                 Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue)),
                 Instruction.ADD(
