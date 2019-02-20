@@ -22,6 +22,19 @@ class CodeGenerator(var program: Program) {
         //TODO: Add functions to active scope
         compileStatement(program.block, "main")
         instructions.add(Instruction.Flag(".ltorg"))
+
+
+        if (printString)
+        {
+            messageTagGenerator("%.*s\\0")
+            add_pPrintString(messageCounter-1)
+        }
+
+
+
+
+
+
         instructions.forEach { println(it.toString()) }
     }
 
@@ -45,38 +58,50 @@ class CodeGenerator(var program: Program) {
             is Statement.VariableDeclaration -> {
                 when (statement.lhs.type) {
                     is Type.TInt -> {
-                        instructions.add(Instruction.LDRSimple(
-                            Operand.Register(4),
-                            Operand.Literal.LInt((statement.rhs as Expression.Literal.LInt).int)
-                        ))
-                        instructions.add(Instruction.STROffset(
-                            Operand.Register(4),
-                            Operand.Sp,
-                            Operand.Offset(activeScope.getPosition(statement.lhs.name))
-                        ))
+                        instructions.add(
+                            Instruction.LDRSimple(
+                                Operand.Register(4),
+                                Operand.Literal.LInt((statement.rhs as Expression.Literal.LInt).int)
+                            )
+                        )
+                        instructions.add(
+                            Instruction.STROffset(
+                                Operand.Register(4),
+                                Operand.Sp,
+                                Operand.Offset(activeScope.getPosition(statement.lhs.name))
+                            )
+                        )
                         activeScope.declare(statement.lhs.name)
                     }
                     is Type.TBool -> {
-                        instructions.add(Instruction.MOV(
-                            Operand.Register(4),
-                            Operand.Literal.LBool((statement.rhs as Expression.Literal.LBool).bool)
-                        ))
-                        instructions.add(Instruction.STRB(
-                            Operand.Register(4),
-                            Operand.Sp,
-                            Operand.Offset(activeScope.getPosition(statement.lhs.name))
-                        ))
+                        instructions.add(
+                            Instruction.MOV(
+                                Operand.Register(4),
+                                Operand.Literal.LBool((statement.rhs as Expression.Literal.LBool).bool)
+                            )
+                        )
+                        instructions.add(
+                            Instruction.STRB(
+                                Operand.Register(4),
+                                Operand.Sp,
+                                Operand.Offset(activeScope.getPosition(statement.lhs.name))
+                            )
+                        )
                     }
                     is Type.TChar -> {
-                        instructions.add(Instruction.MOV(
-                            Operand.Register(4),
-                            Operand.Literal.LChar((statement.rhs as Expression.Literal.LChar).char)
-                        ))
-                        instructions.add(Instruction.STRB(
-                            Operand.Register(4),
-                            Operand.Sp,
-                            Operand.Offset(activeScope.getPosition(statement.lhs.name))
-                        ))
+                        instructions.add(
+                            Instruction.MOV(
+                                Operand.Register(4),
+                                Operand.Literal.LChar((statement.rhs as Expression.Literal.LChar).char)
+                            )
+                        )
+                        instructions.add(
+                            Instruction.STRB(
+                                Operand.Register(4),
+                                Operand.Sp,
+                                Operand.Offset(activeScope.getPosition(statement.lhs.name))
+                            )
+                        )
                     }
                 }
             }
@@ -97,22 +122,22 @@ class CodeGenerator(var program: Program) {
                 compileExpression(statement.expression)
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
                 when {
-                    Type.compare(statement.expression.exprType,Type.TArray(Type.TAny)) ||
-                            Type.compare(statement.expression.exprType,Type.TPair(Type.TAny,Type.TAny))
+                    Type.compare(statement.expression.exprType, Type.TArray(Type.TAny)) ||
+                            Type.compare(statement.expression.exprType, Type.TPair(Type.TAny, Type.TAny))
                     -> {
                         printReference = true
                         instructions.add(Instruction.BL("p_print_int"))
                     }
 
 
-                    Type.compare(statement.expression.exprType,Type.TChar) -> {
+                    Type.compare(statement.expression.exprType, Type.TChar) -> {
                         instructions.add(Instruction.BL("putchar"))
 
                     }
-                    Type.compare(statement.expression.exprType,Type.TString)
+                    Type.compare(statement.expression.exprType, Type.TString)
                     -> {
                         printString = true
-                        messageTagGenerator(statement.expression as Expression.Literal.LString)
+                        messageTagGenerator((statement.expression as Expression.Literal.LString).string)
                         // TODO: check here about what happens because message generator is called here so the tag
                         // TODO: is generated here but it has already been passed through compileExpression so maybe
                         // TODO: the function call to messageTagGenerator should be in compileExpression
@@ -120,12 +145,12 @@ class CodeGenerator(var program: Program) {
                         instructions.add(Instruction.BL("p_print_string"))
                     }
 
-                    Type.compare(statement.expression.exprType,Type.TInt) -> {
+                    Type.compare(statement.expression.exprType, Type.TInt) -> {
                         printInt = true
                         instructions.add(Instruction.BL("p_print_int"))
                     }
 
-                    Type.compare(statement.expression.exprType,Type.TBool) -> {
+                    Type.compare(statement.expression.exprType, Type.TBool) -> {
                         printBool = true
                         instructions.add(Instruction.BL("p_print_bool"))
                     }
@@ -249,11 +274,36 @@ class CodeGenerator(var program: Program) {
         }
     }
 
-    fun messageTagGenerator(content : Expression.Literal.LString) {
+    fun messageTagGenerator(content: String) {
         data.add(Instruction.Flag("msg_$messageCounter"))
-        data.add(Instruction.WORD(content.string.length))
-        data.add(Instruction.ASCII(content.string))
+        data.add(Instruction.WORD(content.length))
+        data.add(Instruction.ASCII(content))
+        messageCounter += 1
     }
 
+    fun add_pPrintString(tagValue: Int) {
+        // This should be called at the end of the program after checking the flags
+        instructions.add(Instruction.LABEL("p_print_string:"))
+        instructions.add(Instruction.LDRSimple(Operand.Register(1), Operand.Register(0)))
+        instructions.add(
+            Instruction.ADD(
+                Operand.Register(2),
+                Operand.Register(0),
+                Operand.Constant(4)
+            )
+        )
+        instructions.add(Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue)))
+        instructions.add(
+            Instruction.ADD(
+                Operand.Register(0),
+                Operand.Register(0),
+                Operand.Constant(4)
+            )
+        )
+        instructions.add(Instruction.BL("printf"))
+        instructions.add(Instruction.MOV(Operand.Register(0),Operand.Constant(0)))
+        instructions.add(Instruction.BL("fflush"))
+        instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
 
+    }
 }
