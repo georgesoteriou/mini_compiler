@@ -168,7 +168,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
 
 fun exprType(expr: Expression, activeScope: ActiveScope): Type {
 
-    return when (expr) {
+    expr.exprType = when (expr) {
         is Expression.CallFunction -> {
             val type = activeScope.findType(expr.name).orElse(Type.TError)
             when (type) {
@@ -320,4 +320,6 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
             }
         }
     }
+
+    return expr.exprType
 }
