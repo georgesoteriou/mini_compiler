@@ -6,13 +6,8 @@
 # Program:
 
 begin
-
-  pair(int, int) getPair() is
-    pair(int, int) p = newpair(10,15);
-    return p
-  end
-
-  pair(int, int) p = call getPair();
-  int x = fst p;
-  print getPair
+  int[] a = [3, 5];
+  int[] b = [7, 9];
+  int[] d = [1, 2];
+ int[][] c = [a, b]
 end

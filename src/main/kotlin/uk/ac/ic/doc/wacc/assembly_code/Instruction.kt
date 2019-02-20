@@ -32,7 +32,7 @@ sealed class Instruction {
         override fun toString(): String = "BL $name"
     }
     data class STRSimple(var register: Operand, var addr: Operand): Instruction() {
-        override fun toString(): String = "STR $register, $addr"
+        override fun toString(): String = "STR $register, [$addr]"
     }
     data class STROffset(var register: Operand, var addrBase: Operand, var addrOffset: Operand): Instruction() {
         override fun toString(): String = "STR $register, [$addrBase, $addrOffset]"
