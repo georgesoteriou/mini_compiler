@@ -1,4 +1,3 @@
 begin 
-pair(int,int) x = newpair(10,3); 
-print x
+println 'x'
 end
