@@ -49,6 +49,5 @@ sealed class Instruction {
     data class CMP (var rn: Operand, var op2: Operand) : Instruction() {
         override fun toString(): String = "CMP $rn, $op2"
     }
-    data class LDRNE (va )
 
 }
