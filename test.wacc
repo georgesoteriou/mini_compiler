@@ -1,3 +1,12 @@
-begin 
-print 5
+# creates 257 variables
+
+# Output:
+# #empty#
+
+# Program:
+
+begin
+  pair(int, int) x = newpair(11, 12);
+  pair(int, int) y = newpair(3, 4);
+  pair(int, int)[] a = [x, y]
 end
