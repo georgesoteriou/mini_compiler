@@ -198,7 +198,7 @@ class CodeGenerator(var program: Program) {
                         // TODO: check here about what happens because message generator is called here so the tag
                         // TODO: is generated here but it has already been passed through compileExpression so maybe
                         // TODO: the function call to messageTagGenerator should be in compileExpression
-                        // TODO: but what if strings are used elsewhere?
+                        // TODO: Essentially, what if strings are used elsewhere?
                         instructions.add(Instruction.BL("p_print_string"))
                     }
 
