@@ -11,6 +11,11 @@ class CodeGenerator(var program: Program) {
     var data: MutableList<Instruction> = arrayListOf()
     var activeScope = ActiveScope(Scope(), null)
 
+    var printString = false
+    var printInt = false
+    var printBool = false
+    var printLn = false
+    var printReference = false
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
         //TODO: Add functions to active scope
