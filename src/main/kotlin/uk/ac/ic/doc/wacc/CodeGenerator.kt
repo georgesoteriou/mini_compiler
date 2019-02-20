@@ -10,7 +10,7 @@ class CodeGenerator(var program: Program) {
     var instructions: MutableList<Instruction> = arrayListOf()
     var data: MutableList<Instruction> = arrayListOf()
     var activeScope = ActiveScope(Scope(), null)
-
+    var messageCounter = 0
     var printString = false
     var printInt = false
     var printBool = false
@@ -84,6 +84,39 @@ class CodeGenerator(var program: Program) {
                 instructions.add(Instruction.BL("exit"))
             }
             is Statement.Print -> {
+                compileExpression(statement.expression)
+                instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
+                when {
+                    Type.compare(statement.expression.exprType,Type.TArray(Type.TAny)) ||
+                            Type.compare(statement.expression.exprType,Type.TPair(Type.TAny,Type.TAny))
+                    -> {
+                        printReference = true
+                        instructions.add(Instruction.BL("p_print_int"))
+                    }
+
+
+                    Type.compare(statement.expression.exprType,Type.TChar) -> {
+                        instructions.add(Instruction.BL("putchar"))
+
+                    }
+                    Type.compare(statement.expression.exprType,Type.TString)
+                    -> {
+                        printString = true
+                        // TODO : Message tag generator call here
+                        statement.expression as Type.TString
+                        instructions.add(Instruction.BL("p_print_string"))
+                    }
+
+                    Type.compare(statement.expression.exprType,Type.TInt) -> {
+                        printInt = true
+                        instructions.add(Instruction.BL("p_print_int"))
+                    }
+
+                    Type.compare(statement.expression.exprType,Type.TBool) -> {
+                        printBool = true
+                        instructions.add(Instruction.BL("p_print_bool"))
+                    }
+                }
             }
             is Statement.PrintLn -> {
             }
@@ -165,4 +198,6 @@ class CodeGenerator(var program: Program) {
             }
         }
     }
+
+
 }
