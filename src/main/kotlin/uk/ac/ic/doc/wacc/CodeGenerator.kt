@@ -27,39 +27,11 @@ class CodeGenerator(var program: Program) {
                 instructions.add(Instruction.LABEL(name))
                 instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
                 activeScope = activeScope.newSubScope(statement.scope)
-                var declarationsSize = statement.scope.fullSize
-                for (i in 1..statement.scope.fullSize step 1024) {
-                    instructions.add(Instruction.SUB(
-                        Operand.Sp,
-                        Operand.Sp,
-                        Operand.Offset(
-                            if (declarationsSize > 1024) {
-                                declarationsSize -= 1024
-                                1024
-                            } else {
-                                declarationsSize
-                            }
-                        )
-                    ))
-                }
+                decreaseSP(statement)
                 statement.statements.forEach { compileStatement(it) }
                 labelCounter++
                 // TODO add later: increment label counter : if name not like ".L<Int>"
-                declarationsSize = statement.scope.fullSize
-                for (i in 1..statement.scope.fullSize step 1024) {
-                    instructions.add(Instruction.ADD(
-                        Operand.Sp,
-                        Operand.Sp,
-                        Operand.Offset(
-                            if (declarationsSize > 1024) {
-                                declarationsSize -= 1024
-                                1024
-                            } else {
-                                declarationsSize
-                            }
-                        )
-                    ))
-                }
+                increaseSP(statement)
                 instructions.add(Instruction.LDR(Operand.Register(0), Operand.Literal.LInt("0")))
                 instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
             }
@@ -115,6 +87,43 @@ class CodeGenerator(var program: Program) {
             }
         }
 
+    }
+
+    private fun increaseSP(statement: Statement.Block) {
+        var declarationsSize = statement.scope.fullSize
+        for (i in 1..statement.scope.fullSize step 1024) {
+            instructions.add(
+                Instruction.ADD(
+                    Operand.Sp, Operand.Sp, Operand.Offset(
+                        if (declarationsSize > 1024) {
+                            declarationsSize -= 1024
+                            1024
+                        } else {
+                            declarationsSize
+                        }
+                    )
+                )
+            )
+        }
+    }
+
+    private fun decreaseSP(statement: Statement.Block): Int {
+        var declarationsSize = statement.scope.fullSize
+        for (i in 1..statement.scope.fullSize step 1024) {
+            instructions.add(
+                Instruction.SUB(
+                    Operand.Sp, Operand.Sp, Operand.Offset(
+                        if (declarationsSize > 1024) {
+                            declarationsSize -= 1024
+                            1024
+                        } else {
+                            declarationsSize
+                        }
+                    )
+                )
+            )
+        }
+        return declarationsSize
     }
 
     fun compileExpression(expression: Expression) {
