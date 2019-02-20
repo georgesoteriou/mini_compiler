@@ -39,6 +39,11 @@ sealed class Instruction {
     }
     data class STRB(var register: Operand, var addrBase: Operand, var addrOffset: Operand): Instruction() {
         override fun toString(): String = "STRB $register, [$addrBase, $addrOffset]"
+    data class WORD(var length: Int) : Instruction() {
+        override fun toString(): String = ".word $length"
+    }
+    data class ASCII(var contents: String) : Instruction() {
+        override fun toString(): String = ".ascii \"$contents\""
     }
 
 }
