@@ -13,8 +13,8 @@ sealed class Instruction {
     data class SUB(var rd: Operand, var rn: Operand, var operand: Operand): Instruction() {
         override fun toString(): String = "SUB $rd, $rn, $operand"
     }
-    data class LDRSimple(var rd: Operand, var value: Operand): Instruction() {
-        override fun toString(): String = "LDR $rd, $value"
+    data class LDRSimple(var rd: Operand, var value: Operand, var extra:String = ""): Instruction() {
+        override fun toString(): String = "LDR$extra $rd, $value"
     }
     data class LDRRegister(var rd: Operand, var addrBase: Operand,  var addrOffset: Operand): Instruction() {
         override fun toString(): String = "LDR $rd, [$addrBase, $addrOffset]"
@@ -45,6 +45,9 @@ sealed class Instruction {
     }
     data class ASCII(var contents: String) : Instruction() {
         override fun toString(): String = ".ascii \"$contents\""
+    }
+    data class CMP (var rn: Operand, var op2: Operand) : Instruction() {
+        override fun toString(): String = "CMP $rn, $op2"
     }
 
 }
