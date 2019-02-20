@@ -2,6 +2,7 @@ package uk.ac.ic.doc.wacc.ast
 
 sealed class Expression {
 
+    var exprType:Type = Type.TAny
     data class CallFunction(var name: String, var params: List<Expression>) : Expression()
 
     data class NewPair(var e1: Expression, var e2: Expression) : Expression()

@@ -5,7 +5,14 @@
 
 # Program:
 
-
 begin
-  char c = 't'
+
+  pair(int, int) getPair() is
+    pair(int, int) p = newpair(10,15);
+    return p
+  end
+
+  pair(int, int) p = call getPair();
+  int x = fst p;
+  print getPair
 end
