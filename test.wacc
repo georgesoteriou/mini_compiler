@@ -1,3 +1,4 @@
 begin
-print "abcd"
+string x = "abcd"; 
+print x
 end

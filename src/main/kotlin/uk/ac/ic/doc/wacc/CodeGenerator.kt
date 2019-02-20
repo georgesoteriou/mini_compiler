@@ -103,7 +103,10 @@ class CodeGenerator(var program: Program) {
                     -> {
                         printString = true
                         messageTagGenerator(statement.expression as Expression.Literal.LString)
-                        statement.expression as Type.TString
+                        // TODO: check here about what happens because message generator is called here so the tag
+                        // TODO: is generated here but it has already been passed through compileExpression so maybe
+                        // TODO: the function call to messageTagGenerator should be in compileExpression
+                        // TODO: but what if strings are used elsewhere? 
                         instructions.add(Instruction.BL("p_print_string"))
                     }
 
