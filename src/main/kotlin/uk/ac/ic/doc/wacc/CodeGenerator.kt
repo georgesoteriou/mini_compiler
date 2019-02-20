@@ -174,6 +174,45 @@ class CodeGenerator(var program: Program) {
                 }
             }
             is Statement.PrintLn -> {
+                printLnTag = true
+                compileExpression(statement.expression)
+                instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
+                when {
+                    Type.compare(statement.expression.exprType, Type.TArray(Type.TAny)) ||
+                            Type.compare(statement.expression.exprType, Type.TPair(Type.TAny, Type.TAny))
+                    -> {
+                        printReference = true
+                        instructions.add(Instruction.BL("p_print_reference"))
+                    }
+
+
+                    Type.compare(statement.expression.exprType, Type.TChar) -> {
+                        instructions.add(Instruction.BL("putchar"))
+
+                    }
+
+                    Type.compare(statement.expression.exprType, Type.TString)
+                    -> {
+                        printString = true
+                        messageTagGenerator((statement.expression as Expression.Literal.LString).string)
+                        // TODO: check here about what happens because message generator is called here so the tag
+                        // TODO: is generated here but it has already been passed through compileExpression so maybe
+                        // TODO: the function call to messageTagGenerator should be in compileExpression
+                        // TODO: but what if strings are used elsewhere?
+                        instructions.add(Instruction.BL("p_print_string"))
+                    }
+
+                    Type.compare(statement.expression.exprType, Type.TInt) -> {
+                        printInt = true
+                        instructions.add(Instruction.BL("p_print_int"))
+                    }
+
+                    Type.compare(statement.expression.exprType, Type.TBool) -> {
+                        printBool = true
+                        instructions.add(Instruction.BL("p_print_bool"))
+                    }
+
+                }
             }
             is Statement.If -> {
             }
