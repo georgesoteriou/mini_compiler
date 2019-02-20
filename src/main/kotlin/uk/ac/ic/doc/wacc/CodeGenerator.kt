@@ -102,7 +102,7 @@ class CodeGenerator(var program: Program) {
                     Type.compare(statement.expression.exprType,Type.TString)
                     -> {
                         printString = true
-                        // TODO : Message tag generator call here
+                        messageTagGenerator(statement.expression as Expression.Literal.LString)
                         statement.expression as Type.TString
                         instructions.add(Instruction.BL("p_print_string"))
                     }
@@ -197,6 +197,12 @@ class CodeGenerator(var program: Program) {
             is Expression.Snd -> {
             }
         }
+    }
+
+    fun messageTagGenerator(content : Expression.Literal.LString) {
+        data.add(Instruction.Flag("msg_$messageCounter"))
+        data.add(Instruction.WORD(content.string.length))
+        data.add(Instruction.ASCII(content.string))
     }
 
 
