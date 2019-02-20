@@ -37,7 +37,7 @@ class CodeGenerator(var program: Program) {
                 labelCounter++
                 // TODO add later: increment label counter : if name not like ".L<Int>"
                 increaseSP(statement)
-                instructions.add(Instruction.LDR(Operand.Register(0), Operand.Literal.LInt("0")))
+                instructions.add(Instruction.LDRSimple(Operand.Register(0), Operand.Literal.LInt("0")))
                 instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
             }
             is Statement.Skip -> {
@@ -45,11 +45,11 @@ class CodeGenerator(var program: Program) {
             is Statement.VariableDeclaration -> {
                 when (statement.lhs.type) {
                     is Type.TInt -> {
-                        instructions.add(Instruction.LDR(
+                        instructions.add(Instruction.LDRSimple(
                             Operand.Register(4),
                             Operand.Literal.LInt((statement.rhs as Expression.Literal.LInt).int)
                         ))
-                        instructions.add(Instruction.STR(
+                        instructions.add(Instruction.STROffset(
                             Operand.Register(4),
                             Operand.Sp,
                             Operand.Offset(activeScope.getPosition(statement.lhs.name))
@@ -189,7 +189,7 @@ class CodeGenerator(var program: Program) {
 
             is Expression.Literal.LInt -> {
                 instructions.add(
-                    Instruction.LDR(
+                    Instruction.LDRSimple(
                         Operand.Register(4),
                         Operand.Literal.LInt(expression.int)
                     )
@@ -197,7 +197,7 @@ class CodeGenerator(var program: Program) {
             }
             is Expression.Literal.LBool -> {
                 instructions.add(
-                    Instruction.LDR(
+                    Instruction.LDRSimple(
                         Operand.Register(4),
                         Operand.Literal.LBool(expression.bool)
                     )
@@ -205,7 +205,7 @@ class CodeGenerator(var program: Program) {
             }
             is Expression.Literal.LChar -> {
                 instructions.add(
-                    Instruction.LDR(
+                    Instruction.LDRSimple(
                         Operand.Register(4),
                         Operand.Literal.LChar(expression.char)
                     )
@@ -224,7 +224,7 @@ class CodeGenerator(var program: Program) {
                 when (expression.operator) {
                     Expression.UnaryOperator.MINUS -> {
                         instructions.add(
-                            Instruction.LDR(
+                            Instruction.LDRSimple(
                                 Operand.Register(4),
                                 Operand.Literal.LInt(
                                     "-${(expression.expression as Expression.Literal.LInt).int}"
