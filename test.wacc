@@ -6,8 +6,7 @@
 # Program:
 
 begin
-  int[] a = [3, 5];
-  int[] b = [7, 9];
-  int[] d = [1, 2];
- int[][] c = [a, b]
+  pair(int, int) x = newpair(11, 12);
+  pair(int, int) y = newpair(3, 4);
+  pair(int, int)[] a = [x, y]
 end
