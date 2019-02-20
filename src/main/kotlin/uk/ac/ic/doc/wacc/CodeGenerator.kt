@@ -29,6 +29,11 @@ class CodeGenerator(var program: Program) {
             add_pPrintString(messageCounter - 1)
         }
 
+        if (printBool) {
+            messageTagGenerator("true\\0")
+            messageTagGenerator("false\\0")
+            add_pPrintBool(messageCounter - 1)
+        }
 
 
 
@@ -282,6 +287,7 @@ class CodeGenerator(var program: Program) {
 
     fun add_pPrintString(tagValue: Int) {
         // This should be called at the end of the program after checking the flags
+        // The required message for this: %.*s\0 resides at tagValue (= messageCounter - 1)
         instructions.addAll(
             arrayListOf(
                 (Instruction.LABEL("p_print_string:")),
@@ -303,4 +309,26 @@ class CodeGenerator(var program: Program) {
         )
     }
 
+    fun add_pPrintBool(tagValue : Int) {
+        // This should be called at the end of the program after checking the flags
+        // The required messages for this:
+        //                      true\0 resides at tagValue - 1 ( = messageCounter - 2 )
+        //                      false\0 resides at tagValue ( = messageCounter - 1 )
+        instructions.addAll(
+            arrayListOf(
+                Instruction.LABEL("p_print_bool"),
+                Instruction.CMP(Operand.Register(0),Operand.Constant(0)),
+                Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue-1),"NE"),
+                Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue),"EQ"),
+                Instruction.ADD(
+                    Operand.Register(0),
+                    Operand.Register(0),
+                    Operand.Constant(4)),
+                Instruction.BL("printf"),
+                Instruction.MOV(Operand.Register(0), Operand.Constant(0)),
+                Instruction.BL("fflush"),
+                Instruction.POP(arrayListOf(Operand.Pc))
+            )
+        )
+    }
 }

@@ -1,3 +1,4 @@
 begin 
-print "abcd" 
+bool x = true ; 
+print x
 end
