@@ -24,10 +24,9 @@ class CodeGenerator(var program: Program) {
         instructions.add(Instruction.Flag(".ltorg"))
 
 
-        if (printString)
-        {
+        if (printString) {
             messageTagGenerator("%.*s\\0")
-            add_pPrintString(messageCounter-1)
+            add_pPrintString(messageCounter - 1)
         }
 
 
@@ -283,27 +282,25 @@ class CodeGenerator(var program: Program) {
 
     fun add_pPrintString(tagValue: Int) {
         // This should be called at the end of the program after checking the flags
-        instructions.add(Instruction.LABEL("p_print_string:"))
-        instructions.add(Instruction.LDRSimple(Operand.Register(1), Operand.Register(0)))
-        instructions.add(
-            Instruction.ADD(
-                Operand.Register(2),
-                Operand.Register(0),
-                Operand.Constant(4)
+        instructions.addAll(
+            arrayListOf(
+                (Instruction.LABEL("p_print_string:")),
+                (Instruction.LDRSimple(Operand.Register(1), Operand.Register(0))),
+                (Instruction.ADD(
+                        Operand.Register(2),
+                        Operand.Register(0),
+                        Operand.Constant(4))),
+                (Instruction.LDRSimple(Operand.Register(0), Operand.MessageTag(tagValue))),
+                (Instruction.ADD(
+                        Operand.Register(0),
+                        Operand.Register(0),
+                        Operand.Constant(4))),
+                (Instruction.BL("printf")),
+                (Instruction.MOV(Operand.Register(0), Operand.Constant(0))),
+                (Instruction.BL("fflush")),
+                (Instruction.POP(arrayListOf(Operand.Pc)))
             )
         )
-        instructions.add(Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue)))
-        instructions.add(
-            Instruction.ADD(
-                Operand.Register(0),
-                Operand.Register(0),
-                Operand.Constant(4)
-            )
-        )
-        instructions.add(Instruction.BL("printf"))
-        instructions.add(Instruction.MOV(Operand.Register(0),Operand.Constant(0)))
-        instructions.add(Instruction.BL("fflush"))
-        instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
-
     }
+
 }
