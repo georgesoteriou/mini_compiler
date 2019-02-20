@@ -6,6 +6,6 @@
 # Program:
 
 
- begin
-   bool b = true
- end
+begin
+  char c = 't'
+end

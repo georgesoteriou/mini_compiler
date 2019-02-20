@@ -62,6 +62,17 @@ class CodeGenerator(var program: Program) {
                             Operand.Offset(activeScope.getPosition(statement.lhs.name))
                         ))
                     }
+                    is Type.TChar -> {
+                        instructions.add(Instruction.MOV(
+                            Operand.Register(4),
+                            Operand.Literal.LChar((statement.rhs as Expression.Literal.LChar).char)
+                        ))
+                        instructions.add(Instruction.STRB(
+                            Operand.Register(4),
+                            Operand.Sp,
+                            Operand.Offset(activeScope.getPosition(statement.lhs.name))
+                        ))
+                    }
                 }
             }
             is Statement.VariableAssignment -> {
