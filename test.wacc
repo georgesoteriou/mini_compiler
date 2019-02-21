@@ -6,7 +6,9 @@
 # Program:
 
 begin
-  pair(int, int) x = newpair(11, 12);
-  pair(int, int) y = newpair(3, 4);
-  pair(int, int)[] a = [x, y]
+  char[] y = ['a', 'b'];
+  char[] x = ['c', 'd'];
+  char[][] y2 = [y, x];
+  char[][] x2 = [x, y];
+  char[][][] z = [x2, y2]
 end
