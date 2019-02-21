@@ -44,15 +44,19 @@ class CodeGenerator(var program: Program) {
             }
             is Statement.VariableDeclaration -> {
                 var type = statement.lhs.type
+                val name = statement.lhs.name
                 when (type) {
                     is Type.TInt -> {
-                        intDeclInstructions(statement)
+                        val value = (statement.rhs as Expression.Literal.LInt).int
+                        intAssignInstructions(name, value)
                     }
                     is Type.TBool -> {
-                        boolDeclInstructions(statement)
+                        val value = (statement.rhs as Expression.Literal.LBool).bool
+                        boolAssignInstructions(name, value)
                     }
                     is Type.TChar -> {
-                        charDeclInstructions(statement)
+                        val value = (statement.rhs as Expression.Literal.LChar).char
+                        charAssignInstructions(name, value)
                     }
                     is Type.TArray -> {
                         arrayDeclInstructions(statement)
@@ -62,9 +66,34 @@ class CodeGenerator(var program: Program) {
                         //TODO: deal with null pairs
                     }
                 }
+                activeScope.declare(name)
+
             }
 
             is Statement.VariableAssignment -> {
+                var type = statement.rhs.exprType
+                val name = (statement.lhs as Expression.Identifier).name
+                when (type) {
+                    is Type.TInt -> {
+                        val value = (statement.rhs as Expression.Literal.LInt).int
+                        intAssignInstructions(name, value)
+                    }
+                    is Type.TBool -> {
+                        val value = (statement.rhs as Expression.Literal.LBool).bool
+                        boolAssignInstructions(name, value)
+                    }
+                    is Type.TChar -> {
+                        val value = (statement.rhs as Expression.Literal.LChar).char
+                        charAssignInstructions(name, value)
+                    }
+                    is Type.TArray -> {
+                     //   arrayDeclInstructions(statement)
+                    }
+                    is Type.TPair -> {
+                       // pairDeclInstructions(statement)
+                        //TODO: deal with null pairs
+                    }
+                }
             }
             is Statement.ReadInput -> {
             }
@@ -320,46 +349,49 @@ class CodeGenerator(var program: Program) {
         )
     }
 
-    private fun charDeclInstructions(statement: Statement.VariableDeclaration) {
+    private fun charAssignInstructions(name: String, value: Char) {
         instructions.add(
             Instruction.MOV(
                 Operand.Register(4),
-                Operand.Literal.LChar((statement.rhs as Expression.Literal.LChar).char)
+                Operand.Literal.LChar(value)
             )
         )
+        val pos = activeScope.getPosition(name)
         instructions.add(
             Instruction.STRB(
                 Operand.Register(4),
                 Operand.Sp,
-                Operand.Offset(activeScope.getPosition(statement.lhs.name))
+                Operand.Offset(pos)
             )
         )
     }
 
-    private fun boolDeclInstructions(statement: Statement.VariableDeclaration) {
+    private fun boolAssignInstructions(name: String, value: Boolean) {
         instructions.add(
             Instruction.MOV(
                 Operand.Register(4),
-                Operand.Literal.LBool((statement.rhs as Expression.Literal.LBool).bool)
+                Operand.Literal.LBool(value)
             )
         )
+
+        val pos = activeScope.getPosition(name)
         instructions.add(
             Instruction.STRB(
                 Operand.Register(4),
                 Operand.Sp,
-                Operand.Offset(activeScope.getPosition(statement.lhs.name))
+                Operand.Offset(pos)
             )
         )
     }
 
-    private fun intDeclInstructions(statement: Statement.VariableDeclaration) {
+    private fun intAssignInstructions(name: String, value: String) {
         instructions.add(
             Instruction.LDRSimple(
                 Operand.Register(4),
-                Operand.Literal.LInt((statement.rhs as Expression.Literal.LInt).int)
+                Operand.Literal.LInt(value)
             )
         )
-        var pos = activeScope.getPosition(statement.lhs.name)
+        var pos = activeScope.getPosition(name)
         if (pos != 0) {
             instructions.add(
                 Instruction.STROffset(
@@ -376,7 +408,6 @@ class CodeGenerator(var program: Program) {
                 )
             )
         }
-        activeScope.declare(statement.lhs.name)
     }
 
     private fun addPointerLDR(e1: Expression) {
