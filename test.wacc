@@ -6,8 +6,5 @@
 # Program:
 
 begin
-  int x = 3;
-  int[] y = [x]
-# char[][] x2 = [x, y];
-# char[][][] z = [x2, y2]
+  pair(int, int) p = newpair(10, 3)
 end
