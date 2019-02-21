@@ -75,28 +75,32 @@ class CodeGenerator(var program: Program) {
             is Statement.VariableDeclaration -> {
                 var type = statement.lhs.type
                 val name = statement.lhs.name
-                when (type) {
-                    is Type.TInt -> {
-                        compileExpression(statement.rhs, 4)
-                        intAssignInstructions(name)
-                    }
-                    is Type.TBool -> {
-                        compileExpression(statement.rhs, 4)
-                        boolAssignInstructions(name)
-                    }
 
-                    is Type.TChar -> {
-                        compileExpression(statement.rhs, 4)
-                        charAssignInstructions(name)
-                    }
+                if(statement.rhs is Expression.Literal.LPair) {
+                    pairNullDeclInstructions()
+                } else {
 
-                    is Type.TArray -> {
-                        arrayDeclInstructions(statement.lhs, (statement.rhs as Expression.Literal.LArray))
-                    }
-                    is Type.TPair -> {
-                        compileExpression(statement.rhs, 5)
-                        pairDeclInstructions(statement)
-                        //TODO: deal with null pairs
+                    when (type) {
+                        is Type.TInt -> {
+                            compileExpression(statement.rhs, 4)
+                            intAssignInstructions(name)
+                        }
+                        is Type.TBool -> {
+                            compileExpression(statement.rhs, 4)
+                            boolAssignInstructions(name)
+                        }
+
+                        is Type.TChar -> {
+                            compileExpression(statement.rhs, 4)
+                            charAssignInstructions(name)
+                        }
+
+                        is Type.TArray -> {
+                            arrayDeclInstructions(statement.lhs, (statement.rhs as Expression.Literal.LArray))
+                        }
+                        is Type.TPair -> {
+                            pairDeclInstructions(statement)
+                        }
                     }
                 }
                 activeScope.declare(name)

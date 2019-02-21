@@ -80,6 +80,21 @@ fun CodeGenerator.addPointerLDR(e1: Expression, dest: Int) {
     )
 }
 
+fun CodeGenerator.pairNullDeclInstructions() {
+    instructions.add(
+        Instruction.LDRSimple(
+            Operand.Register(4),
+            Operand.Literal.LInt("0")
+        )
+    )
+    instructions.add(
+        Instruction.STRSimple(
+            Operand.Register(4),
+            Operand.Sp
+        )
+    )
+}
+
 fun CodeGenerator.pairDeclInstructions(statement: Statement.VariableDeclaration) {
     instructions.add(
         Instruction.LDRSimple(
