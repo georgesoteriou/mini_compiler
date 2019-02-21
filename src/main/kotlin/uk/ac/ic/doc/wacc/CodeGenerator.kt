@@ -175,7 +175,7 @@ class CodeGenerator(var program: Program) {
             }
             is Statement.PrintLn -> {
                 printLnTag = true
-                compileExpression(statement.expression)
+                compileExpression(statement.expression, 4)
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
                 when {
                     Type.compare(statement.expression.exprType, Type.TArray(Type.TAny)) ||
@@ -634,8 +634,8 @@ class CodeGenerator(var program: Program) {
             arrayListOf(
                 Instruction.LABEL("p_print_bool"),
                 Instruction.CMP(Operand.Register(0),Operand.Constant(0)),
-                Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue-1),"NE"),
-                Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue),"EQ"),
+                Instruction.LDRCond(Operand.Register(0),Operand.MessageTag(tagValue-1),"NE"),
+                Instruction.LDRCond(Operand.Register(0),Operand.MessageTag(tagValue),"EQ"),
                 Instruction.ADD(
                     Operand.Register(0),
                     Operand.Register(0),

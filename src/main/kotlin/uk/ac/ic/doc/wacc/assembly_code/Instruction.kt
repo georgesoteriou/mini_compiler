@@ -25,6 +25,10 @@ sealed class Instruction {
         override fun toString(): String = "LDR $rd, [$addrBase, $addrOffset]"
     }
 
+    data class LDRCond(var rd: Operand, var value: Operand, var cond: String) : Instruction() {
+        override fun toString(): String = "LDR$cond $rd, $value"
+    }
+
     data class PUSH(var regList: List<Operand>) : Instruction() {
         override fun toString(): String = "PUSH {${regList.joinToString(separator = ", ")}}"
     }
