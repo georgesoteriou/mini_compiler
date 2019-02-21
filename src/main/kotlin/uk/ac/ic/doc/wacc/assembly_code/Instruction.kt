@@ -64,5 +64,8 @@ sealed class Instruction {
     data class ASCII(var contents: String) : Instruction() {
         override fun toString(): String = ".ascii \"$contents\""
     }
+    data class CMP (var rn: Operand, var op2: Operand) : Instruction() {
+        override fun toString(): String = "CMP $rn, $op2"
+    }
 
 }

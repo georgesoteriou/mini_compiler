@@ -5,7 +5,7 @@ build/
 out/
 src/main/gen/
 .idea/misc.xml
-test.wacc
+./test.wacc
 
 
 # Created by https://www.gitignore.io/api/java,macos,maven,gradle,kotlin,intellij
@@ -97,7 +97,6 @@ fabric.properties
 # Compiled class file
 *.class
 
-<<<<<<< HEAD
 build/
 out/
 src/main/gen
@@ -189,8 +188,6 @@ fabric.properties
 # Compiled class file
 *.class
 
-=======
->>>>>>> origin/lexerparser
 # Log file
 *.log
 
@@ -225,7 +222,6 @@ hs_err_pid*
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 
-<<<<<<< HEAD
 ### Linux ###
 *~
 
@@ -241,8 +237,6 @@ hs_err_pid*
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
 
-=======
->>>>>>> origin/lexerparser
 ### macOS ###
 # General
 .DS_Store
@@ -271,7 +265,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-<<<<<<< HEAD
 ### Vim ###
 # Swap
 [._]*.s[a-v][a-z]
@@ -300,7 +293,6 @@ tags
 ### VisualStudioCode Patch ###
 # Ignore all local history of files
 .history
-=======
 ### Maven ###
 target/
 pom.xml.tag
@@ -312,7 +304,6 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
->>>>>>> origin/lexerparser
 
 ### Gradle ###
 .gradle
@@ -330,7 +321,6 @@ gradle-app.setting
 # # Work around https://youtrack.jetbrains.com/issue/IDEA-116898
 # gradle/wrapper/gradle-wrapper.properties
 
-<<<<<<< HEAD
 ### Gradle Patch ###
 **/build/
 
@@ -344,4 +334,3 @@ gradle/
 
 
 # End of https://www.gitignore.io/api/java,macos,maven,gradle,kotlin,intellij
->>>>>>> origin/lexerparser

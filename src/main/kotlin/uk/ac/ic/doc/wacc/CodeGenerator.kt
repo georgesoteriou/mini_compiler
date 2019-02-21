@@ -10,18 +10,48 @@ class CodeGenerator(var program: Program) {
     var labelCounter = 0
     var instructions: MutableList<Instruction> = arrayListOf()
     var data: MutableList<Instruction> = arrayListOf()
+    var wholeProgram: MutableList<Instruction> = arrayListOf()
     var activeScope = ActiveScope(Scope(), null)
     var messageCounter = 0
     var printString = false
     var printInt = false
     var printBool = false
-    var printLn = false
+    var printLnTag = false
     var printReference = false
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
         //TODO: Add functions to active scope
         compileStatement(program.block, "main")
         instructions.add(Instruction.Flag(".ltorg"))
+
+
+        if (printString) {
+            messageTagGenerator("%.*s\\0", true)
+            add_pPrintString(messageCounter - 1)
+        }
+
+        if (printBool) {
+            messageTagGenerator("true\\0", true)
+            messageTagGenerator("false\\0", true)
+            add_pPrintBool(messageCounter - 1)
+        }
+
+        if (printInt) {
+            messageTagGenerator("%d\\0", true)
+            add_pPrintInt(messageCounter-1)
+        }
+
+        if (printReference) {
+            messageTagGenerator("%p\\0", true)
+            add_pPrintReference(messageCounter-1)
+        }
+
+        if (printLnTag) {
+            messageTagGenerator("\\0", true)
+
+        }
+
+        data.forEach { println(it.toString()) }
         instructions.forEach { println(it.toString()) }
     }
 
@@ -107,38 +137,82 @@ class CodeGenerator(var program: Program) {
                 compileExpression(statement.expression, 4)
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
                 when {
-                    Type.compare(statement.expression.exprType,Type.TArray(Type.TAny)) ||
-                            Type.compare(statement.expression.exprType,Type.TPair(Type.TAny,Type.TAny))
+                    Type.compare(statement.expression.exprType, Type.TArray(Type.TAny)) ||
+                            Type.compare(statement.expression.exprType, Type.TPair(Type.TAny, Type.TAny))
                     -> {
                         printReference = true
-                        instructions.add(Instruction.BL("p_print_int"))
+                        instructions.add(Instruction.BL("p_print_reference"))
                     }
 
 
-                    Type.compare(statement.expression.exprType,Type.TChar) -> {
+                    Type.compare(statement.expression.exprType, Type.TChar) -> {
                         instructions.add(Instruction.BL("putchar"))
 
                     }
-                    Type.compare(statement.expression.exprType,Type.TString)
+
+                    Type.compare(statement.expression.exprType, Type.TString)
                     -> {
                         printString = true
-                        // TODO : Message tag generator call here
-                        statement.expression as Type.TString
+                        messageTagGenerator((statement.expression as Expression.Literal.LString).string)
+                        // TODO: check here about what happens because message generator is called here so the tag
+                        // TODO: is generated here but it has already been passed through compileExpression so maybe
+                        // TODO: the function call to messageTagGenerator should be in compileExpression
+                        // TODO: but what if strings are used elsewhere? 
                         instructions.add(Instruction.BL("p_print_string"))
                     }
 
-                    Type.compare(statement.expression.exprType,Type.TInt) -> {
+                    Type.compare(statement.expression.exprType, Type.TInt) -> {
                         printInt = true
                         instructions.add(Instruction.BL("p_print_int"))
                     }
 
-                    Type.compare(statement.expression.exprType,Type.TBool) -> {
+                    Type.compare(statement.expression.exprType, Type.TBool) -> {
                         printBool = true
                         instructions.add(Instruction.BL("p_print_bool"))
                     }
+
                 }
             }
             is Statement.PrintLn -> {
+                printLnTag = true
+                compileExpression(statement.expression)
+                instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
+                when {
+                    Type.compare(statement.expression.exprType, Type.TArray(Type.TAny)) ||
+                            Type.compare(statement.expression.exprType, Type.TPair(Type.TAny, Type.TAny))
+                    -> {
+                        printReference = true
+                        instructions.add(Instruction.BL("p_print_reference"))
+                    }
+
+
+                    Type.compare(statement.expression.exprType, Type.TChar) -> {
+                        instructions.add(Instruction.BL("putchar"))
+
+                    }
+
+                    Type.compare(statement.expression.exprType, Type.TString)
+                    -> {
+                        printString = true
+                        messageTagGenerator((statement.expression as Expression.Literal.LString).string)
+                        // TODO: check here about what happens because message generator is called here so the tag
+                        // TODO: is generated here but it has already been passed through compileExpression so maybe
+                        // TODO: the function call to messageTagGenerator should be in compileExpression
+                        // TODO: Essentially, what if strings are used elsewhere?
+                        instructions.add(Instruction.BL("p_print_string"))
+                    }
+
+                    Type.compare(statement.expression.exprType, Type.TInt) -> {
+                        printInt = true
+                        instructions.add(Instruction.BL("p_print_int"))
+                    }
+
+                    Type.compare(statement.expression.exprType, Type.TBool) -> {
+                        printBool = true
+                        instructions.add(Instruction.BL("p_print_bool"))
+                    }
+
+                }
             }
             is Statement.If -> {
             }
@@ -516,5 +590,122 @@ class CodeGenerator(var program: Program) {
         }
     }
 
+    fun messageTagGenerator(content: String, flag:Boolean = false) {
+        var length:Int = content.length
+        if (flag) {
+            length-=1
+        }
+        data.add(Instruction.Flag("msg_$messageCounter:"))
+        data.add(Instruction.WORD(length))
+        data.add(Instruction.ASCII(content))
+        messageCounter += 1
+    }
 
+    fun add_pPrintString(tagValue: Int) {
+        // This should be called at the end of the program after checking the flags
+        // The required message for this: %.*s\0 resides at tagValue (= messageCounter - 1)
+        instructions.addAll(
+            arrayListOf(
+                (Instruction.LABEL("p_print_string")),
+                (Instruction.LDRSimple(Operand.Register(1), Operand.Register(0))),
+                (Instruction.ADD(
+                        Operand.Register(2),
+                        Operand.Register(0),
+                        Operand.Constant(4))),
+                (Instruction.LDRSimple(Operand.Register(0), Operand.MessageTag(tagValue))),
+                (Instruction.ADD(
+                        Operand.Register(0),
+                        Operand.Register(0),
+                        Operand.Constant(4))),
+                (Instruction.BL("printf")),
+                (Instruction.MOV(Operand.Register(0), Operand.Constant(0))),
+                (Instruction.BL("fflush")),
+                (Instruction.POP(arrayListOf(Operand.Pc)))
+            )
+        )
+    }
+
+    fun add_pPrintBool(tagValue : Int) {
+        // This should be called at the end of the program after checking the flags
+        // The required messages for this:
+        //                      true\0 resides at tagValue - 1 ( = messageCounter - 2 )
+        //                      false\0 resides at tagValue ( = messageCounter - 1 )
+        instructions.addAll(
+            arrayListOf(
+                Instruction.LABEL("p_print_bool"),
+                Instruction.CMP(Operand.Register(0),Operand.Constant(0)),
+                Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue-1),"NE"),
+                Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue),"EQ"),
+                Instruction.ADD(
+                    Operand.Register(0),
+                    Operand.Register(0),
+                    Operand.Constant(4)),
+                Instruction.BL("printf"),
+                Instruction.MOV(Operand.Register(0), Operand.Constant(0)),
+                Instruction.BL("fflush"),
+                Instruction.POP(arrayListOf(Operand.Pc))
+            )
+        )
+    }
+
+    fun add_pPrintInt(tagValue : Int) {
+        // This should be called at the end of the program after checking the flags
+        // The required messages for this: %d\0 resides at tagValue ( = messageCounter - 1 )
+        instructions.addAll(
+            arrayListOf(
+                Instruction.LABEL("p_print_int"),
+                Instruction.PUSH(arrayListOf(Operand.Lr)),
+                Instruction.MOV(Operand.Register(1),Operand.Register(0)),
+                Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue)),
+                Instruction.ADD(
+                    Operand.Register(0),
+                    Operand.Register(0),
+                    Operand.Constant(4)),
+                Instruction.BL("printf"),
+                Instruction.MOV(Operand.Register(0), Operand.Constant(0)),
+                Instruction.BL("fflush"),
+                Instruction.POP(arrayListOf(Operand.Pc))
+            )
+        )
+    }
+
+    fun add_pPrintReference( tagValue: Int) {
+        // This should be called at the end of the program after checking the flags
+        // The required messages for this : %p\0 resides at tagValue ( = messageCounter - 1 )
+        instructions.addAll(
+            arrayListOf(
+                Instruction.LABEL("p_print_reference"),
+                Instruction.PUSH(arrayListOf(Operand.Lr)),
+                Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue)),
+                Instruction.ADD(
+                    Operand.Register(0),
+                    Operand.Register(0),
+                    Operand.Constant(4)),
+                Instruction.BL("printf"),
+                Instruction.MOV(Operand.Register(0), Operand.Constant(0)),
+                Instruction.BL("fflush"),
+                Instruction.POP(arrayListOf(Operand.Pc))
+            )
+        )
+    }
+
+    fun add_pPrintLn (tagValue: Int) {
+        // This should be called at the end of the program after checking the flags
+        // The required messages for this : \0 resides at tagValue ( = messageCounter - 1 )
+        instructions.addAll(
+            arrayListOf(
+                Instruction.LABEL("p_print_ln"),
+                Instruction.PUSH(arrayListOf(Operand.Lr)),
+                Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue)),
+                Instruction.ADD(
+                    Operand.Register(0),
+                    Operand.Register(0),
+                    Operand.Constant(4)),
+                Instruction.BL("puts"),
+                Instruction.MOV(Operand.Register(0), Operand.Constant(0)),
+                Instruction.BL("fflush"),
+                Instruction.POP(arrayListOf(Operand.Pc))
+            )
+        )
+    }
 }
