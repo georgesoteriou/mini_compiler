@@ -74,27 +74,53 @@ class CodeGenerator(var program: Program) {
             }
             is Statement.VariableDeclaration -> {
                 var type = statement.lhs.type
+                val name = statement.lhs.name
                 when (type) {
+
                     is Type.TInt -> {
-                        intDeclInstructions(statement)
+                        compileExpression(statement.rhs, 4)
+                        intAssignInstructions(name)
                     }
                     is Type.TBool -> {
-                        boolDeclInstructions(statement)
+                        compileExpression(statement.rhs, 4)
+                        boolAssignInstructions(name)
                     }
+
                     is Type.TChar -> {
-                        charDeclInstructions(statement)
+                        compileExpression(statement.rhs, 4)
+                        charAssignInstructions(name)
                     }
+
                     is Type.TArray -> {
+                        compileExpression(statement.rhs, 5)
                         arrayDeclInstructions(statement)
                     }
                     is Type.TPair -> {
+                        compileExpression(statement.rhs, 5)
                         pairDeclInstructions(statement)
                         //TODO: deal with null pairs
                     }
                 }
+                activeScope.declare(name)
+
             }
 
             is Statement.VariableAssignment -> {
+                var type = statement.rhs.exprType
+                compileExpression(statement.rhs, 4)
+                val name = (statement.lhs as Expression.Identifier).name
+                when (type) {
+                    is Type.TInt -> intAssignInstructions(name)
+                    is Type.TBool -> boolAssignInstructions(name)
+                    is Type.TChar -> charAssignInstructions(name)
+                    is Type.TArray -> {
+                     //   arrayDeclInstructions(statement)
+                    }
+                    is Type.TPair -> {
+                       // pairDeclInstructions(statement)
+                        //TODO: deal with null pairs
+                    }
+                }
             }
             is Statement.ReadInput -> {
             }
@@ -103,12 +129,12 @@ class CodeGenerator(var program: Program) {
             is Statement.Return -> {
             }
             is Statement.Exit -> {
-                compileExpression(statement.expression)
+                compileExpression(statement.expression, 4)
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
                 instructions.add(Instruction.BL("exit"))
             }
             is Statement.Print -> {
-                compileExpression(statement.expression)
+                compileExpression(statement.expression, 4)
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
                 when {
                     Type.compare(statement.expression.exprType, Type.TArray(Type.TAny)) ||
@@ -149,7 +175,7 @@ class CodeGenerator(var program: Program) {
             }
             is Statement.PrintLn -> {
                 printLnTag = true
-                compileExpression(statement.expression)
+                compileExpression(statement.expression, 4)
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
                 when {
                     Type.compare(statement.expression.exprType, Type.TArray(Type.TAny)) ||
@@ -304,7 +330,8 @@ class CodeGenerator(var program: Program) {
                 Operand.Register(0),
                 Operand.Literal.LInt(
                     (((statement.rhs as Expression.Literal.LArray).params.size) *
-                            Type.size(statement.lhs.type) + 4).toString()
+                            Type.size((statement.lhs.type as Type.TArray).type) + 4).toString()
+                    // TODO: Fix this for multidimensional arrays & put in expr
                 )
             )
         )
@@ -315,8 +342,8 @@ class CodeGenerator(var program: Program) {
                 Operand.Register(0)
             )
         )
-        var offset = Type.size(statement.lhs.type)
         var type = (statement.rhs.exprType as Type.TArray).type
+        var offset = Type.size(statement.lhs.type)
         (statement.rhs as Expression.Literal.LArray).params.forEach {
             when (type) {
                 is Type.TArray -> {
@@ -340,18 +367,7 @@ class CodeGenerator(var program: Program) {
                     )
                 }
                 else -> {
-                    instructions.add(
-                        Instruction.LDRSimple(
-                            Operand.Register(5),
-                            when (type) {
-                                is Type.TInt -> Operand.Literal.LInt((it as Expression.Literal.LInt).int)
-                                is Type.TBool -> Operand.Literal.LBool((it as Expression.Literal.LBool).bool)
-                                is Type.TChar -> Operand.Literal.LChar((it as Expression.Literal.LChar).char)
-                                else -> throw IllegalArgumentException()
-                            }
-                        )
-                    )
-
+                    compileExpression(it, 5)
                     instructions.add(
                         Instruction.STROffset(
                             Operand.Register(5),
@@ -361,7 +377,7 @@ class CodeGenerator(var program: Program) {
                     )
                 }
             }
-            offset += Type.size(statement.lhs.type)
+            offset += Type.size((statement.lhs.type as Type.TArray).type)
         }
 
         //Storing no. of array elems
@@ -394,46 +410,48 @@ class CodeGenerator(var program: Program) {
         )
     }
 
-    private fun charDeclInstructions(statement: Statement.VariableDeclaration) {
-        instructions.add(
-            Instruction.MOV(
-                Operand.Register(4),
-                Operand.Literal.LChar((statement.rhs as Expression.Literal.LChar).char)
+    private fun charAssignInstructions(name: String) {
+        val pos = activeScope.getPosition(name)
+        if(pos != 0) {
+            instructions.add(
+                Instruction.STRBOffset(
+                    Operand.Register(4),
+                    Operand.Sp,
+                    Operand.Offset(pos)
+                )
             )
-        )
-        instructions.add(
-            Instruction.STRB(
-                Operand.Register(4),
-                Operand.Sp,
-                Operand.Offset(activeScope.getPosition(statement.lhs.name))
+        } else {
+            instructions.add(
+                Instruction.STRBSimple(
+                    Operand.Register(4),
+                    Operand.Sp
+                )
             )
-        )
+        }
     }
 
-    private fun boolDeclInstructions(statement: Statement.VariableDeclaration) {
-        instructions.add(
-            Instruction.MOV(
-                Operand.Register(4),
-                Operand.Literal.LBool((statement.rhs as Expression.Literal.LBool).bool)
+    private fun boolAssignInstructions(name: String) {
+        val pos = activeScope.getPosition(name)
+        if(pos != 0) {
+            instructions.add(
+                Instruction.STRBOffset(
+                    Operand.Register(4),
+                    Operand.Sp,
+                    Operand.Offset(pos)
+                )
             )
-        )
-        instructions.add(
-            Instruction.STRB(
-                Operand.Register(4),
-                Operand.Sp,
-                Operand.Offset(activeScope.getPosition(statement.lhs.name))
+        } else {
+            instructions.add(
+                Instruction.STRBSimple(
+                    Operand.Register(4),
+                    Operand.Sp
+                )
             )
-        )
+        }
     }
 
-    private fun intDeclInstructions(statement: Statement.VariableDeclaration) {
-        instructions.add(
-            Instruction.LDRSimple(
-                Operand.Register(4),
-                Operand.Literal.LInt((statement.rhs as Expression.Literal.LInt).int)
-            )
-        )
-        var pos = activeScope.getPosition(statement.lhs.name)
+    private fun intAssignInstructions(name: String) {
+        var pos = activeScope.getPosition(name)
         if (pos != 0) {
             instructions.add(
                 Instruction.STROffset(
@@ -450,7 +468,6 @@ class CodeGenerator(var program: Program) {
                 )
             )
         }
-        activeScope.declare(statement.lhs.name)
     }
 
     private fun addPointerLDR(e1: Expression) {
@@ -501,7 +518,7 @@ class CodeGenerator(var program: Program) {
         return declarationsSize
     }
 
-    fun compileExpression(expression: Expression) {
+    fun compileExpression(expression: Expression, dest: Int) {
         when (expression) {
             is Expression.CallFunction -> {
             }
@@ -513,27 +530,28 @@ class CodeGenerator(var program: Program) {
             is Expression.Literal.LInt -> {
                 instructions.add(
                     Instruction.LDRSimple(
-                        Operand.Register(4),
+                        Operand.Register(dest),
                         Operand.Literal.LInt(expression.int)
                     )
                 )
             }
             is Expression.Literal.LBool -> {
                 instructions.add(
-                    Instruction.LDRSimple(
-                        Operand.Register(4),
+                    Instruction.MOV(
+                        Operand.Register(dest),
                         Operand.Literal.LBool(expression.bool)
                     )
                 )
             }
             is Expression.Literal.LChar -> {
                 instructions.add(
-                    Instruction.LDRSimple(
-                        Operand.Register(4),
+                    Instruction.MOV(
+                        Operand.Register(dest),
                         Operand.Literal.LChar(expression.char)
                     )
                 )
             }
+
             is Expression.Literal.LString -> {
             }
             is Expression.Literal.LArray -> {
@@ -548,7 +566,7 @@ class CodeGenerator(var program: Program) {
                     Expression.UnaryOperator.MINUS -> {
                         instructions.add(
                             Instruction.LDRSimple(
-                                Operand.Register(4),
+                                Operand.Register(dest),
                                 Operand.Literal.LInt(
                                     "-${(expression.expression as Expression.Literal.LInt).int}"
                                 )
@@ -616,8 +634,8 @@ class CodeGenerator(var program: Program) {
             arrayListOf(
                 Instruction.LABEL("p_print_bool"),
                 Instruction.CMP(Operand.Register(0),Operand.Constant(0)),
-                Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue-1),"NE"),
-                Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue),"EQ"),
+                Instruction.LDRCond(Operand.Register(0),Operand.MessageTag(tagValue-1),"NE"),
+                Instruction.LDRCond(Operand.Register(0),Operand.MessageTag(tagValue),"EQ"),
                 Instruction.ADD(
                     Operand.Register(0),
                     Operand.Register(0),
