@@ -8,7 +8,7 @@
 begin
   char[] y = ['a', 'b'];
   char[] x = ['c', 'd'];
-  char[][] y2 = [y, x];
-  char[][] x2 = [x, y];
-  char[][][] z = [x2, y2]
+  char[][] y2 = [y, x]
+# char[][] x2 = [x, y];
+# char[][][] z = [x2, y2]
 end
