@@ -3,8 +3,7 @@ package uk.ac.ic.doc.wacc
 import uk.ac.ic.doc.wacc.assembly_code.Instruction
 import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.*
-import java.lang.IllegalArgumentException
-import javax.lang.model.element.TypeElement
+import uk.ac.ic.doc.wacc.helpers.*
 
 class CodeGenerator(var program: Program) {
 
@@ -77,7 +76,6 @@ class CodeGenerator(var program: Program) {
                 var type = statement.lhs.type
                 val name = statement.lhs.name
                 when (type) {
-
                     is Type.TInt -> {
                         compileExpression(statement.rhs, 4)
                         intAssignInstructions(name)
@@ -102,7 +100,6 @@ class CodeGenerator(var program: Program) {
                     }
                 }
                 activeScope.declare(name)
-
             }
 
             is Statement.VariableAssignment -> {
@@ -110,9 +107,18 @@ class CodeGenerator(var program: Program) {
                 compileExpression(statement.rhs, 4)
                 val name = (statement.lhs as Expression.Identifier).name
                 when (type) {
-                    is Type.TInt -> intAssignInstructions(name)
-                    is Type.TBool -> boolAssignInstructions(name)
-                    is Type.TChar -> charAssignInstructions(name)
+                    is Type.TInt -> {
+                        compileExpression(statement.rhs, 4)
+                        intAssignInstructions(name)
+                    }
+                    is Type.TBool -> {
+                        compileExpression(statement.rhs, 4)
+                        boolAssignInstructions(name)
+                    }
+                    is Type.TChar -> {
+                        compileExpression(statement.rhs, 4)
+                        charAssignInstructions(name)
+                    }
                     is Type.TArray -> {
                         //arrayDeclInstructions(statement)
                     }
@@ -138,20 +144,17 @@ class CodeGenerator(var program: Program) {
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
                 when {
                     Type.compare(statement.expression.exprType, Type.TArray(Type.TAny)) ||
-                            Type.compare(statement.expression.exprType, Type.TPair(Type.TAny, Type.TAny))
-                    -> {
+                            Type.compare(statement.expression.exprType, Type.TPair(Type.TAny, Type.TAny)) -> {
                         printReference = true
                         instructions.add(Instruction.BL("p_print_reference"))
                     }
-
 
                     Type.compare(statement.expression.exprType, Type.TChar) -> {
                         instructions.add(Instruction.BL("putchar"))
 
                     }
 
-                    Type.compare(statement.expression.exprType, Type.TString)
-                    -> {
+                    Type.compare(statement.expression.exprType, Type.TString) -> {
                         printString = true
                         messageTagGenerator((statement.expression as Expression.Literal.LString).string)
                         // TODO: check here about what happens because message generator is called here so the tag
@@ -170,7 +173,6 @@ class CodeGenerator(var program: Program) {
                         printBool = true
                         instructions.add(Instruction.BL("p_print_bool"))
                     }
-
                 }
             }
             is Statement.PrintLn -> {
@@ -179,8 +181,7 @@ class CodeGenerator(var program: Program) {
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
                 when {
                     Type.compare(statement.expression.exprType, Type.TArray(Type.TAny)) ||
-                            Type.compare(statement.expression.exprType, Type.TPair(Type.TAny, Type.TAny))
-                    -> {
+                            Type.compare(statement.expression.exprType, Type.TPair(Type.TAny, Type.TAny)) -> {
                         printReference = true
                         instructions.add(Instruction.BL("p_print_reference"))
                     }
@@ -191,8 +192,7 @@ class CodeGenerator(var program: Program) {
 
                     }
 
-                    Type.compare(statement.expression.exprType, Type.TString)
-                    -> {
+                    Type.compare(statement.expression.exprType, Type.TString) -> {
                         printString = true
                         messageTagGenerator((statement.expression as Expression.Literal.LString).string)
                         // TODO: check here about what happens because message generator is called here so the tag
@@ -220,285 +220,6 @@ class CodeGenerator(var program: Program) {
             }
         }
 
-    }
-
-    private fun pairDeclInstructions(statement: Statement.VariableDeclaration) {
-        instructions.add(
-            Instruction.LDRSimple(
-                Operand.Register(0),
-                Operand.Literal.LInt("8")
-            )
-        )
-        instructions.add(Instruction.BL("malloc"))
-        instructions.add(
-            Instruction.MOV(
-                Operand.Register(4),
-                Operand.Register(0)
-            )
-        )
-        var typeL = (statement.rhs.exprType as Type.TPair).t1
-        var typeR = (statement.rhs.exprType as Type.TPair).t2
-        var e1 = (statement.rhs as Expression.NewPair).e1
-        var e2 = (statement.rhs as Expression.NewPair).e2
-        pairElemDeclInstructions(typeL, e1)
-
-        instructions.add(
-            Instruction.LDRSimple(
-                Operand.Register(0),
-                Operand.Literal.LInt(Type.size(e1.exprType).toString())
-            )
-        )
-
-        instructions.add(Instruction.BL("malloc"))
-
-        instructions.add(
-            Instruction.STRSimple(
-                Operand.Register(5),
-                Operand.Register(0)
-            )
-        )
-
-        instructions.add(
-            Instruction.STRSimple(
-                Operand.Register(0),
-                Operand.Register(4)
-            )
-        )
-
-        pairElemDeclInstructions(typeR, e2)
-
-        instructions.add(
-            Instruction.LDRSimple(
-                Operand.Register(0),
-                Operand.Literal.LInt(Type.size(e1.exprType).toString())
-            )
-        )
-
-        instructions.add(Instruction.BL("malloc"))
-
-        instructions.add(
-            Instruction.STRSimple(
-                Operand.Register(5),
-                Operand.Register(0)
-            )
-        )
-
-        instructions.add(
-            Instruction.STROffset(
-                Operand.Register(0),
-                Operand.Register(4),
-                Operand.Offset(4)
-            )
-        )
-
-        instructions.add(
-            Instruction.STROffset(
-                Operand.Register(4),
-                Operand.Sp,
-                Operand.Offset(activeScope.getPosition(statement.lhs.name))
-            )
-        )
-    }
-
-    private fun pairElemDeclInstructions(type: Type, expr: Expression) {
-        when (type) {
-            is Type.TArray -> {
-                addPointerLDR(expr, 5)
-            }
-            is Type.TPair -> {
-                addPointerLDR(expr, 5)
-            }
-            else -> {
-                instructions.add(
-                    Instruction.LDRSimple(
-                        Operand.Register(5),
-                        when (type) {
-                            is Type.TInt -> Operand.Literal.LInt((expr as Expression.Literal.LInt).int)
-                            is Type.TBool -> Operand.Literal.LBool((expr as Expression.Literal.LBool).bool)
-                            is Type.TChar -> Operand.Literal.LChar((expr as Expression.Literal.LChar).char)
-                            else -> throw IllegalArgumentException()
-                        }
-                    )
-                )
-            }
-        }
-    }
-
-    private fun arrayDeclInstructions(lhs: Definition, rhs: Expression.Literal.LArray) {
-        instructions.add(
-            Instruction.LDRSimple(
-                Operand.Register(0),
-                Operand.Literal.LInt(
-                    (rhs.params.size * Type.size((lhs.type as Type.TArray).type) + 4).toString()
-                    // TODO: Fix this for multidimensional arrays & put in expr
-                )
-            )
-        )
-        instructions.add(Instruction.BL("malloc"))
-        instructions.add(
-            Instruction.MOV(
-                Operand.Register(4),
-                Operand.Register(0)
-            )
-        )
-
-        var offset = Type.size(lhs.type)
-        val type = (rhs.exprType as Type.TArray).type
-        rhs.params.forEach {
-            when (type) {
-                is Type.TArray, is Type.TPair -> {
-                    addPointerLDR(it, 5)
-                }
-                else -> {
-                    compileExpression(it, 5)
-                }
-            }
-            instructions.add(
-                Instruction.STROffset(
-                    Operand.Register(5),
-                    Operand.Register(4),
-                    Operand.Offset(offset)
-                )
-            )
-            offset += Type.size(type)
-        }
-
-        //Storing no. of array elems
-        instructions.add(
-            Instruction.LDRSimple(
-                Operand.Register(5),
-                Operand.Literal.LInt(rhs.params.size.toString())
-            )
-        )
-        instructions.add(
-            Instruction.STRSimple(
-                Operand.Register(5),
-                Operand.Register(4)
-            )
-        )
-        //Store array to sp
-        var pos = activeScope.getPosition(lhs.name)
-        instructions.add(
-            when (pos) {
-                0 -> Instruction.STRSimple(
-                    Operand.Register(4),
-                    Operand.Sp
-                )
-                else -> Instruction.STROffset(
-                    Operand.Register(4),
-                    Operand.Sp,
-                    Operand.Offset(pos)
-                )
-            }
-        )
-    }
-
-    private fun charAssignInstructions(name: String) {
-        val pos = activeScope.getPosition(name)
-        if (pos != 0) {
-            instructions.add(
-                Instruction.STRBOffset(
-                    Operand.Register(4),
-                    Operand.Sp,
-                    Operand.Offset(pos)
-                )
-            )
-        } else {
-            instructions.add(
-                Instruction.STRBSimple(
-                    Operand.Register(4),
-                    Operand.Sp
-                )
-            )
-        }
-    }
-
-    private fun boolAssignInstructions(name: String) {
-        val pos = activeScope.getPosition(name)
-        if (pos != 0) {
-            instructions.add(
-                Instruction.STRBOffset(
-                    Operand.Register(4),
-                    Operand.Sp,
-                    Operand.Offset(pos)
-                )
-            )
-        } else {
-            instructions.add(
-                Instruction.STRBSimple(
-                    Operand.Register(4),
-                    Operand.Sp
-                )
-            )
-        }
-    }
-
-    private fun intAssignInstructions(name: String) {
-        var pos = activeScope.getPosition(name)
-        if (pos != 0) {
-            instructions.add(
-                Instruction.STROffset(
-                    Operand.Register(4),
-                    Operand.Sp,
-                    Operand.Offset(pos)
-                )
-            )
-        } else {
-            instructions.add(
-                Instruction.STRSimple(
-                    Operand.Register(4),
-                    Operand.Sp
-                )
-            )
-        }
-    }
-
-    private fun addPointerLDR(e1: Expression, dest: Int) {
-        var pos = activeScope.getPosition((e1 as Expression.Identifier).name)
-        instructions.add(
-            Instruction.LDRRegister(
-                Operand.Register(dest),
-                Operand.Sp,
-                Operand.Offset(pos)
-            )
-        )
-    }
-
-    private fun increaseSP(statement: Statement.Block) {
-        var declarationsSize = statement.scope.fullSize
-        for (i in 1..statement.scope.fullSize step 1024) {
-            instructions.add(
-                Instruction.ADD(
-                    Operand.Sp, Operand.Sp, Operand.Offset(
-                        if (declarationsSize > 1024) {
-                            declarationsSize -= 1024
-                            1024
-                        } else {
-                            declarationsSize
-                        }
-                    )
-                )
-            )
-        }
-    }
-
-    private fun decreaseSP(statement: Statement.Block): Int {
-        var declarationsSize = statement.scope.fullSize
-        for (i in 1..statement.scope.fullSize step 1024) {
-            instructions.add(
-                Instruction.SUB(
-                    Operand.Sp, Operand.Sp, Operand.Offset(
-                        if (declarationsSize > 1024) {
-                            declarationsSize -= 1024
-                            1024
-                        } else {
-                            declarationsSize
-                        }
-                    )
-                )
-            )
-        }
-        return declarationsSize
     }
 
     fun compileExpression(expression: Expression, dest: Int) {
@@ -581,128 +302,42 @@ class CodeGenerator(var program: Program) {
         }
     }
 
-    fun messageTagGenerator(content: String, flag: Boolean = false) {
-        var length: Int = content.length
-        if (flag) {
-            length -= 1
+    private fun increaseSP(statement: Statement.Block) {
+        var declarationsSize = statement.scope.fullSize
+        for (i in 1..statement.scope.fullSize step 1024) {
+            instructions.add(
+                Instruction.ADD(
+                    Operand.Sp, Operand.Sp, Operand.Offset(
+                        if (declarationsSize > 1024) {
+                            declarationsSize -= 1024
+                            1024
+                        } else {
+                            declarationsSize
+                        }
+                    )
+                )
+            )
         }
-        data.add(Instruction.Flag("msg_$messageCounter:"))
-        data.add(Instruction.WORD(length))
-        data.add(Instruction.ASCII(content))
-        messageCounter += 1
     }
 
-    fun add_pPrintString(tagValue: Int) {
-        // This should be called at the end of the program after checking the flags
-        // The required message for this: %.*s\0 resides at tagValue (= messageCounter - 1)
-        instructions.addAll(
-            arrayListOf(
-                (Instruction.LABEL("p_print_string")),
-                (Instruction.LDRSimple(Operand.Register(1), Operand.Register(0))),
-                (Instruction.ADD(
-                    Operand.Register(2),
-                    Operand.Register(0),
-                    Operand.Constant(4)
-                )),
-                (Instruction.LDRSimple(Operand.Register(0), Operand.MessageTag(tagValue))),
-                (Instruction.ADD(
-                    Operand.Register(0),
-                    Operand.Register(0),
-                    Operand.Constant(4)
-                )),
-                (Instruction.BL("printf")),
-                (Instruction.MOV(Operand.Register(0), Operand.Constant(0))),
-                (Instruction.BL("fflush")),
-                (Instruction.POP(arrayListOf(Operand.Pc)))
+    private fun decreaseSP(statement: Statement.Block): Int {
+        var declarationsSize = statement.scope.fullSize
+        for (i in 1..statement.scope.fullSize step 1024) {
+            instructions.add(
+                Instruction.SUB(
+                    Operand.Sp, Operand.Sp, Operand.Offset(
+                        if (declarationsSize > 1024) {
+                            declarationsSize -= 1024
+                            1024
+                        } else {
+                            declarationsSize
+                        }
+                    )
+                )
             )
-        )
+        }
+        return declarationsSize
     }
 
-    fun add_pPrintBool(tagValue: Int) {
-        // This should be called at the end of the program after checking the flags
-        // The required messages for this:
-        //                      true\0 resides at tagValue - 1 ( = messageCounter - 2 )
-        //                      false\0 resides at tagValue ( = messageCounter - 1 )
-        instructions.addAll(
-            arrayListOf(
-                Instruction.LABEL("p_print_bool"),
-                Instruction.CMP(Operand.Register(0), Operand.Constant(0)),
-                Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(tagValue - 1), "NE"),
-                Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(tagValue), "EQ"),
-                Instruction.ADD(
-                    Operand.Register(0),
-                    Operand.Register(0),
-                    Operand.Constant(4)
-                ),
-                Instruction.BL("printf"),
-                Instruction.MOV(Operand.Register(0), Operand.Constant(0)),
-                Instruction.BL("fflush"),
-                Instruction.POP(arrayListOf(Operand.Pc))
-            )
-        )
-    }
 
-    fun add_pPrintInt(tagValue: Int) {
-        // This should be called at the end of the program after checking the flags
-        // The required messages for this: %d\0 resides at tagValue ( = messageCounter - 1 )
-        instructions.addAll(
-            arrayListOf(
-                Instruction.LABEL("p_print_int"),
-                Instruction.PUSH(arrayListOf(Operand.Lr)),
-                Instruction.MOV(Operand.Register(1), Operand.Register(0)),
-                Instruction.LDRSimple(Operand.Register(0), Operand.MessageTag(tagValue)),
-                Instruction.ADD(
-                    Operand.Register(0),
-                    Operand.Register(0),
-                    Operand.Constant(4)
-                ),
-                Instruction.BL("printf"),
-                Instruction.MOV(Operand.Register(0), Operand.Constant(0)),
-                Instruction.BL("fflush"),
-                Instruction.POP(arrayListOf(Operand.Pc))
-            )
-        )
-    }
-
-    fun add_pPrintReference(tagValue: Int) {
-        // This should be called at the end of the program after checking the flags
-        // The required messages for this : %p\0 resides at tagValue ( = messageCounter - 1 )
-        instructions.addAll(
-            arrayListOf(
-                Instruction.LABEL("p_print_reference"),
-                Instruction.PUSH(arrayListOf(Operand.Lr)),
-                Instruction.LDRSimple(Operand.Register(0), Operand.MessageTag(tagValue)),
-                Instruction.ADD(
-                    Operand.Register(0),
-                    Operand.Register(0),
-                    Operand.Constant(4)
-                ),
-                Instruction.BL("printf"),
-                Instruction.MOV(Operand.Register(0), Operand.Constant(0)),
-                Instruction.BL("fflush"),
-                Instruction.POP(arrayListOf(Operand.Pc))
-            )
-        )
-    }
-
-    fun add_pPrintLn(tagValue: Int) {
-        // This should be called at the end of the program after checking the flags
-        // The required messages for this : \0 resides at tagValue ( = messageCounter - 1 )
-        instructions.addAll(
-            arrayListOf(
-                Instruction.LABEL("p_print_ln"),
-                Instruction.PUSH(arrayListOf(Operand.Lr)),
-                Instruction.LDRSimple(Operand.Register(0), Operand.MessageTag(tagValue)),
-                Instruction.ADD(
-                    Operand.Register(0),
-                    Operand.Register(0),
-                    Operand.Constant(4)
-                ),
-                Instruction.BL("puts"),
-                Instruction.MOV(Operand.Register(0), Operand.Constant(0)),
-                Instruction.BL("fflush"),
-                Instruction.POP(arrayListOf(Operand.Pc))
-            )
-        )
-    }
 }
