@@ -83,6 +83,12 @@ class CodeGenerator(var program: Program) {
             add_intInput(intInputTag)
         }
 
+        if (charInputFlag) {
+            messageTagGenerator("%c\\0",1)
+            charInputTag = messageCounter - 1
+            add_charInput(charInputTag)
+        }
+
         if (freeArrayFlag || freePairFlag) {
 
             if (freeArrayFlag) {
