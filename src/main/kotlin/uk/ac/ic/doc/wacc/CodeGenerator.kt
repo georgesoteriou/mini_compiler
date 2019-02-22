@@ -18,6 +18,8 @@ class CodeGenerator(var program: Program) {
     var printBool = false
     var printLnTag = false
     var printReference = false
+    var freeArray = false
+    var freePair = false
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
         //TODO: Add functions to active scope
