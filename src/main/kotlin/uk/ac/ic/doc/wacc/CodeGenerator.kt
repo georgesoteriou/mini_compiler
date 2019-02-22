@@ -58,17 +58,19 @@ class CodeGenerator(var program: Program) {
     fun compileStatement(statement: Statement, name: String = ".L$labelCounter") {
         when (statement) {
             is Statement.Block -> {
-                statement.scope.findFullSize()
+               statement.scope.findFullSize()
                 instructions.add(Instruction.LABEL(name))
-                instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
+                if(name == "main") {
+                    instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
+                }
                 activeScope = activeScope.newSubScope(statement.scope)
                 decreaseSP(statement)
                 statement.statements.forEach { compileStatement(it) }
-                labelCounter++
                 // TODO add later: increment label counter : if name not like ".L<Int>"
+                // TODO i don't think label counter should be handles here
                 increaseSP(statement)
-                instructions.add(Instruction.LDRSimple(Operand.Register(0), Operand.Literal.LInt("0")))
-                instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
+                //instructions.add(Instruction.LDRSimple(Operand.Register(0), Operand.Literal.LInt("0")))
+                //instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
             }
             is Statement.Skip -> {
             }
@@ -153,6 +155,20 @@ class CodeGenerator(var program: Program) {
             is Statement.If -> {
             }
             is Statement.While -> {
+                // TODO: Create label L<labelCounter + 1> with block commands
+                // TODO: Create label L<labelCounter> with cond
+                var currLabel = labelCounter
+                instructions.add(
+                    Instruction.BCond("L$currLabel", "")
+                )
+
+                labelCounter += 2
+                compileStatement(statement.then, "L${currLabel + 1}")
+                instructions.add(
+                    Instruction.LABEL("L$currLabel")
+                )
+                compileExpression(statement.condition, 4)
+                whileInstructions(currLabel)
             }
         }
 

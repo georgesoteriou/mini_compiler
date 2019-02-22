@@ -41,6 +41,10 @@ sealed class Instruction {
         override fun toString(): String = "MOV $rd, $rn"
     }
 
+    data class BCond(var name: String, var cond: String) : Instruction() {
+        override fun toString(): String = "B$cond $name"
+    }
+
     data class BL(var name: String) : Instruction() {
         override fun toString(): String = "BL $name"
     }
