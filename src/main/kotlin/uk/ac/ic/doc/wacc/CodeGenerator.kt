@@ -133,6 +133,21 @@ class CodeGenerator(var program: Program) {
             is Statement.ReadInput -> {
             }
             is Statement.FreeVariable -> {
+                compileExpression(statement.expression,4)
+                instructions.add(Instruction.MOV(Operand.Register(0),Operand.Register(4)))
+                when {
+                    Type.compare(statement.expression.exprType,Type.TArray(Type.TAny)) -> {
+                        printString = true
+                        freeArray = true
+                        instructions.add(Instruction.BL("p_free_array"))
+                    }
+
+                    Type.compare(statement.expression.exprType, Type.TPair(Type.TAny,Type.TAny)) -> {
+                        printString = true
+                        freePair = true
+                        instructions.add(Instruction.BL("p_free"))
+                    }
+                }
             }
             is Statement.Return -> {
             }

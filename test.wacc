@@ -1,10 +1,13 @@
-# check length of array
+# creates a pair which is returned from a function
 
 # Output:
-# 4
+# 10
 
 # Program:
 
 begin
-int x = ---5
+
+  string x = "GDSLHKJFDSH";
+
+  free x
 end

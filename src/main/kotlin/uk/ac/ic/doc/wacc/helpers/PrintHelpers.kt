@@ -131,6 +131,8 @@ fun CodeGenerator.add_pPrintLn(tagValue: Int) {
     )
 }
 
+
+
 fun CodeGenerator.printTypeInstructions(expression: Expression) {
     when {
         Type.compare(expression.exprType, Type.TArray(Type.TAny)) ||
