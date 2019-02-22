@@ -28,6 +28,7 @@ class CodeGenerator(var program: Program) {
     var printReferenceFlag = false
     var freeArrayFlag = false
     var freePairFlag = false
+
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
         //TODO: Add functions to active scope
@@ -36,38 +37,37 @@ class CodeGenerator(var program: Program) {
 
 
         if (printStringFlag) {
-            messageTagGenerator("%.*s\\0", true)
+            messageTagGenerator("%.*s\\0", 1)
             printStringTag = messageCounter - 1
             add_pPrintString(printStringTag)
         }
 
         if (printBoolFlag) {
-            messageTagGenerator("true\\0", true)
+            messageTagGenerator("true\\0", 1)
             printBoolTrueTag = messageCounter - 1
-            messageTagGenerator("false\\0", true)
+            messageTagGenerator("false\\0", 1)
             printBoolFalseTag = messageCounter - 1
             add_pPrintBool(printBoolTrueTag,printBoolFalseTag)
         }
 
         if (printIntFlag) {
-            messageTagGenerator("%d\\0", true)
+            messageTagGenerator("%d\\0", 1)
             printIntTag = messageCounter - 1
             add_pPrintInt(printIntTag)
         }
 
         if (printReferenceFlag) {
-            messageTagGenerator("%p\\0", true)
+            messageTagGenerator("%p\\0", 1)
             printReferenceTag = messageCounter - 1
             add_pPrintReference(printReferenceTag)
         }
 
         if (printLnFlag) {
-            messageTagGenerator("\\0", true)
+            messageTagGenerator("\\0", 1)
             printLnTag = messageCounter - 1
             add_pPrintLn(printLnTag)
         }
-
-
+        
 
         data.forEach { println(it.toString()) }
         instructions.forEach { println(it.toString()) }
