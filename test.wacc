@@ -1,5 +1,5 @@
 
 begin
-	char c = '\0'; 
-read c
+	int c = 1;
+	read c
 end

@@ -190,7 +190,7 @@ class CodeGenerator(var program: Program) {
                 }
             }
             is Statement.ReadInput -> {
-                compileExpression(statement.expression,4)
+                //compileExpression(statement.expression,4)
                 instructions.add(Instruction.ADD(Operand.Register(4),Operand.Sp,Operand.Constant(0)))
                 instructions.add(Instruction.MOV(Operand.Register(0),Operand.Register(4)))
 
