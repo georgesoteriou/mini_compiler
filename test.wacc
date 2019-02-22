@@ -6,9 +6,5 @@
 # Program:
 
 begin
-  char[] y = ['a', 'b'];
-  char[] x = ['c', 'd'];
-  char[][] y2 = [y, x];
-  char[][] x2 = [x, y];
-  char[][][] z = [x2, y2]
+  pair(int, int) p = newpair(10, 3)
 end
