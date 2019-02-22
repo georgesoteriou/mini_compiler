@@ -127,7 +127,7 @@ class CodeGenerator(var program: Program) {
                 var type = statement.lhs.type
                 val name = statement.lhs.name
                 if(statement.rhs is Expression.Literal.LPair) {
-                    pairNullDeclInstructions()
+                    pairNullInstructions()
                 } else {
                     when (type) {
                         is Type.TInt,  is Type.TString-> {
@@ -143,7 +143,7 @@ class CodeGenerator(var program: Program) {
                             arrayAssignInstructions(statement.lhs, (statement.rhs as Expression.Literal.LArray))
                         }
                         is Type.TPair -> {
-                            pairDeclInstructions(statement)
+                            pairAssignInstructions(statement)
                         }
                     }
                 }
@@ -167,8 +167,8 @@ class CodeGenerator(var program: Program) {
                         arrayAssignInstructions(def, statement.rhs as Expression.Literal.LArray)
                     }
                     is Type.TPair -> {
-                        // pairDeclInstructions(statement)
-                        //TODO: deal with null pairs
+                        val def = Definition(name, statement.lhs.exprType)
+                        pairAssignInstructions(def,statement.rhs as Expression.Literal.LPair)
                     }
                 }
             }
@@ -215,7 +215,7 @@ class CodeGenerator(var program: Program) {
             }
             is Statement.While -> {
                 // TODO: Create label L<labelCounter + 1> with block commands
-                // TODO: Create label L<labelCounter> with cond
+                // TODO: Create label L<labelCounter> with git cond
 
                 whileInstructions(statement)
             }

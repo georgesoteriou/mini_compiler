@@ -37,7 +37,7 @@ fun CodeGenerator.addPointerLDR(e1: Expression, dest: Int) {
     )
 }
 
-fun CodeGenerator.pairNullDeclInstructions() {
+fun CodeGenerator.pairNullInstructions() {
     instructions.add(
         Instruction.LDRSimple(
             Operand.Register(4),
@@ -52,7 +52,7 @@ fun CodeGenerator.pairNullDeclInstructions() {
     )
 }
 
-fun CodeGenerator.pairDeclInstructions(statement: Statement.VariableDeclaration) {
+fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression.Literal.LPair) {
     instructions.add(
         Instruction.LDRSimple(
             Operand.Register(0),
@@ -66,12 +66,12 @@ fun CodeGenerator.pairDeclInstructions(statement: Statement.VariableDeclaration)
             Operand.Register(0)
         )
     )
-    var typeL = (statement.rhs.exprType as Type.TPair).t1
-    var typeR = (statement.rhs.exprType as Type.TPair).t2
-    var e1 = (statement.rhs as Expression.NewPair).e1
-    var e2 = (statement.rhs as Expression.NewPair).e2
+    var typeL = (definition.type as Type.TPair).t1
+    var typeR = (definition.type as Type.TPair).t2
+    var e1 = (rhs as Expression.NewPair).e1
+    var e2 = (rhs as Expression.NewPair).e2
 
-    elemDeclInstructions(typeL, e1)
+    elemAssignInstructions(typeL, e1)
 
     instructions.add(
         Instruction.LDRSimple(
@@ -96,7 +96,7 @@ fun CodeGenerator.pairDeclInstructions(statement: Statement.VariableDeclaration)
         )
     )
 
-    elemDeclInstructions(typeR, e2)
+    elemAssignInstructions(typeR, e2)
 
     instructions.add(
         Instruction.LDRSimple(
@@ -126,12 +126,13 @@ fun CodeGenerator.pairDeclInstructions(statement: Statement.VariableDeclaration)
         Instruction.STROffset(
             Operand.Register(4),
             Operand.Sp,
-            Operand.Offset(activeScope.getPosition(statement.lhs.name))
+            Operand.Offset(activeScope.getPosition((definition.name))
         )
+    )
     )
 }
 
-fun CodeGenerator.elemDeclInstructions(type: Type, expr: Expression) {
+fun CodeGenerator.elemAssignInstructions(type: Type, expr: Expression) {
     when (type) {
         is Type.TArray, is Type.TPair -> {
             addPointerLDR(expr, 5)
@@ -163,7 +164,7 @@ fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Liter
     var offset = Type.size(lhs.type)
     val type = (rhs.exprType as Type.TArray).type
     rhs.params.forEach {
-        elemDeclInstructions(type, it)
+        elemAssignInstructions(type, it)
         instructions.add(
             Instruction.STROffset(
                 Operand.Register(5),
