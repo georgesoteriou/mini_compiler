@@ -19,7 +19,7 @@ fun CodeGenerator.messageTagGenerator(content: String, flag: Boolean = false) {
 
 fun CodeGenerator.add_pPrintString(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
-    // The required message for this: %.*s\0 resides at tagValue (= messageCounter - 1)
+    // The required message for this: %.*s\0 resides at tagValue
     instructions.addAll(
         arrayListOf(
             (Instruction.LABEL("p_print_string")),
@@ -46,8 +46,8 @@ fun CodeGenerator.add_pPrintString(tagValue: Int) {
 fun CodeGenerator.add_pPrintBool(trueTagValue : Int, falseTagValue: Int) {
     // This should be called at the end of the program after checking the flags
     // The required messages for this:
-    //                      true\0 resides at tagValue - 1 ( = messageCounter - 2 )
-    //                      false\0 resides at tagValue ( = messageCounter - 1 )
+    //                      true\0 resides at trueTagValue
+    //                      false\0 resides at falseTagValue
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_bool"),
@@ -69,7 +69,7 @@ fun CodeGenerator.add_pPrintBool(trueTagValue : Int, falseTagValue: Int) {
 
 fun CodeGenerator.add_pPrintInt(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
-    // The required messages for this: %d\0 resides at tagValue ( = messageCounter - 1 )
+    // The required messages for this: %d\0 resides at tagValue
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_int"),
@@ -91,7 +91,7 @@ fun CodeGenerator.add_pPrintInt(tagValue: Int) {
 
 fun CodeGenerator.add_pPrintReference(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
-    // The required messages for this : %p\0 resides at tagValue ( = messageCounter - 1 )
+    // The required messages for this : %p\0 resides at tagValue
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_reference"),
@@ -112,7 +112,7 @@ fun CodeGenerator.add_pPrintReference(tagValue: Int) {
 
 fun CodeGenerator.add_pPrintLn(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
-    // The required messages for this : \0 resides at tagValue ( = messageCounter - 1 )
+    // The required messages for this : \0 resides at tagValue
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_ln"),
