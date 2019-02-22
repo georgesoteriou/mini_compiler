@@ -143,7 +143,7 @@ class CodeGenerator(var program: Program) {
                             arrayAssignInstructions(statement.lhs, (statement.rhs as Expression.Literal.LArray))
                         }
                         is Type.TPair -> {
-                            pairAssignInstructions(statement)
+                            pairAssignInstructions(statement.lhs, (statement.rhs as Expression.Literal.LPair))
                         }
                     }
                 }
