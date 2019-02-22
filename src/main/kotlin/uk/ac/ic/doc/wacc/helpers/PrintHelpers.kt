@@ -3,6 +3,8 @@ package uk.ac.ic.doc.wacc.helpers
 import uk.ac.ic.doc.wacc.CodeGenerator
 import uk.ac.ic.doc.wacc.assembly_code.Instruction
 import uk.ac.ic.doc.wacc.assembly_code.Operand
+import uk.ac.ic.doc.wacc.ast.Expression
+import uk.ac.ic.doc.wacc.ast.Type
 
 fun CodeGenerator.messageTagGenerator(content: String, flag: Boolean = false) {
     var length: Int = content.length
@@ -127,4 +129,39 @@ fun CodeGenerator.add_pPrintLn(tagValue: Int) {
             Instruction.POP(arrayListOf(Operand.Pc))
         )
     )
+}
+
+fun CodeGenerator.printTypeInstructions(expression: Expression) {
+    when {
+        Type.compare(expression.exprType, Type.TArray(Type.TAny)) ||
+                Type.compare(expression.exprType, Type.TPair(Type.TAny, Type.TAny)) -> {
+            printReference = true
+            instructions.add(Instruction.BL("p_print_reference"))
+        }
+
+        Type.compare(expression.exprType, Type.TChar) -> {
+            instructions.add(Instruction.BL("putchar"))
+
+        }
+
+        Type.compare(expression.exprType, Type.TString) -> {
+            printString = true
+            messageTagGenerator((expression as Expression.Literal.LString).string)
+            // TODO: check here about what happens because message generator is called here so the tag
+            // TODO: is generated here but it has already been passed through compileExpression so maybe
+            // TODO: the function call to messageTagGenerator should be in compileExpression
+            // TODO: but what if strings are used elsewhere?
+            instructions.add(Instruction.BL("p_print_string"))
+        }
+
+        Type.compare(expression.exprType, Type.TInt) -> {
+            printInt = true
+            instructions.add(Instruction.BL("p_print_int"))
+        }
+
+        Type.compare(expression.exprType, Type.TBool) -> {
+            printBool = true
+            instructions.add(Instruction.BL("p_print_bool"))
+        }
+    }
 }
