@@ -50,7 +50,7 @@ class CodeGenerator(var program: Program) {
 
         if (printLnTag) {
             messageTagGenerator("\\0", true)
-
+            add_pPrintLn(messageCounter-1)
         }
 
         data.forEach { println(it.toString()) }
