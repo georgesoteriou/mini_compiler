@@ -21,13 +21,13 @@ class CodeGenerator(var program: Program) {
     var printReferenceTag = -1
     var printLnTag = -1
 
-    var printString = false
-    var printInt = false
-    var printBool = false
+    var printStringFlag = false
+    var printIntFlag = false
+    var printBoolFlag = false
     var printLnFlag = false
-    var printReference = false
-    var freeArray = false
-    var freePair = false
+    var printReferenceFlag = false
+    var freeArrayFlag = false
+    var freePairFlag = false
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
         //TODO: Add functions to active scope
@@ -35,13 +35,13 @@ class CodeGenerator(var program: Program) {
         instructions.add(Instruction.Flag(".ltorg"))
 
 
-        if (printString) {
+        if (printStringFlag) {
             messageTagGenerator("%.*s\\0", true)
             printStringTag = messageCounter - 1
             add_pPrintString(printStringTag)
         }
 
-        if (printBool) {
+        if (printBoolFlag) {
             messageTagGenerator("true\\0", true)
             printBoolTrueTag = messageCounter - 1
             messageTagGenerator("false\\0", true)
@@ -49,13 +49,13 @@ class CodeGenerator(var program: Program) {
             add_pPrintBool(printBoolTrueTag,printBoolFalseTag)
         }
 
-        if (printInt) {
+        if (printIntFlag) {
             messageTagGenerator("%d\\0", true)
             printIntTag = messageCounter - 1
             add_pPrintInt(printIntTag)
         }
 
-        if (printReference) {
+        if (printReferenceFlag) {
             messageTagGenerator("%p\\0", true)
             printReferenceTag = messageCounter - 1
             add_pPrintReference(printReferenceTag)
@@ -153,14 +153,14 @@ class CodeGenerator(var program: Program) {
                 instructions.add(Instruction.MOV(Operand.Register(0),Operand.Register(4)))
                 when {
                     Type.compare(statement.expression.exprType,Type.TArray(Type.TAny)) -> {
-                        printString = true
-                        freeArray = true
+                        printStringFlag = true
+                        freeArrayFlag = true
                         instructions.add(Instruction.BL("p_free_array"))
                     }
 
                     Type.compare(statement.expression.exprType, Type.TPair(Type.TAny,Type.TAny)) -> {
-                        printString = true
-                        freePair = true
+                        printStringFlag = true
+                        freePairFlag = true
                         instructions.add(Instruction.BL("p_free"))
                     }
                 }

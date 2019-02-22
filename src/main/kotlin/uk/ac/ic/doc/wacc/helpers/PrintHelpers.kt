@@ -135,7 +135,7 @@ fun CodeGenerator.printTypeInstructions(expression: Expression) {
     when {
         Type.compare(expression.exprType, Type.TArray(Type.TAny)) ||
                 Type.compare(expression.exprType, Type.TPair(Type.TAny, Type.TAny)) -> {
-            printReference = true
+            printReferenceFlag = true
             instructions.add(Instruction.BL("p_print_reference"))
         }
 
@@ -145,7 +145,7 @@ fun CodeGenerator.printTypeInstructions(expression: Expression) {
         }
 
         Type.compare(expression.exprType, Type.TString) -> {
-            printString = true
+            printStringFlag = true
             messageTagGenerator((expression as Expression.Literal.LString).string)
             // TODO: check here about what happens because message generator is called here so the tag
             // TODO: is generated here but it has already been passed through compileExpression so maybe
@@ -155,12 +155,12 @@ fun CodeGenerator.printTypeInstructions(expression: Expression) {
         }
 
         Type.compare(expression.exprType, Type.TInt) -> {
-            printInt = true
+            printIntFlag = true
             instructions.add(Instruction.BL("p_print_int"))
         }
 
         Type.compare(expression.exprType, Type.TBool) -> {
-            printBool = true
+            printBoolFlag = true
             instructions.add(Instruction.BL("p_print_bool"))
         }
     }
