@@ -145,8 +145,19 @@ fun CodeGenerator.add_freeArray(tagValue: Int) {
             Instruction.POP(arrayListOf(Operand.Pc))
         )
     )
+}
 
+fun CodeGenerator.add_throwRuntimeError() {
+    // This should be called at the end of the program, right after add_freeArray or add_freePair is called
+    // There are no required messages for this.
 
+    instructions.addAll(
+        arrayListOf(
+            Instruction.BL("p_print_string"),
+            Instruction.MOV(Operand.Register(0),Operand.Constant(-1)),
+            Instruction.BL("exit")
+        )
+    )
 }
 
 fun CodeGenerator.printTypeInstructions(expression: Expression) {
