@@ -13,10 +13,18 @@ class CodeGenerator(var program: Program) {
     var wholeProgram: MutableList<Instruction> = arrayListOf()
     var activeScope = ActiveScope(Scope(), null)
     var messageCounter = 0
+
+    var printStringTag = -1
+    var printBoolTrueTag = -1
+    var printBoolFalseTag = -1
+    var printIntTag = -1
+    var printReferenceTag = -1
+    var printLnTag = -1
+
     var printString = false
     var printInt = false
     var printBool = false
-    var printLnTag = false
+    var printLnFlag = false
     var printReference = false
     var freeArray = false
     var freePair = false
@@ -48,10 +56,12 @@ class CodeGenerator(var program: Program) {
             add_pPrintReference(messageCounter - 1)
         }
 
-        if (printLnTag) {
+        if (printLnFlag) {
             messageTagGenerator("\\0", true)
             add_pPrintLn(messageCounter-1)
         }
+
+
 
         data.forEach { println(it.toString()) }
         instructions.forEach { println(it.toString()) }
@@ -162,7 +172,7 @@ class CodeGenerator(var program: Program) {
                 printTypeInstructions(statement.expression)
             }
             is Statement.PrintLn -> {
-                printLnTag = true
+                printLnFlag = true
                 compileExpression(statement.expression, 4)
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
                 printTypeInstructions(statement.expression)
