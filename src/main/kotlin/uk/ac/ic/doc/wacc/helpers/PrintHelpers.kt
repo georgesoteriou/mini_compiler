@@ -43,7 +43,7 @@ fun CodeGenerator.add_pPrintString(tagValue: Int) {
     )
 }
 
-fun CodeGenerator.add_pPrintBool(trueTagValue : Int, falseTagValue: Int) {
+fun CodeGenerator.add_pPrintBool(trueTagValue: Int, falseTagValue: Int) {
     // This should be called at the end of the program after checking the flags
     // The required messages for this:
     //                      true\0 resides at trueTagValue
@@ -129,6 +129,24 @@ fun CodeGenerator.add_pPrintLn(tagValue: Int) {
             Instruction.POP(arrayListOf(Operand.Pc))
         )
     )
+}
+
+fun CodeGenerator.add_freeArray(tagValue: Int) {
+    // This should be called at the end of the program after checking the flags
+    // The required messages for this : NullReferenceError: dereference a null reference\n\0 resides at tagValue
+    instructions.addAll(
+        arrayListOf(
+            Instruction.LABEL("p_free_array"),
+            Instruction.PUSH(arrayListOf(Operand.Lr)),
+            Instruction.CMP(Operand.Register(0), Operand.Constant(0)),
+            Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(tagValue), "EQ"),
+            Instruction.BCond("p_throw_runtime_error", "EQ"),
+            Instruction.BL("free"),
+            Instruction.POP(arrayListOf(Operand.Pc))
+        )
+    )
+
+
 }
 
 fun CodeGenerator.printTypeInstructions(expression: Expression) {
