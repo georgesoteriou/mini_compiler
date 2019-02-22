@@ -22,6 +22,9 @@ class CodeGenerator(var program: Program) {
     var printLnTag = -1
     var freeArrayTag = -1
     var freePairTag = -1
+    var intInputTag = - 1
+    var charInputTag = -1
+
 
     var printStringFlag = false
     var printIntFlag = false
@@ -30,6 +33,8 @@ class CodeGenerator(var program: Program) {
     var printReferenceFlag = false
     var freeArrayFlag = false
     var freePairFlag = false
+    var intInputFlag = false
+    var charInputFlag = false
 
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
