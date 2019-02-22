@@ -34,6 +34,8 @@ class CodeGenerator(var program: Program) {
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
         //TODO: Add functions to active scope
+
+        //TODO: function foreach loop
         compileStatement(program.block, "main")
         instructions.add(Instruction.Flag(".ltorg"))
 
@@ -124,28 +126,25 @@ class CodeGenerator(var program: Program) {
             is Statement.VariableDeclaration -> {
                 var type = statement.lhs.type
                 val name = statement.lhs.name
-                when (type) {
-                    is Type.TInt -> {
-                        compileExpression(statement.rhs, 4)
-                        intAssignInstructions(name)
-                    }
-                    is Type.TBool -> {
-                        compileExpression(statement.rhs, 4)
-                        boolAssignInstructions(name)
-                    }
+                if(statement.rhs is Expression.Literal.LPair) {
+                    pairNullDeclInstructions()
+                } else {
+                    when (type) {
+                        is Type.TInt,  is Type.TString-> {
+                            compileExpression(statement.rhs, 4)
+                            wordAssignInstructions(name)
+                        }
+                        is Type.TBool, is Type.TChar  -> {
+                            compileExpression(statement.rhs, 4)
+                            byteAssignInstructions(name)
+                        }
 
-                    is Type.TChar -> {
-                        compileExpression(statement.rhs, 4)
-                        charAssignInstructions(name)
-                    }
-
-                    is Type.TArray -> {
-                        arrayDeclInstructions(statement.lhs, (statement.rhs as Expression.Literal.LArray))
-                    }
-                    is Type.TPair -> {
-                        compileExpression(statement.rhs, 5)
-                        pairDeclInstructions(statement)
-                        //TODO: deal with null pairs
+                        is Type.TArray -> {
+                            arrayAssignInstructions(statement.lhs, (statement.rhs as Expression.Literal.LArray))
+                        }
+                        is Type.TPair -> {
+                            pairDeclInstructions(statement)
+                        }
                     }
                 }
                 activeScope.declare(name)
@@ -153,23 +152,19 @@ class CodeGenerator(var program: Program) {
 
             is Statement.VariableAssignment -> {
                 var type = statement.rhs.exprType
-                compileExpression(statement.rhs, 4)
                 val name = (statement.lhs as Expression.Identifier).name
                 when (type) {
-                    is Type.TInt -> {
+                    is Type.TInt, is Type.TString-> {
                         compileExpression(statement.rhs, 4)
-                        intAssignInstructions(name)
+                        wordAssignInstructions(name)
                     }
-                    is Type.TBool -> {
+                    is Type.TBool, is Type.TChar -> {
                         compileExpression(statement.rhs, 4)
-                        boolAssignInstructions(name)
-                    }
-                    is Type.TChar -> {
-                        compileExpression(statement.rhs, 4)
-                        charAssignInstructions(name)
+                        byteAssignInstructions(name)
                     }
                     is Type.TArray -> {
-                        //arrayDeclInstructions(statement)
+                        val def = Definition(name,statement.lhs.exprType)
+                        arrayAssignInstructions(def, statement.rhs as Expression.Literal.LArray)
                     }
                     is Type.TPair -> {
                         // pairDeclInstructions(statement)
@@ -229,10 +224,14 @@ class CodeGenerator(var program: Program) {
     }
 
     fun compileExpression(expression: Expression, dest: Int) {
+        //TODO: if dest > 14. We have a problem. Add an if here to add regs to stack maybe
         when (expression) {
             is Expression.CallFunction -> {
+                // TODO: Add jump to function
+                // TODO: MOVE r0 to r4
             }
             is Expression.NewPair -> {
+                // TODO: Remove. Unused (Add else -> {})
             }
             is Expression.Identifier -> {
                 addPointerLDR(expression, dest)
@@ -264,31 +263,61 @@ class CodeGenerator(var program: Program) {
             }
 
             is Expression.Literal.LString -> {
+                messageTagGenerator(expression.string)
+                instructions.add(
+                    Instruction.LDRSimple(
+                        Operand.Register(dest),
+                        Operand.MessageTag(messageCounter - 1)
+                    )
+                )
             }
             is Expression.Literal.LArray -> {
-//                arrayDeclInstructions()
-//                var type = (expression.exprType as Type.TArray).type
-//                var offset = 4
-//                expression.params.forEach {
-//                    compileExpression(it, dest + 1)
-//                }
-//                offset += Type.size(type)
+                // TODO: Remove. Unused (Add else -> {})
             }
             is Expression.Literal.LPair -> {
+                // TODO: Remove. Unused (Add else -> {})
             }
 
             is Expression.BinaryOperation -> {
+                // TODO: We are trying to calculate "A {binOp} B"
+
+                // TODO: Make function weight(Expression) that calculates number
+                // TODO:          of registers required to calculate expression.
+
+                // TODO: if (weight(A) > weight(B))  // calculate A (i think. Look at haskell functions)
+                // TODO:    compileExpression(A, dest+1)
+                // TODO:    compileExpression(B, dest+2)
+                // TODO: else
+                // TODO:    compileExpression(B, dest+1)
+                // TODO:    compileExpression(A, dest+2)
+
+                // TODO: when(expression) {
+                // TODO:     Expression.BinaryOperator.PLUS
+                // TODO:                -> ADD dest+1 and dest+2 and put in dest
+                // TODO:     Expression.BinaryOperator.MINUS
+                // TODO:                -> SUB dest+1 and dest+2 and put in dest
+                // TODO:     etc etc etc
+
+                // TODO: remember to generate message of possible error
             }
             is Expression.UnaryOperation -> {
+                // TODO: Here we want to calculate "{unop} A"
+                // TODO: very similar to above.
+                // TODO: compileExpression(A, dest+1)
+
                 when (expression.operator) {
                     Expression.UnaryOperator.MINUS -> {
                         instructions.add(
                             Instruction.LDRSimple(
                                 Operand.Register(dest),
                                 Operand.Literal.LInt(
+                                    // TODO: We cannot assume this is an int here.... do the same as above
+                                    // TODO: eg. ----5 is valid too
                                     "-${(expression.expression as Expression.Literal.LInt).int}"
                                 )
                             )
+                            // TODO: consider doing SUB 0, dest+1, dest (dest = 0 - dest) to make it negative
+                            // TODO: or MUL -1, dest+1, dest (dest = -1 * dest+1)
                         )
                     }
                     Expression.UnaryOperator.CHR,
@@ -299,6 +328,9 @@ class CodeGenerator(var program: Program) {
                 }
             }
 
+            // TODO: This will need more thinking as it can be both on lhs and rhs.
+            // TODO: You might want to ignore this and use your assign/declare functions for lhs.
+            // TODO: And only use the functions below for the rhs to lookup values in the scope/stack
             is Expression.ArrayElem -> {
             }
             is Expression.Fst -> {

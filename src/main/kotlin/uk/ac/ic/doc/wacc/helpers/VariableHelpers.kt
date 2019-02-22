@@ -9,65 +9,22 @@ import uk.ac.ic.doc.wacc.ast.Statement
 import uk.ac.ic.doc.wacc.ast.Type
 
 
-fun CodeGenerator.charAssignInstructions(name: String) {
-    val pos = activeScope.getPosition(name)
-    if (pos != 0) {
-        instructions.add(
-            Instruction.STRBOffset(
-                Operand.Register(4),
-                Operand.Sp,
-                Operand.Offset(pos)
-            )
-        )
-    } else {
-        instructions.add(
-            Instruction.STRBSimple(
-                Operand.Register(4),
-                Operand.Sp
-            )
-        )
-    }
-}
+fun CodeGenerator.byteAssignInstructions(name: String) = instructions.add(
+    Instruction.STRBOffset(
+        Operand.Register(4),
+        Operand.Sp,
+        Operand.Offset(activeScope.getPosition(name))
+    )
+)
 
-fun CodeGenerator.boolAssignInstructions(name: String) {
-    val pos = activeScope.getPosition(name)
-    if (pos != 0) {
-        instructions.add(
-            Instruction.STRBOffset(
-                Operand.Register(4),
-                Operand.Sp,
-                Operand.Offset(pos)
-            )
-        )
-    } else {
-        instructions.add(
-            Instruction.STRBSimple(
-                Operand.Register(4),
-                Operand.Sp
-            )
-        )
-    }
-}
+fun CodeGenerator.wordAssignInstructions(name: String) = instructions.add(
+    Instruction.STROffset(
+        Operand.Register(4),
+        Operand.Sp,
+        Operand.Offset(activeScope.getPosition(name))
+    )
+)
 
-fun CodeGenerator.intAssignInstructions(name: String) {
-    var pos = activeScope.getPosition(name)
-    if (pos != 0) {
-        instructions.add(
-            Instruction.STROffset(
-                Operand.Register(4),
-                Operand.Sp,
-                Operand.Offset(pos)
-            )
-        )
-    } else {
-        instructions.add(
-            Instruction.STRSimple(
-                Operand.Register(4),
-                Operand.Sp
-            )
-        )
-    }
-}
 
 fun CodeGenerator.addPointerLDR(e1: Expression, dest: Int) {
     var pos = activeScope.getPosition((e1 as Expression.Identifier).name)
@@ -76,6 +33,21 @@ fun CodeGenerator.addPointerLDR(e1: Expression, dest: Int) {
             Operand.Register(dest),
             Operand.Sp,
             Operand.Offset(pos)
+        )
+    )
+}
+
+fun CodeGenerator.pairNullDeclInstructions() {
+    instructions.add(
+        Instruction.LDRSimple(
+            Operand.Register(4),
+            Operand.Literal.LInt("0")
+        )
+    )
+    instructions.add(
+        Instruction.STRSimple(
+            Operand.Register(4),
+            Operand.Sp
         )
     )
 }
@@ -170,7 +142,7 @@ fun CodeGenerator.elemDeclInstructions(type: Type, expr: Expression) {
     }
 }
 
-fun CodeGenerator.arrayDeclInstructions(lhs: Definition, rhs: Expression.Literal.LArray) {
+fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Literal.LArray) {
     instructions.add(
         Instruction.LDRSimple(
             Operand.Register(0),
@@ -191,7 +163,7 @@ fun CodeGenerator.arrayDeclInstructions(lhs: Definition, rhs: Expression.Literal
     var offset = Type.size(lhs.type)
     val type = (rhs.exprType as Type.TArray).type
     rhs.params.forEach {
-       elemDeclInstructions(type, it)
+        elemDeclInstructions(type, it)
         instructions.add(
             Instruction.STROffset(
                 Operand.Register(5),
