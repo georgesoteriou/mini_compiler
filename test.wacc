@@ -6,8 +6,6 @@
 # Program:
 
 begin
-
-  string x = "GDSLHKJFDSH";
-
-  free x
+int [] x = [1,2,3,4]; 
+free x 
 end

@@ -37,28 +37,34 @@ class CodeGenerator(var program: Program) {
 
         if (printString) {
             messageTagGenerator("%.*s\\0", true)
-            add_pPrintString(messageCounter - 1)
+            printStringTag = messageCounter - 1
+            add_pPrintString(printStringTag)
         }
 
         if (printBool) {
             messageTagGenerator("true\\0", true)
+            printBoolTrueTag = messageCounter - 1
             messageTagGenerator("false\\0", true)
-            add_pPrintBool(messageCounter - 1)
+            printBoolFalseTag = messageCounter - 1
+            add_pPrintBool(printBoolTrueTag,printBoolFalseTag)
         }
 
         if (printInt) {
             messageTagGenerator("%d\\0", true)
-            add_pPrintInt(messageCounter - 1)
+            printIntTag = messageCounter - 1
+            add_pPrintInt(printIntTag)
         }
 
         if (printReference) {
             messageTagGenerator("%p\\0", true)
-            add_pPrintReference(messageCounter - 1)
+            printReferenceTag = messageCounter - 1
+            add_pPrintReference(printReferenceTag)
         }
 
         if (printLnFlag) {
             messageTagGenerator("\\0", true)
-            add_pPrintLn(messageCounter-1)
+            printLnTag = messageCounter - 1
+            add_pPrintLn(printLnTag)
         }
 
 
