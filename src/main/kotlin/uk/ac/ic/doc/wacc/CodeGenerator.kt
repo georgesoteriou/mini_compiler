@@ -21,6 +21,8 @@ class CodeGenerator(var program: Program) {
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
         //TODO: Add functions to active scope
+
+        //TODO: function foreach loop
         compileStatement(program.block, "main")
         instructions.add(Instruction.Flag(".ltorg"))
 
@@ -64,6 +66,7 @@ class CodeGenerator(var program: Program) {
                 activeScope = activeScope.newSubScope(statement.scope)
                 decreaseSP(statement)
                 statement.statements.forEach { compileStatement(it) }
+                // TODO: POP active scope to parent scope
                 labelCounter++
                 // TODO add later: increment label counter : if name not like ".L<Int>"
                 increaseSP(statement)
@@ -144,18 +147,40 @@ class CodeGenerator(var program: Program) {
                 printTypeInstructions(statement.expression)
             }
             is Statement.If -> {
+                // TODO: Compile condition with CMP command
+                // TODO: Jump to appropriate block label
+
+                // TODO: add label for first block. (Think of a way to handle labels.)
+                // TODO: (Use name: String = ".L$labelCounter" passed in this function)
+
+                // TODO: Call compileStatement on first block
+                // TODO: add label for second block
+                // TODO: Call compileStatement on second block
+
+                // NOT TODO: (ignore scope as it will be handles within block)
             }
             is Statement.While -> {
+                // TODO: Compile condition with CMP command
+                // TODO: Jump to block label according to CPM
+                // TODO: add label for block
+                // TODO: Call compileStatement on block
+                // TODO: Check how ref compiler does the jump here
+
+                // NOT TODO: (ignore scope as it will be handles within block)
             }
         }
 
     }
 
     fun compileExpression(expression: Expression, dest: Int) {
+        //TODO: if dest > 14. We have a problem. Add an if here to add regs to stack maybe
         when (expression) {
             is Expression.CallFunction -> {
+                // TODO: Add jump to function
+                // TODO: MOVE r0 to r4
             }
             is Expression.NewPair -> {
+                // TODO: Remove. Unused (Add else -> {})
             }
             is Expression.Identifier -> {
                 addPointerLDR(expression, dest)
@@ -196,22 +221,52 @@ class CodeGenerator(var program: Program) {
                 )
             }
             is Expression.Literal.LArray -> {
+                // TODO: Remove. Unused (Add else -> {})
             }
             is Expression.Literal.LPair -> {
+                // TODO: Remove. Unused (Add else -> {})
             }
 
             is Expression.BinaryOperation -> {
+                // TODO: We are trying to calculate "A {binOp} B"
+
+                // TODO: Make function weight(Expression) that calculates number
+                // TODO:          of registers required to calculate expression.
+
+                // TODO: if (weight(A) > weight(B))  // calculate A (i think. Look at haskell functions)
+                // TODO:    compileExpression(A, dest+1)
+                // TODO:    compileExpression(B, dest+2)
+                // TODO: else
+                // TODO:    compileExpression(B, dest+1)
+                // TODO:    compileExpression(A, dest+2)
+
+                // TODO: when(expression) {
+                // TODO:     Expression.BinaryOperator.PLUS
+                // TODO:                -> ADD dest+1 and dest+2 and put in dest
+                // TODO:     Expression.BinaryOperator.MINUS
+                // TODO:                -> SUB dest+1 and dest+2 and put in dest
+                // TODO:     etc etc etc
+
+                // TODO: remember to generate message of possible error
             }
             is Expression.UnaryOperation -> {
+                // TODO: Here we want to calculate "{unop} A"
+                // TODO: very similar to above.
+                // TODO: compileExpression(A, dest+1)
+
                 when (expression.operator) {
                     Expression.UnaryOperator.MINUS -> {
                         instructions.add(
                             Instruction.LDRSimple(
                                 Operand.Register(dest),
                                 Operand.Literal.LInt(
+                                    // TODO: We cannot assume this is an int here.... do the same as above
+                                    // TODO: eg. ----5 is valid too
                                     "-${(expression.expression as Expression.Literal.LInt).int}"
                                 )
                             )
+                            // TODO: consider doing SUB 0, dest+1, dest (dest = 0 - dest) to make it negative
+                            // TODO: or MUL -1, dest+1, dest (dest = -1 * dest+1)
                         )
                     }
                     Expression.UnaryOperator.CHR,
@@ -222,6 +277,9 @@ class CodeGenerator(var program: Program) {
                 }
             }
 
+            // TODO: This will need more thinking as it can be both on lhs and rhs.
+            // TODO: You might want to ignore this and use your assign/declare functions for lhs.
+            // TODO: And only use the functions below for the rhs to lookup values in the scope/stack
             is Expression.ArrayElem -> {
             }
             is Expression.Fst -> {
