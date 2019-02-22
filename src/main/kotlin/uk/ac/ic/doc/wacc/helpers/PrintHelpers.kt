@@ -6,11 +6,9 @@ import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Type
 
-fun CodeGenerator.messageTagGenerator(content: String, flag: Boolean = false) {
+fun CodeGenerator.messageTagGenerator(content: String, numEscChars: Int = 0) {
     var length: Int = content.length
-    if (flag) {
-        length -= 1
-    }
+    length -= numEscChars
     data.add(Instruction.Flag("msg_$messageCounter:"))
     data.add(Instruction.WORD(length))
     data.add(Instruction.ASCII(content))
@@ -19,10 +17,11 @@ fun CodeGenerator.messageTagGenerator(content: String, flag: Boolean = false) {
 
 fun CodeGenerator.add_pPrintString(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
-    // The required message for this: %.*s\0 resides at tagValue (= messageCounter - 1)
+    // The required message for this: %.*s\0 resides at tagValue
     instructions.addAll(
         arrayListOf(
             (Instruction.LABEL("p_print_string")),
+            (Instruction.PUSH(arrayListOf(Operand.Lr))),
             (Instruction.LDRSimple(Operand.Register(1), Operand.Register(0))),
             (Instruction.ADD(
                 Operand.Register(2),
@@ -43,17 +42,17 @@ fun CodeGenerator.add_pPrintString(tagValue: Int) {
     )
 }
 
-fun CodeGenerator.add_pPrintBool(tagValue: Int) {
+fun CodeGenerator.add_pPrintBool(trueTagValue: Int, falseTagValue: Int) {
     // This should be called at the end of the program after checking the flags
     // The required messages for this:
-    //                      true\0 resides at tagValue - 1 ( = messageCounter - 2 )
-    //                      false\0 resides at tagValue ( = messageCounter - 1 )
+    //                      true\0 resides at trueTagValue
+    //                      false\0 resides at falseTagValue
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_bool"),
             Instruction.CMP(Operand.Register(0), Operand.Constant(0)),
-            Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(tagValue - 1), "NE"),
-            Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(tagValue), "EQ"),
+            Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(trueTagValue), "NE"),
+            Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(falseTagValue), "EQ"),
             Instruction.ADD(
                 Operand.Register(0),
                 Operand.Register(0),
@@ -69,7 +68,7 @@ fun CodeGenerator.add_pPrintBool(tagValue: Int) {
 
 fun CodeGenerator.add_pPrintInt(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
-    // The required messages for this: %d\0 resides at tagValue ( = messageCounter - 1 )
+    // The required messages for this: %d\0 resides at tagValue
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_int"),
@@ -91,7 +90,7 @@ fun CodeGenerator.add_pPrintInt(tagValue: Int) {
 
 fun CodeGenerator.add_pPrintReference(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
-    // The required messages for this : %p\0 resides at tagValue ( = messageCounter - 1 )
+    // The required messages for this : %p\0 resides at tagValue
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_reference"),
@@ -112,7 +111,7 @@ fun CodeGenerator.add_pPrintReference(tagValue: Int) {
 
 fun CodeGenerator.add_pPrintLn(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
-    // The required messages for this : \0 resides at tagValue ( = messageCounter - 1 )
+    // The required messages for this : \0 resides at tagValue
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_ln"),
@@ -131,11 +130,64 @@ fun CodeGenerator.add_pPrintLn(tagValue: Int) {
     )
 }
 
+fun CodeGenerator.add_freeArray(tagValue: Int) {
+    // This should be called at the end of the program after checking the flags
+    // The required messages for this : NullReferenceError: dereference a null reference\n\0 resides at tagValue
+    instructions.addAll(
+        arrayListOf(
+            Instruction.LABEL("p_free_array"),
+            Instruction.PUSH(arrayListOf(Operand.Lr)),
+            Instruction.CMP(Operand.Register(0), Operand.Constant(0)),
+            Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(tagValue), "EQ"),
+            Instruction.BCond("p_throw_runtime_error", "EQ"),
+            Instruction.BL("free"),
+            Instruction.POP(arrayListOf(Operand.Pc))
+        )
+    )
+}
+
+fun CodeGenerator.add_freePair(tagValue: Int) {
+    // This should be called at the end of the program after chekcing the flags
+    // The required messages for this: NullReferenceError: dereference a null reference\n\0 resides at tagValue
+    instructions.addAll(
+        arrayListOf(
+            Instruction.LABEL("p_free_pair"),
+            Instruction.PUSH(arrayListOf(Operand.Lr)),
+            Instruction.CMP(Operand.Register(0), Operand.Constant(0)),
+            Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(tagValue), "EQ"),
+            Instruction.BCond("p_throw_runtime_error", "EQ"),
+            Instruction.PUSH(arrayListOf(Operand.Register(0))),
+            Instruction.LDRRegister(Operand.Register(0),Operand.Register(0),Operand.Offset(0)),
+            Instruction.BL("free"),
+            Instruction.LDRRegister(Operand.Register(0),Operand.Sp,Operand.Offset(0)),
+            Instruction.LDRRegister(Operand.Register(0),Operand.Register(0),Operand.Offset(4)),
+            Instruction.BL("free"),
+            Instruction.POP(arrayListOf(Operand.Register(0))),
+            Instruction.BL("free"),
+            Instruction.POP(arrayListOf(Operand.Pc))
+        )
+    )
+}
+
+fun CodeGenerator.add_throwRuntimeError() {
+    // This should be called at the end of the program, right after add_freeArray or add_freePair is called
+    // There are no required messages for this.
+
+    instructions.addAll(
+        arrayListOf(
+            Instruction.LABEL("p_throw_runtime_error"),
+            Instruction.BL("p_print_string"),
+            Instruction.MOV(Operand.Register(0),Operand.Constant(-1)),
+            Instruction.BL("exit")
+        )
+    )
+}
+
 fun CodeGenerator.printTypeInstructions(expression: Expression) {
     when {
         Type.compare(expression.exprType, Type.TArray(Type.TAny)) ||
                 Type.compare(expression.exprType, Type.TPair(Type.TAny, Type.TAny)) -> {
-            printReference = true
+            printReferenceFlag = true
             instructions.add(Instruction.BL("p_print_reference"))
         }
 
@@ -145,7 +197,7 @@ fun CodeGenerator.printTypeInstructions(expression: Expression) {
         }
 
         Type.compare(expression.exprType, Type.TString) -> {
-            printString = true
+            printStringFlag = true
             messageTagGenerator((expression as Expression.Literal.LString).string)
             // TODO: check here about what happens because message generator is called here so the tag
             // TODO: is generated here but it has already been passed through compileExpression so maybe
@@ -155,12 +207,12 @@ fun CodeGenerator.printTypeInstructions(expression: Expression) {
         }
 
         Type.compare(expression.exprType, Type.TInt) -> {
-            printInt = true
+            printIntFlag = true
             instructions.add(Instruction.BL("p_print_int"))
         }
 
         Type.compare(expression.exprType, Type.TBool) -> {
-            printBool = true
+            printBoolFlag = true
             instructions.add(Instruction.BL("p_print_bool"))
         }
     }

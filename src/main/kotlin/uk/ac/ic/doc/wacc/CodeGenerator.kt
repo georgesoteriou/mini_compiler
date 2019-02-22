@@ -13,11 +13,24 @@ class CodeGenerator(var program: Program) {
     var wholeProgram: MutableList<Instruction> = arrayListOf()
     var activeScope = ActiveScope(Scope(), null)
     var messageCounter = 0
-    var printString = false
-    var printInt = false
-    var printBool = false
-    var printLnTag = false
-    var printReference = false
+
+    var printStringTag = -1
+    var printBoolTrueTag = -1
+    var printBoolFalseTag = -1
+    var printIntTag = -1
+    var printReferenceTag = -1
+    var printLnTag = -1
+    var freeArrayTag = -1
+    var freePairTag = -1
+
+    var printStringFlag = false
+    var printIntFlag = false
+    var printBoolFlag = false
+    var printLnFlag = false
+    var printReferenceFlag = false
+    var freeArrayFlag = false
+    var freePairFlag = false
+
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
         //TODO: Add functions to active scope
@@ -25,31 +38,62 @@ class CodeGenerator(var program: Program) {
         instructions.add(Instruction.Flag(".ltorg"))
 
 
-        if (printString) {
-            messageTagGenerator("%.*s\\0", true)
-            add_pPrintString(messageCounter - 1)
+        if (printStringFlag) {
+            messageTagGenerator("%.*s\\0", 1)
+            printStringTag = messageCounter - 1
+            add_pPrintString(printStringTag)
         }
 
-        if (printBool) {
-            messageTagGenerator("true\\0", true)
-            messageTagGenerator("false\\0", true)
-            add_pPrintBool(messageCounter - 1)
+        if (printBoolFlag) {
+            messageTagGenerator("true\\0", 1)
+            printBoolTrueTag = messageCounter - 1
+            messageTagGenerator("false\\0", 1)
+            printBoolFalseTag = messageCounter - 1
+            add_pPrintBool(printBoolTrueTag,printBoolFalseTag)
         }
 
-        if (printInt) {
-            messageTagGenerator("%d\\0", true)
-            add_pPrintInt(messageCounter - 1)
+        if (printIntFlag) {
+            messageTagGenerator("%d\\0", 1)
+            printIntTag = messageCounter - 1
+            add_pPrintInt(printIntTag)
         }
 
-        if (printReference) {
-            messageTagGenerator("%p\\0", true)
-            add_pPrintReference(messageCounter - 1)
+        if (printReferenceFlag) {
+            messageTagGenerator("%p\\0", 1)
+            printReferenceTag = messageCounter - 1
+            add_pPrintReference(printReferenceTag)
         }
 
-        if (printLnTag) {
-            messageTagGenerator("\\0", true)
-            add_pPrintLn(messageCounter-1)
+        if (printLnFlag) {
+            messageTagGenerator("\\0", 1)
+            printLnTag = messageCounter - 1
+            add_pPrintLn(printLnTag)
         }
+
+        if (freeArrayFlag || freePairFlag) {
+
+            if (freeArrayFlag) {
+                messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0",2)
+                freeArrayTag = messageCounter - 1
+                add_freeArray(freeArrayTag)
+                add_throwRuntimeError()
+            }
+
+            if (freePairFlag) {
+                messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0",2)
+                freePairTag = messageCounter - 1
+                add_freePair(freePairTag)
+                add_throwRuntimeError()
+            }
+
+            if (!printStringFlag) {
+                messageTagGenerator("%.*s\\0", 1)
+                printStringTag = messageCounter - 1
+                add_pPrintString(printStringTag)
+            }
+
+        }
+
 
         data.forEach { println(it.toString()) }
         instructions.forEach { println(it.toString()) }
@@ -136,6 +180,21 @@ class CodeGenerator(var program: Program) {
             is Statement.ReadInput -> {
             }
             is Statement.FreeVariable -> {
+                compileExpression(statement.expression,4)
+                instructions.add(Instruction.MOV(Operand.Register(0),Operand.Register(4)))
+                when {
+                    Type.compare(statement.expression.exprType,Type.TArray(Type.TAny)) -> {
+                        printStringFlag = true
+                        freeArrayFlag = true
+                        instructions.add(Instruction.BL("p_free_array"))
+                    }
+
+                    Type.compare(statement.expression.exprType, Type.TPair(Type.TAny,Type.TAny)) -> {
+                        printStringFlag = true
+                        freePairFlag = true
+                        instructions.add(Instruction.BL("p_free_pair"))
+                    }
+                }
             }
             is Statement.Return -> {
             }
@@ -150,7 +209,7 @@ class CodeGenerator(var program: Program) {
                 printTypeInstructions(statement.expression)
             }
             is Statement.PrintLn -> {
-                printLnTag = true
+                printLnFlag = true
                 compileExpression(statement.expression, 4)
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
                 printTypeInstructions(statement.expression)

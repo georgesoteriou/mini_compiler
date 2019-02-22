@@ -1,7 +1,10 @@
-# creates 257 variables
+# Create and free a null pair
 
 # Output:
-# #empty#
+# #runtime_error#
+
+# Exit:
+# 255
 
 # Program:
 

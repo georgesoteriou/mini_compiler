@@ -54,7 +54,8 @@ sealed class Instruction {
     data class BL(var name: String) : Instruction() {
         override fun toString(): String = "BL $name"
     }
-
+    // TODO: Consider merging BL with BCond to reduce code duplication,
+    // TODO: which would entail changing all the function calls of BL
     data class STRSimple(var register: Operand, var addr: Operand) : Instruction() {
         override fun toString(): String = "STR $register, [$addr]"
     }
