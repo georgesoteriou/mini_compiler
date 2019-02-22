@@ -1,4 +1,15 @@
-begin 
-pair(int,int) p = newpair(10,3); 
-free p
+# Create and free a null pair
+
+# Output:
+# #runtime_error#
+
+# Exit:
+# 255
+
+# Program:
+
+begin
+  pair(pair, pair) a = null ;
+  free a
 end
+

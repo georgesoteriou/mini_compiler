@@ -21,6 +21,7 @@ fun CodeGenerator.add_pPrintString(tagValue: Int) {
     instructions.addAll(
         arrayListOf(
             (Instruction.LABEL("p_print_string")),
+            (Instruction.PUSH(arrayListOf(Operand.Lr))),
             (Instruction.LDRSimple(Operand.Register(1), Operand.Register(0))),
             (Instruction.ADD(
                 Operand.Register(2),
@@ -156,6 +157,8 @@ fun CodeGenerator.add_freePair(tagValue: Int) {
             Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(tagValue), "EQ"),
             Instruction.BCond("p_throw_runtime_error", "EQ"),
             Instruction.PUSH(arrayListOf(Operand.Register(0))),
+            Instruction.LDRRegister(Operand.Register(0),Operand.Register(0),Operand.Offset(0)),
+            Instruction.BL("free"),
             Instruction.LDRRegister(Operand.Register(0),Operand.Sp,Operand.Offset(0)),
             Instruction.LDRRegister(Operand.Register(0),Operand.Register(0),Operand.Offset(4)),
             Instruction.BL("free"),
@@ -172,6 +175,7 @@ fun CodeGenerator.add_throwRuntimeError() {
 
     instructions.addAll(
         arrayListOf(
+            Instruction.LABEL("p_throw_runtime_error"),
             Instruction.BL("p_print_string"),
             Instruction.MOV(Operand.Register(0),Operand.Constant(-1)),
             Instruction.BL("exit")
