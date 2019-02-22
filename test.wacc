@@ -1,11 +1,4 @@
-# creates a pair which is returned from a function
-
-# Output:
-# 10
-
-# Program:
-
-begin
-int [] x = [1,2,3,4]; 
-free x 
+begin 
+pair(int,int) p = newpair(10,3); 
+free p
 end

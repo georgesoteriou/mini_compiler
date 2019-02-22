@@ -147,6 +147,27 @@ fun CodeGenerator.add_freeArray(tagValue: Int) {
     )
 }
 
+fun CodeGenerator.add_freePair(tagValue: Int) {
+    // This should be called at the end of the program after chekcing the flags
+    // The required messages for this: NullReferenceError: dereference a null reference\n\0 resides at tagValue
+    instructions.addAll(
+        arrayListOf(
+            Instruction.LABEL("p_free_pair"),
+            Instruction.PUSH(arrayListOf(Operand.Lr)),
+            Instruction.CMP(Operand.Register(0), Operand.Constant(0)),
+            Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(tagValue), "EQ"),
+            Instruction.BCond("p_throw_runtime_error", "EQ"),
+            Instruction.PUSH(arrayListOf(Operand.Register(0))),
+            Instruction.LDRRegister(Operand.Register(0),Operand.Sp,Operand.Offset(0)),
+            Instruction.LDRRegister(Operand.Register(0),Operand.Register(0),Operand.Offset(4)),
+            Instruction.BL("free"),
+            Instruction.POP(arrayListOf(Operand.Register(0))),
+            Instruction.BL("free"),
+            Instruction.POP(arrayListOf(Operand.Pc))
+        )
+    )
+}
+
 fun CodeGenerator.add_throwRuntimeError() {
     // This should be called at the end of the program, right after add_freeArray or add_freePair is called
     // There are no required messages for this.

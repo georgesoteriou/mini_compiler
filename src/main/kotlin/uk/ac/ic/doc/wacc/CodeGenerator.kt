@@ -161,7 +161,7 @@ class CodeGenerator(var program: Program) {
                     Type.compare(statement.expression.exprType, Type.TPair(Type.TAny,Type.TAny)) -> {
                         printStringFlag = true
                         freePairFlag = true
-                        instructions.add(Instruction.BL("p_free"))
+                        instructions.add(Instruction.BL("p_free_pair"))
                     }
                 }
             }
