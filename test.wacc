@@ -6,11 +6,12 @@
 # Program:
 
 begin
-  while true do
-    while true do
-        while false do
-            skip
-        done
-    done
-  done
+
+ while true do
+    if true then
+        int x = 11
+    else
+        int x = 12
+    fi
+ done
 end

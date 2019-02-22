@@ -59,7 +59,7 @@ class CodeGenerator(var program: Program) {
         when (statement) {
             is Statement.Block -> {
                statement.scope.findFullSize()
-                instructions.add(Instruction.LABEL(name))
+                //instructions.add(Instruction.LABEL(name))
                 if(name == "main") {
                     instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
                 }
@@ -69,8 +69,11 @@ class CodeGenerator(var program: Program) {
                 // TODO add later: increment label counter : if name not like ".L<Int>"
                 // TODO i don't think label counter should be handles here
                 increaseSP(statement)
-                //instructions.add(Instruction.LDRSimple(Operand.Register(0), Operand.Literal.LInt("0")))
-                //instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
+
+                if(name == "main") {
+                    instructions.add(Instruction.LDRSimple(Operand.Register(0), Operand.Literal.LInt("0")))
+                    instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
+                }
             }
             is Statement.Skip -> {
             }
@@ -153,22 +156,14 @@ class CodeGenerator(var program: Program) {
                 printTypeInstructions(statement.expression)
             }
             is Statement.If -> {
+                compileExpression(statement.condition, 4)
+                ifInstructions(statement)
             }
             is Statement.While -> {
                 // TODO: Create label L<labelCounter + 1> with block commands
                 // TODO: Create label L<labelCounter> with cond
-                var currLabel = labelCounter
-                instructions.add(
-                    Instruction.BCond("L$currLabel", "")
-                )
 
-                labelCounter += 2
-                compileStatement(statement.then, "L${currLabel + 1}")
-                instructions.add(
-                    Instruction.LABEL("L$currLabel")
-                )
-                compileExpression(statement.condition, 4)
-                whileInstructions(currLabel)
+                whileInstructions(statement)
             }
         }
 
