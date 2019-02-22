@@ -178,6 +178,21 @@ class CodeGenerator(var program: Program) {
                 }
             }
             is Statement.ReadInput -> {
+                compileExpression(statement.expression,4)
+                instructions.add(Instruction.ADD(Operand.Register(4),Operand.Sp,Operand.Constant(0)))
+                instructions.add(Instruction.MOV(Operand.Register(0),Operand.Register(4)))
+
+                when {
+                    Type.compare(statement.expression.exprType, Type.TInt) -> {
+                        instructions.add(Instruction.BL("p_read_int"))
+                        intInputFlag = true
+                    }
+
+                    Type.compare(statement.expression.exprType,Type.TChar) -> {
+                        instructions.add(Instruction.BL("p_read_char"))
+                        charInputFlag = true
+                    }
+                }
             }
             is Statement.FreeVariable -> {
                 compileExpression(statement.expression,4)
