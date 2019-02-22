@@ -63,8 +63,14 @@ sealed class Instruction {
         override fun toString(): String = "STRB $register, [$addrBase]"
     }
 
-    data class STRBOffset(var register: Operand, var addrBase: Operand, var addrOffset: Operand) : Instruction() {
-        override fun toString(): String = "STRB $register, [$addrBase, $addrOffset]"
+    data class STRBOffset(var register: Operand, var addrBase: Operand, var addrOffset: Operand.Offset) : Instruction() {
+        override fun toString(): String {
+            return if (addrOffset.value != 0) {
+                "STRB $register, [$addrBase, $addrOffset]"
+            } else {
+                "STRB $register, [$addrBase]"
+            }
+        }
     }
 
     data class WORD(var length: Int) : Instruction() {
@@ -74,7 +80,8 @@ sealed class Instruction {
     data class ASCII(var contents: String) : Instruction() {
         override fun toString(): String = ".ascii \"$contents\""
     }
-    data class CMP (var rn: Operand, var op2: Operand) : Instruction() {
+
+    data class CMP(var rn: Operand, var op2: Operand) : Instruction() {
         override fun toString(): String = "CMP $rn, $op2"
     }
 

@@ -75,28 +75,21 @@ class CodeGenerator(var program: Program) {
             is Statement.VariableDeclaration -> {
                 var type = statement.lhs.type
                 val name = statement.lhs.name
-
                 if(statement.rhs is Expression.Literal.LPair) {
                     pairNullDeclInstructions()
                 } else {
-
                     when (type) {
-                        is Type.TInt -> {
+                        is Type.TInt,  is Type.TString-> {
                             compileExpression(statement.rhs, 4)
-                            intAssignInstructions(name)
+                            wordAssignInstructions(name)
                         }
-                        is Type.TBool -> {
+                        is Type.TBool, is Type.TChar  -> {
                             compileExpression(statement.rhs, 4)
-                            boolAssignInstructions(name)
-                        }
-
-                        is Type.TChar -> {
-                            compileExpression(statement.rhs, 4)
-                            charAssignInstructions(name)
+                            byteAssignInstructions(name)
                         }
 
                         is Type.TArray -> {
-                            arrayDeclInstructions(statement.lhs, (statement.rhs as Expression.Literal.LArray))
+                            arrayAssignInstructions(statement.lhs, (statement.rhs as Expression.Literal.LArray))
                         }
                         is Type.TPair -> {
                             pairDeclInstructions(statement)
@@ -108,23 +101,19 @@ class CodeGenerator(var program: Program) {
 
             is Statement.VariableAssignment -> {
                 var type = statement.rhs.exprType
-                compileExpression(statement.rhs, 4)
                 val name = (statement.lhs as Expression.Identifier).name
                 when (type) {
-                    is Type.TInt -> {
+                    is Type.TInt, is Type.TString-> {
                         compileExpression(statement.rhs, 4)
-                        intAssignInstructions(name)
+                        wordAssignInstructions(name)
                     }
-                    is Type.TBool -> {
+                    is Type.TBool, is Type.TChar -> {
                         compileExpression(statement.rhs, 4)
-                        boolAssignInstructions(name)
-                    }
-                    is Type.TChar -> {
-                        compileExpression(statement.rhs, 4)
-                        charAssignInstructions(name)
+                        byteAssignInstructions(name)
                     }
                     is Type.TArray -> {
-                        //arrayDeclInstructions(statement)
+                        val def = Definition(name,statement.lhs.exprType)
+                        arrayAssignInstructions(def, statement.rhs as Expression.Literal.LArray)
                     }
                     is Type.TPair -> {
                         // pairDeclInstructions(statement)
@@ -262,15 +251,15 @@ class CodeGenerator(var program: Program) {
             }
 
             is Expression.Literal.LString -> {
+                messageTagGenerator(expression.string)
+                instructions.add(
+                    Instruction.LDRSimple(
+                        Operand.Register(dest),
+                        Operand.MessageTag(messageCounter - 1)
+                    )
+                )
             }
             is Expression.Literal.LArray -> {
-//                arrayDeclInstructions()
-//                var type = (expression.exprType as Type.TArray).type
-//                var offset = 4
-//                expression.params.forEach {
-//                    compileExpression(it, dest + 1)
-//                }
-//                offset += Type.size(type)
             }
             is Expression.Literal.LPair -> {
             }

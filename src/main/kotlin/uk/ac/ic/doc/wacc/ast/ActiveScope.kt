@@ -50,5 +50,9 @@ class ActiveScope(var currentScope: Scope, var parentScope: ActiveScope?) {
     fun newSubScope(scope: Scope = Scope()): ActiveScope =
         ActiveScope(scope, this)
 
+    fun getDefinition(name: String) {
+
+    }
+
 }
 

@@ -6,5 +6,6 @@
 # Program:
 
 begin
-   pair(pair, pair) p = null 
+   string s = "blah";
+   s = "fck"
 end
