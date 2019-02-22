@@ -43,7 +43,7 @@ fun CodeGenerator.add_pPrintString(tagValue: Int) {
     )
 }
 
-fun CodeGenerator.add_pPrintBool(tagValue: Int) {
+fun CodeGenerator.add_pPrintBool(trueTagValue : Int, falseTagValue: Int) {
     // This should be called at the end of the program after checking the flags
     // The required messages for this:
     //                      true\0 resides at tagValue - 1 ( = messageCounter - 2 )
@@ -52,8 +52,8 @@ fun CodeGenerator.add_pPrintBool(tagValue: Int) {
         arrayListOf(
             Instruction.LABEL("p_print_bool"),
             Instruction.CMP(Operand.Register(0), Operand.Constant(0)),
-            Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(tagValue - 1), "NE"),
-            Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(tagValue), "EQ"),
+            Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(trueTagValue), "NE"),
+            Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(falseTagValue), "EQ"),
             Instruction.ADD(
                 Operand.Register(0),
                 Operand.Register(0),
@@ -130,8 +130,6 @@ fun CodeGenerator.add_pPrintLn(tagValue: Int) {
         )
     )
 }
-
-
 
 fun CodeGenerator.printTypeInstructions(expression: Expression) {
     when {
