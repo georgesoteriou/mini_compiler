@@ -77,6 +77,12 @@ class CodeGenerator(var program: Program) {
             add_pPrintLn(printLnTag)
         }
 
+        if (intInputFlag) {
+            messageTagGenerator("%d\\0",1)
+            intInputTag = messageCounter - 1
+            add_intInput(intInputTag)
+        }
+
         if (freeArrayFlag || freePairFlag) {
 
             if (freeArrayFlag) {
