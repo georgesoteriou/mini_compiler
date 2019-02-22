@@ -6,11 +6,9 @@ import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Type
 
-fun CodeGenerator.messageTagGenerator(content: String, flag: Boolean = false) {
+fun CodeGenerator.messageTagGenerator(content: String, numEscChars: Int = 0) {
     var length: Int = content.length
-    if (flag) {
-        length -= 1
-    }
+    length -= numEscChars
     data.add(Instruction.Flag("msg_$messageCounter:"))
     data.add(Instruction.WORD(length))
     data.add(Instruction.ASCII(content))
