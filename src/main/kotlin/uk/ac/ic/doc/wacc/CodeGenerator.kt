@@ -20,6 +20,8 @@ class CodeGenerator(var program: Program) {
     var printIntTag = -1
     var printReferenceTag = -1
     var printLnTag = -1
+    var freeArrayTag = -1
+    var freePairTag = -1
 
     var printStringFlag = false
     var printIntFlag = false
@@ -67,7 +69,31 @@ class CodeGenerator(var program: Program) {
             printLnTag = messageCounter - 1
             add_pPrintLn(printLnTag)
         }
-        
+
+        if (freeArrayFlag || freePairFlag) {
+
+            if (freeArrayFlag) {
+                messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0",2)
+                freeArrayTag = messageCounter - 1
+                add_freeArray(freeArrayTag)
+                add_throwRuntimeError()
+            }
+
+            if (freePairFlag) {
+                messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0",2)
+                freePairTag = messageCounter - 1
+                add_freePair(freePairTag)
+                add_throwRuntimeError()
+            }
+
+            if (!printStringFlag) {
+                messageTagGenerator("%.*s\\0", 1)
+                printStringTag = messageCounter - 1
+                add_pPrintString(printStringTag)
+            }
+
+        }
+
 
         data.forEach { println(it.toString()) }
         instructions.forEach { println(it.toString()) }
