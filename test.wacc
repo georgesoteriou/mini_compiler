@@ -6,5 +6,12 @@
 # Program:
 
 begin
-  pair(int, int) p = newpair(10, 3)
+
+ while true do
+    if true then
+        int x = 11
+    else
+        int x = 12
+    fi
+ done
 end
