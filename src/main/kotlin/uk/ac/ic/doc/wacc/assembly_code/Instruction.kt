@@ -13,8 +13,16 @@ sealed class Instruction {
         override fun toString(): String = "ADD $rd, $rn, $operand"
     }
 
+    data class ADDS(var rd: Operand.Register, var r1: Operand.Register, var r2: Operand.Register) : Instruction() {
+        override fun toString(): String = "ADDS $rd, $r1, $r2"
+    }
+
     data class SUB(var rd: Operand, var rn: Operand, var operand: Operand) : Instruction() {
         override fun toString(): String = "SUB $rd, $rn, $operand"
+    }
+
+    data class SUBS(var rd: Operand.Register, var r1: Operand.Register, var r2: Operand.Register) : Instruction() {
+        override fun toString(): String = "SUBS $rd, $r1, $r2"
     }
 
     data class LDRSimple(var rd: Operand, var value: Operand) : Instruction() {

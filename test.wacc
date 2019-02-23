@@ -1,5 +1,4 @@
 
 begin
-	int c = 1;
-	read c
+	int x = 1 + 2 - 4
 end
