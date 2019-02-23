@@ -22,6 +22,9 @@ class CodeGenerator(var program: Program) {
     var printLnTag = -1
     var freeArrayTag = -1
     var freePairTag = -1
+    var intInputTag = - 1
+    var charInputTag = -1
+
 
     var printStringFlag = false
     var printIntFlag = false
@@ -30,6 +33,8 @@ class CodeGenerator(var program: Program) {
     var printReferenceFlag = false
     var freeArrayFlag = false
     var freePairFlag = false
+    var intInputFlag = false
+    var charInputFlag = false
 
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
@@ -70,6 +75,18 @@ class CodeGenerator(var program: Program) {
             messageTagGenerator("\\0", 1)
             printLnTag = messageCounter - 1
             add_pPrintLn(printLnTag)
+        }
+
+        if (intInputFlag) {
+            messageTagGenerator("%d\\0",1)
+            intInputTag = messageCounter - 1
+            add_intInput(intInputTag)
+        }
+
+        if (charInputFlag) {
+            messageTagGenerator("%c\\0",1)
+            charInputTag = messageCounter - 1
+            add_charInput(charInputTag)
         }
 
         if (freeArrayFlag || freePairFlag) {
@@ -173,6 +190,21 @@ class CodeGenerator(var program: Program) {
                 }
             }
             is Statement.ReadInput -> {
+                //compileExpression(statement.expression,4)
+                instructions.add(Instruction.ADD(Operand.Register(4),Operand.Sp,Operand.Constant(0)))
+                instructions.add(Instruction.MOV(Operand.Register(0),Operand.Register(4)))
+
+                when {
+                    Type.compare(statement.expression.exprType, Type.TInt) -> {
+                        instructions.add(Instruction.BL("p_read_int"))
+                        intInputFlag = true
+                    }
+
+                    Type.compare(statement.expression.exprType,Type.TChar) -> {
+                        instructions.add(Instruction.BL("p_read_char"))
+                        charInputFlag = true
+                    }
+                }
             }
             is Statement.FreeVariable -> {
                 compileExpression(statement.expression,4)

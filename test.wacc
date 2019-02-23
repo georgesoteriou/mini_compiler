@@ -1,14 +1,5 @@
-# Create and free a null pair
-
-# Output:
-# #runtime_error#
-
-# Exit:
-# 255
-
-# Program:
 
 begin
- pair(int, int) x = newpair(13, 15);
- x = newpair(3, 5)
+	int c = 1;
+	read c
 end

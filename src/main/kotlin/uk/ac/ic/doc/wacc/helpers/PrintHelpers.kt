@@ -183,6 +183,40 @@ fun CodeGenerator.add_throwRuntimeError() {
     )
 }
 
+fun CodeGenerator.add_charInput(tagValue: Int) {
+    // This should be called at the end of the program after chekcing the flags
+    // The required messages for this : %c\0 resides at tagValue
+
+    instructions.addAll(
+        arrayListOf(
+            Instruction.LABEL("p_read_char"),
+            Instruction.PUSH(arrayListOf(Operand.Lr)),
+            Instruction.MOV(Operand.Register(1),Operand.Register(0)),
+            Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue)),
+            Instruction.ADD(Operand.Register(0),Operand.Register(0),Operand.Constant(4)),
+            Instruction.BL("scanf"),
+            Instruction.POP(arrayListOf(Operand.Pc))
+        )
+    )
+}
+
+fun CodeGenerator.add_intInput(tagValue: Int) {
+    // This should be called at the end of the program after checking the flags
+    // The required messages for this : %d\0 resides at tagValue
+
+    instructions.addAll(
+        arrayListOf(
+            Instruction.LABEL("p_read_int"),
+            Instruction.PUSH(arrayListOf(Operand.Lr)),
+            Instruction.MOV(Operand.Register(1),Operand.Register(0)),
+            Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue)),
+            Instruction.ADD(Operand.Register(0),Operand.Register(0),Operand.Constant(4)),
+            Instruction.BL("scanf"),
+            Instruction.POP(arrayListOf(Operand.Pc))
+            )
+    )
+}
+
 fun CodeGenerator.printTypeInstructions(expression: Expression) {
     when {
         Type.compare(expression.exprType, Type.TArray(Type.TAny)) ||
