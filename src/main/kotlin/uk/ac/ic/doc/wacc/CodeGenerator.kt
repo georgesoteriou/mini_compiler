@@ -29,6 +29,7 @@ class CodeGenerator(var program: Program) {
     var throwOverflowTag = -1
     var divideByZeroTag = -1
 
+    // TODO: consider refactoring so as to avoid use of so many flags and corresponding tags
 
     var printStringFlag = false
     var printIntFlag = false
