@@ -27,7 +27,6 @@ class CodeGenerator(var program: Program) {
     var intInputTag = - 1
     var charInputTag = -1
     var throwOverflowTag = -1
-    var throwRuntimeTag = -1
     var divideByZeroTag = -1
 
 
@@ -95,6 +94,23 @@ class CodeGenerator(var program: Program) {
             messageTagGenerator("%c\\0",1)
             charInputTag = messageCounter - 1
             add_charInput(charInputTag)
+        }
+
+        if (throwOverflowFlag) {
+            messageTagGenerator("OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n",1)
+            throwOverflowTag = messageCounter - 1
+            add_throwOverflowError(throwOverflowTag)
+        }
+
+        if (throwRuntimeFlag) {
+            add_throwRuntimeError()
+            throwRuntimeFlag = false
+        }
+
+        if (divideByZeroFlag) {
+            messageTagGenerator("DivideByZeroError: divide or modulo by zero\\n\\0",2)
+            divideByZeroTag = messageCounter - 1
+            add_checkDivideByZero(divideByZeroTag)
         }
 
         if (freeArrayFlag || freePairFlag) {
