@@ -73,12 +73,14 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
                 arrayListOf(
                     Instruction.MOV(Operand.Register(0), Operand.Register(dest)),
                     Instruction.MOV(Operand.Register(1), Operand.Register(dest + 1)),
-                    //TODO: BL p_check_divide_by_zero
+                    Instruction.BCond("p_check_divide_by_zero","L"),
                     Instruction.BL("__aeabi_idiv"),
                     Instruction.MOV(Operand.Register(dest),Operand.Register(0))
                     )
             )
-            //TODO: flags that need to be set : printCheckDivideByZero, printThrowRuntime, printString
+            divideByZeroFlag = true
+            throwRuntimeFlag = true
+            printStringFlag = true
         }
         Expression.BinaryOperator.MOD -> {
             instructions.addAll(
