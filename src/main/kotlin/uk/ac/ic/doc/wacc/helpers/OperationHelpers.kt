@@ -55,8 +55,6 @@ fun CodeGenerator.unOpInstructions(expr: Expression.UnaryOperation, dest: Int) {
                 Instruction.LDRSimple(
                     Operand.Register(dest),
                     Operand.Literal.LInt(
-                        // TODO: We cannot assume this is an int here.... do the same as above
-                        // TODO: eg. ----5 is valid too
                         "-${(expr.expression as Expression.Literal.LInt).int}"
                     )
                 )

@@ -330,9 +330,9 @@ class CodeGenerator(var program: Program) {
                 // TODO: Here we want to calculate "{unop} A"
                 // TODO: very similar to above.
                 // TODO: compileExpression(A, dest+1)
-                compileExpression(expression, dest)
+                compileExpression(expression.expression, dest)
 
-
+                unOpInstructions(expression, dest)
             }
 
             // TODO: This will need more thinking as it can be both on lhs and rhs.
