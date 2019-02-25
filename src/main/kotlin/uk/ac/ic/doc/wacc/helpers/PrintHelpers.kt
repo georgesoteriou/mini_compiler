@@ -15,9 +15,11 @@ fun CodeGenerator.messageTagGenerator(content: String, numEscChars: Int = 0) {
     messageCounter += 1
 }
 
-fun CodeGenerator.add_throwOverflow(tagValue: Int) {
+fun CodeGenerator.add_throwOverflowError(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
-    // The required message for this: %.*s\0 resides at tagValue
+    // The required message for this:
+    //              "OverflowError: the result is too small/large to store in a 4-byte signed-integer.\n"
+    // resides at tagValue
 
     instructions.addAll(arrayListOf(
         Instruction.LABEL("p_throw_overflow_error"),
@@ -25,6 +27,7 @@ fun CodeGenerator.add_throwOverflow(tagValue: Int) {
         Instruction.BL("p_throw_runtime_error")
     ))
 }
+
 
 
 fun CodeGenerator.add_pPrintString(tagValue: Int) {

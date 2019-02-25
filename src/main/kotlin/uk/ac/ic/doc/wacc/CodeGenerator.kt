@@ -103,14 +103,18 @@ class CodeGenerator(var program: Program) {
                 messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0",2)
                 freeArrayTag = messageCounter - 1
                 add_freeArray(freeArrayTag)
-                add_throwRuntimeError()
+                if (throwRuntimeFlag) {
+                    add_throwRuntimeError()
+                }
             }
 
             if (freePairFlag) {
                 messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0",2)
                 freePairTag = messageCounter - 1
                 add_freePair(freePairTag)
-                add_throwRuntimeError()
+                if (throwRuntimeFlag) {
+                    add_throwRuntimeError()
+                }
             }
 
             if (!printStringFlag) {
@@ -221,12 +225,14 @@ class CodeGenerator(var program: Program) {
                     Type.compare(statement.expression.exprType,Type.TArray(Type.TAny)) -> {
                         printStringFlag = true
                         freeArrayFlag = true
+                        throwRuntimeFlag = true
                         instructions.add(Instruction.BL("p_free_array"))
                     }
 
                     Type.compare(statement.expression.exprType, Type.TPair(Type.TAny,Type.TAny)) -> {
                         printStringFlag = true
                         freePairFlag = true
+                        throwRuntimeFlag = true
                         instructions.add(Instruction.BL("p_free_pair"))
                     }
                 }
