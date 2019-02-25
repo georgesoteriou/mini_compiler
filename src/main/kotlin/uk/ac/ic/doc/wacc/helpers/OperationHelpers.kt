@@ -30,7 +30,8 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
                 Instruction.ADDS(
                     Operand.Register(dest),
                     Operand.Register(dest),
-                    Operand.Register(dest + 1)),
+                    Operand.Register(dest + 1)
+                ),
                 Instruction.BCond("p_throw_overflow_error","LVS")
             ))
             throwOverflowFlag = true
@@ -38,15 +39,17 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
             printStringFlag = true
         }
         Expression.BinaryOperator.MINUS -> {
-            instructions.add(
+            instructions.addAll(arrayListOf(
                 Instruction.SUBS(
                     Operand.Register(dest),
                     Operand.Register(dest),
                     Operand.Register(dest + 1)
-                )
-            // TODO: BLVS: p_throw_overflow_error
-            )
-            //TODO: flags that need to be set : printThrowOverflow, printThrowRuntime, printString
+                ),
+                Instruction.BCond("p_throw_overflow_error","LVS")
+            ))
+            throwOverflowFlag = true
+            throwRuntimeFlag = true
+            printStringFlag = true
         }
         Expression.BinaryOperator.MULT -> {
             instructions.add(
