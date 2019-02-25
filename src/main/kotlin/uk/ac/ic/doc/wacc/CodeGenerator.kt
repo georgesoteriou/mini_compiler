@@ -26,6 +26,8 @@ class CodeGenerator(var program: Program) {
     var freePairTag = -1
     var intInputTag = - 1
     var charInputTag = -1
+    var throwOverflowTag = -1
+    var divideByZeroTag = -1
 
 
     var printStringFlag = false
@@ -37,6 +39,9 @@ class CodeGenerator(var program: Program) {
     var freePairFlag = false
     var intInputFlag = false
     var charInputFlag = false
+    var throwOverflowFlag = false
+    var throwRuntimeFlag = false
+    var divideByZeroFlag = false
 
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
@@ -91,20 +96,41 @@ class CodeGenerator(var program: Program) {
             add_charInput(charInputTag)
         }
 
+        if (throwOverflowFlag) {
+            messageTagGenerator("OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n",1)
+            throwOverflowTag = messageCounter - 1
+            add_throwOverflowError(throwOverflowTag)
+        }
+
+        if (throwRuntimeFlag) {
+            add_throwRuntimeError()
+            throwRuntimeFlag = false
+        }
+
+        if (divideByZeroFlag) {
+            messageTagGenerator("DivideByZeroError: divide or modulo by zero\\n\\0",2)
+            divideByZeroTag = messageCounter - 1
+            add_checkDivideByZero(divideByZeroTag)
+        }
+
         if (freeArrayFlag || freePairFlag) {
 
             if (freeArrayFlag) {
                 messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0",2)
                 freeArrayTag = messageCounter - 1
                 add_freeArray(freeArrayTag)
-                add_throwRuntimeError()
+                if (throwRuntimeFlag) {
+                    add_throwRuntimeError()
+                }
             }
 
             if (freePairFlag) {
                 messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0",2)
                 freePairTag = messageCounter - 1
                 add_freePair(freePairTag)
-                add_throwRuntimeError()
+                if (throwRuntimeFlag) {
+                    add_throwRuntimeError()
+                }
             }
 
             if (!printStringFlag) {
@@ -215,12 +241,14 @@ class CodeGenerator(var program: Program) {
                     Type.compare(statement.expression.exprType,Type.TArray(Type.TAny)) -> {
                         printStringFlag = true
                         freeArrayFlag = true
+                        throwRuntimeFlag = true
                         instructions.add(Instruction.BL("p_free_array"))
                     }
 
                     Type.compare(statement.expression.exprType, Type.TPair(Type.TAny,Type.TAny)) -> {
                         printStringFlag = true
                         freePairFlag = true
+                        throwRuntimeFlag = true
                         instructions.add(Instruction.BL("p_free_pair"))
                     }
                 }

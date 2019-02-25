@@ -26,58 +26,75 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
     // TODO: check for overflow errors
     when (expr.operator) {
         Expression.BinaryOperator.PLUS -> {
-            instructions.add(
+            instructions.addAll(arrayListOf(
                 Instruction.ADDS(
                     Operand.Register(dest),
                     Operand.Register(dest),
                     Operand.Register(dest + 1)
-                )
-            )
-            //TODO: Error stuff
+                ),
+                Instruction.BCond("p_throw_overflow_error","LVS")
+            ))
+            throwOverflowFlag = true
+            throwRuntimeFlag = true
+            printStringFlag = true
         }
         Expression.BinaryOperator.MINUS -> {
-            instructions.add(
+            instructions.addAll(arrayListOf(
                 Instruction.SUBS(
                     Operand.Register(dest),
                     Operand.Register(dest),
                     Operand.Register(dest + 1)
-                )
-            )
-            //TODO: Error stuff
+                ),
+                Instruction.BCond("p_throw_overflow_error","LVS")
+            ))
+            throwOverflowFlag = true
+            throwRuntimeFlag = true
+            printStringFlag = true
         }
         Expression.BinaryOperator.MULT -> {
-            instructions.add(
+
+            instructions.addAll(arrayListOf(
                 Instruction.SMULL(
                     Operand.Register(dest),
                     Operand.Register(dest + 1),
                     Operand.Register(dest),
                     Operand.Register(dest + 1)
-                )
-            )
+                ),
+                Instruction.CMPCond(Operand.Register(5),Operand.Register(4),"ASR #31"),
+                Instruction.BCond("p_throw_overflow_error","LNE")
 
-            //TODO: Error stuff
+            ))
+            throwOverflowFlag = true
+            throwRuntimeFlag = true
+            printStringFlag = true
         }
         Expression.BinaryOperator.DIV -> {
             instructions.addAll(
                 arrayListOf(
                     Instruction.MOV(Operand.Register(0), Operand.Register(dest)),
                     Instruction.MOV(Operand.Register(1), Operand.Register(dest + 1)),
-                    //TODO: BL p_check_divide_by_zero
+                    Instruction.BCond("p_check_divide_by_zero","L"),
                     Instruction.BL("__aeabi_idiv"),
                     Instruction.MOV(Operand.Register(dest),Operand.Register(0))
                     )
             )
+            divideByZeroFlag = true
+            throwRuntimeFlag = true
+            printStringFlag = true
         }
         Expression.BinaryOperator.MOD -> {
             instructions.addAll(
                 arrayListOf(
                     Instruction.MOV(Operand.Register(0), Operand.Register(dest)),
                     Instruction.MOV(Operand.Register(1), Operand.Register(dest + 1)),
-                    //TODO: BL p_check_divide_by_zero
+                    Instruction.BL("p_check_divide_by_zero"),
                     Instruction.BL("__aeabi_idivmod"),
                     Instruction.MOV(Operand.Register(dest), Operand.Register(1))
                 )
             )
+            divideByZeroFlag = true
+            throwRuntimeFlag = true
+            printStringFlag  = true
         }
         Expression.BinaryOperator.AND -> {
             instructions.add(
