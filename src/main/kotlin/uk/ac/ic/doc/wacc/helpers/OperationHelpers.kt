@@ -142,7 +142,13 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
             )
         }
         Expression.BinaryOperator.LTE -> {
-
+            instructions.addAll(
+                arrayListOf(
+                    Instruction.CMP(Operand.Register(dest), Operand.Register(dest + 1)),
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(1), "LE"),
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(0), "GT")
+                )
+            )
         }
     }
 }
