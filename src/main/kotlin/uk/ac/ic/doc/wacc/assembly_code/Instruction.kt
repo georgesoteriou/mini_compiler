@@ -37,6 +37,15 @@ sealed class Instruction {
         override fun toString(): String = "LDR $rd, $value"
     }
 
+    data class LDRRegCond(var rd: Operand, var addrBase: Operand, var addrOffset: Operand.Offset, var cond: String) : Instruction() {
+        override fun toString(): String {
+            return if(addrOffset.value != 0) {
+                "LDR$cond $rd, [$addrBase, $addrOffset]"
+            } else {
+                "LDR$cond $rd, [$addrBase]"
+            }
+        }
+    }
     data class LDRRegister(var rd: Operand, var addrBase: Operand, var addrOffset: Operand.Offset) : Instruction() {
         override fun toString(): String {
             return if(addrOffset.value != 0) {
@@ -46,6 +55,8 @@ sealed class Instruction {
             }
         }
     }
+
+
 
     data class LDRCond(var rd: Operand, var value: Operand, var cond: String) : Instruction() {
         override fun toString(): String = "LDR$cond $rd, $value"
@@ -115,5 +126,10 @@ sealed class Instruction {
     data class AND(var rd: Operand.Register, var r1: Operand.Register, var r2: Operand.Register) : Instruction() {
         override fun toString(): String = "ADD $rd, $r1, $r2"
     }
+
+    data class ORR(var rd: Operand.Register, var r1: Operand.Register, var r2: Operand.Register) : Instruction() {
+        override fun toString(): String = "ORR $rd, $r1, $r2"
+    }
+
 
 }

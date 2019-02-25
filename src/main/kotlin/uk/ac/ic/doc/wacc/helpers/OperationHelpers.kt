@@ -76,6 +76,15 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
                 )
             )
         }
+        Expression.BinaryOperator.OR -> {
+            instructions.add(
+                Instruction.ORR(
+                    Operand.Register(dest),
+                    Operand.Register(dest),
+                    Operand.Register(dest + 1)
+                )
+            )
+        }
         else -> {
         }
     }

@@ -1,4 +1,5 @@
 
 begin
-    bool y  = true && false
+    char y = 'c';
+    char c = y
 end

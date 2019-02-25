@@ -28,13 +28,27 @@ fun CodeGenerator.wordAssignInstructions(name: String) = instructions.add(
 
 fun CodeGenerator.addPointerLDR(e1: Expression, dest: Int) {
     var pos = activeScope.getPosition((e1 as Expression.Identifier).name)
-    instructions.add(
-        Instruction.LDRRegister(
-            Operand.Register(dest),
-            Operand.Sp,
-            Operand.Offset(pos)
-        )
-    )
+    when (e1.exprType) {
+        is Type.TBool, is Type.TChar -> {
+            instructions.add(
+                Instruction.LDRRegCond(
+                    Operand.Register(dest),
+                    Operand.Sp,
+                    Operand.Offset(pos),
+                    "SB"
+                )
+            )
+        }
+        else -> {
+            instructions.add(
+                Instruction.LDRRegister(
+                    Operand.Register(dest),
+                    Operand.Sp,
+                    Operand.Offset(pos)
+                )
+            )
+        }
+    }
 }
 
 fun CodeGenerator.pairNullInstructions() {
@@ -126,9 +140,10 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
         Instruction.STROffset(
             Operand.Register(4),
             Operand.Sp,
-            Operand.Offset(activeScope.getPosition((definition.name))
+            Operand.Offset(
+                activeScope.getPosition((definition.name))
+            )
         )
-    )
     )
 }
 
