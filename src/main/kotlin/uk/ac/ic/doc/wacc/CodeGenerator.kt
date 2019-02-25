@@ -26,6 +26,9 @@ class CodeGenerator(var program: Program) {
     var freePairTag = -1
     var intInputTag = - 1
     var charInputTag = -1
+    var throwOverflowTag = -1
+    var throwRuntimeTag = -1
+    var divideByZeroTag = -1
 
 
     var printStringFlag = false
@@ -37,6 +40,9 @@ class CodeGenerator(var program: Program) {
     var freePairFlag = false
     var intInputFlag = false
     var charInputFlag = false
+    var throwOverflowFlag = false
+    var throwRuntimeFlag = false
+    var divideByZeroFlag = false
 
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
