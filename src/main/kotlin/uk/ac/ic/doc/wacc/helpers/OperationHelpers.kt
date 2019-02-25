@@ -32,8 +32,9 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
                     Operand.Register(dest),
                     Operand.Register(dest + 1)
                 )
+            // TODO: BLVS: p_throw_overflow_error
             )
-            //TODO: Error stuff
+            //TODO: flags that need to be set : printThrowOverflow, printThrowRuntime, printString
         }
         Expression.BinaryOperator.MINUS -> {
             instructions.add(
@@ -42,8 +43,9 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
                     Operand.Register(dest),
                     Operand.Register(dest + 1)
                 )
+            // TODO: BLVS: p_throw_overflow_error
             )
-            //TODO: Error stuff
+            //TODO: flags that need to be set : printThrowOverflow, printThrowRuntime, printString
         }
         Expression.BinaryOperator.MULT -> {
             instructions.add(
@@ -53,9 +55,11 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
                     Operand.Register(dest),
                     Operand.Register(dest + 1)
                 )
+            // TODO: CMP r5, r4, ASR #31
+            // TODO: BLNE p_throw_overflow_error
             )
 
-            //TODO: Error stuff
+            //TODO: flags that need to be set : printThrowOverflow, printThrowRuntime, printString
         }
         Expression.BinaryOperator.DIV -> {
             instructions.addAll(
@@ -67,6 +71,7 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
                     Instruction.MOV(Operand.Register(dest),Operand.Register(0))
                     )
             )
+            //TODO: flags that need to be set : printCheckDivideByZero, printThrowRuntime, printString
         }
         Expression.BinaryOperator.MOD -> {
             instructions.addAll(
@@ -78,6 +83,8 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
                     Instruction.MOV(Operand.Register(dest), Operand.Register(1))
                 )
             )
+
+            //TODO: flags that need to be set : printCheckDivideByZero, printThrowRuntime, printString
         }
         Expression.BinaryOperator.AND -> {
             instructions.add(
