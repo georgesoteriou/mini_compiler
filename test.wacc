@@ -1,4 +1,4 @@
 
 begin
-    bool x = (3 > 5)
+    bool x = (3 < 5)
 end
