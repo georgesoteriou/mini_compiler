@@ -127,6 +127,12 @@ sealed class Instruction {
         override fun toString(): String = "CMP $rn, $op2"
     }
 
+    data class CMPCond(var rn: Operand, var op2: Operand, var cond: String) : Instruction() {
+        override fun toString(): String = "CMP $rn, $op2, $cond"
+    }
+    // TODO: consider merging CMPCond with CMP, to reduce code duplication
+    // TODO: which would entail changing all function calls to CMP
+
     data class AND(var rd: Operand.Register, var r1: Operand.Register, var r2: Operand.Register) : Instruction() {
         override fun toString(): String = "ADD $rd, $r1, $r2"
     }
