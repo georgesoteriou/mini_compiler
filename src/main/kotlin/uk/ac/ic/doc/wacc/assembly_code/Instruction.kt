@@ -74,6 +74,10 @@ sealed class Instruction {
         override fun toString(): String = "MOV $rd, $rn"
     }
 
+    data class MOVCond(var rd: Operand, var rn: Operand, var cond: String) : Instruction() {
+        override fun toString(): String = "MOV$cond $rd, $rn"
+    }
+
     data class BCond(var name: String, var cond: String) : Instruction() {
         override fun toString(): String = "B$cond $name"
     }

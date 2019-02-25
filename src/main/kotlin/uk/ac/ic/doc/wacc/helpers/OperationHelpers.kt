@@ -67,6 +67,17 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
                     )
             )
         }
+        Expression.BinaryOperator.MOD -> {
+            instructions.addAll(
+                arrayListOf(
+                    Instruction.MOV(Operand.Register(0), Operand.Register(dest)),
+                    Instruction.MOV(Operand.Register(1), Operand.Register(dest + 1)),
+                    //TODO: BL p_check_divide_by_zero
+                    Instruction.BL("__aeabi_idivmod"),
+                    Instruction.MOV(Operand.Register(dest), Operand.Register(1))
+                )
+            )
+        }
         Expression.BinaryOperator.AND -> {
             instructions.add(
                 Instruction.AND(
@@ -84,6 +95,9 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
                     Operand.Register(dest + 1)
                 )
             )
+        }
+        Expression.BinaryOperator.EQ -> {
+
         }
         else -> {
         }

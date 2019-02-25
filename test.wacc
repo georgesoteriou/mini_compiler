@@ -1,5 +1,4 @@
 
 begin
-    char y = 'c';
-    char c = y
+    bool x = 3 == 5
 end
