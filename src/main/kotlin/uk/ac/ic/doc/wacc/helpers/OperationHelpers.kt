@@ -97,7 +97,13 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
             )
         }
         Expression.BinaryOperator.EQ -> {
-
+            instructions.addAll(
+                arrayListOf(
+                    Instruction.CMP(Operand.Register(dest), Operand.Register(dest + 1)),
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(1), "EQ"),
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(0), "NE")
+                )
+            )
         }
         else -> {
         }
