@@ -15,6 +15,18 @@ fun CodeGenerator.messageTagGenerator(content: String, numEscChars: Int = 0) {
     messageCounter += 1
 }
 
+fun CodeGenerator.add_throwOverflow(tagValue: Int) {
+    // This should be called at the end of the program after checking the flags
+    // The required message for this: %.*s\0 resides at tagValue
+
+    instructions.addAll(arrayListOf(
+        Instruction.LABEL("p_throw_overflow_error"),
+        Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue)),
+        Instruction.BL("p_throw_runtime_error")
+    ))
+}
+
+
 fun CodeGenerator.add_pPrintString(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
     // The required message for this: %.*s\0 resides at tagValue
