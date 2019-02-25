@@ -112,4 +112,8 @@ sealed class Instruction {
         override fun toString(): String = "CMP $rn, $op2"
     }
 
+    data class AND(var rd: Operand.Register, var r1: Operand.Register, var r2: Operand.Register) : Instruction() {
+        override fun toString(): String = "ADD $rd, $r1, $r2"
+    }
+
 }
