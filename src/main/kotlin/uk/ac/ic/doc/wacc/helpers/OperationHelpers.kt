@@ -26,15 +26,16 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
     // TODO: check for overflow errors
     when (expr.operator) {
         Expression.BinaryOperator.PLUS -> {
-            instructions.add(
+            instructions.addAll(arrayListOf(
                 Instruction.ADDS(
                     Operand.Register(dest),
                     Operand.Register(dest),
-                    Operand.Register(dest + 1)
-                )
-            // TODO: BLVS: p_throw_overflow_error
-            )
-            //TODO: flags that need to be set : printThrowOverflow, printThrowRuntime, printString
+                    Operand.Register(dest + 1)),
+                Instruction.BCond("p_throw_overflow_error","LVS")
+            ))
+            throwOverflowFlag = true
+            throwRuntimeFlag = true
+            printStringFlag = true
         }
         Expression.BinaryOperator.MINUS -> {
             instructions.add(
