@@ -32,6 +32,7 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
                     Operand.Register(dest + 1)
                 )
             )
+            //TODO: Error stuff
         }
         Expression.BinaryOperator.MINUS -> {
             instructions.add(
@@ -41,27 +42,64 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
                     Operand.Register(dest + 1)
                 )
             )
+            //TODO: Error stuff
         }
-        //TODO: Go through all types of expr, try not to die
+        Expression.BinaryOperator.MULT -> {
+            instructions.add(
+                Instruction.SMULL(
+                    Operand.Register(dest),
+                    Operand.Register(dest + 1),
+                    Operand.Register(dest),
+                    Operand.Register(dest + 1)
+                )
+            )
+
+            //TODO: Error stuff
+        }
+        Expression.BinaryOperator.DIV -> {
+            instructions.addAll(
+                arrayListOf(
+                    Instruction.MOV(Operand.Register(0), Operand.Register(dest)),
+                    Instruction.MOV(Operand.Register(1), Operand.Register(dest + 1)),
+                    //TODO: BL p_check_divide_by_zero
+                    Instruction.BL("__aeabi_idiv"),
+                    Instruction.MOV(Operand.Register(dest),Operand.Register(0))
+                    )
+            )
+        }
         else -> {
         }
     }
 }
 
 fun CodeGenerator.unOpInstructions(expr: Expression.UnaryOperation, dest: Int) {
+
     when (expr.operator) {
         Expression.UnaryOperator.MINUS -> {
-            instructions.add(
-                Instruction.LDRSimple(
-                    Operand.Register(dest),
-                    Operand.Literal.LInt(
-                        "-${(expr.expression as Expression.Literal.LInt).int}"
+            if (!(expr.expression is Expression.UnaryOperation)) {
+                instructions.add(
+                    Instruction.LDRSimple(
+                        Operand.Register(dest),
+                        Operand.Literal.LInt(
+                            "-${(expr.expression as Expression.Literal.LInt).int}"
+                        )
                     )
                 )
-                // TODO: consider doing SUB 0, dest+1, dest (dest = 0 - dest) to make it negative
-                // TODO: or MUL -1, dest+1, dest (dest = -1 * dest+1)
+            }
+            instructions.add(
+                Instruction.RSBS(
+                    Operand.Register(dest),
+                    Operand.Register(dest),
+                    Operand.Constant(0)
+                )
             )
         }
+
+        // TODO: consider doing SUB 0, dest+1, dest (dest = 0 - dest) to make it negative
+        // TODO: or MUL -1, dest+1, dest (dest = -1 * dest+1)
+
+
+        // TODO: BLVS overflow error
         Expression.UnaryOperator.CHR,
         Expression.UnaryOperator.LEN,
         Expression.UnaryOperator.NOT,

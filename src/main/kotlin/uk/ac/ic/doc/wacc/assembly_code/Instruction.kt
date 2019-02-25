@@ -25,6 +25,14 @@ sealed class Instruction {
         override fun toString(): String = "SUBS $rd, $r1, $r2"
     }
 
+    data class RSBS(var rd: Operand.Register, var r1: Operand.Register, var operand: Operand) : Instruction() {
+        override fun toString(): String = "RSBS $rd, $r1, $operand"
+    }
+
+    data class SMULL(var rdLo: Operand.Register, var rdHi: Operand.Register, var rm: Operand.Register, var rs: Operand.Register) : Instruction() {
+        override fun toString(): String = "SMULL $rdLo, $rdHi, $rm, $rs"
+    }
+
     data class LDRSimple(var rd: Operand, var value: Operand) : Instruction() {
         override fun toString(): String = "LDR $rd, $value"
     }
