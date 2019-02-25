@@ -23,6 +23,7 @@ fun CodeGenerator.weight(expr: Expression): Int
 }
 
 fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int) {
+    // TODO: check for overflow errors
     when (expr.operator) {
         Expression.BinaryOperator.PLUS -> {
             instructions.add(
