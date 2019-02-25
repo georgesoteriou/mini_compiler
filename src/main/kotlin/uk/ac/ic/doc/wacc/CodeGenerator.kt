@@ -4,6 +4,8 @@ import uk.ac.ic.doc.wacc.assembly_code.Instruction
 import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.helpers.*
+import java.lang.Exception
+import kotlin.math.exp
 
 class CodeGenerator(var program: Program) {
 
@@ -24,7 +26,10 @@ class CodeGenerator(var program: Program) {
     var freePairTag = -1
     var intInputTag = - 1
     var charInputTag = -1
+    var throwOverflowTag = -1
+    var divideByZeroTag = -1
 
+    // TODO: consider refactoring so as to avoid use of so many flags and corresponding tags
 
     var printStringFlag = false
     var printIntFlag = false
@@ -35,6 +40,9 @@ class CodeGenerator(var program: Program) {
     var freePairFlag = false
     var intInputFlag = false
     var charInputFlag = false
+    var throwOverflowFlag = false
+    var throwRuntimeFlag = false
+    var divideByZeroFlag = false
 
     fun compile() {
         instructions.add(Instruction.Flag(".global main"))
@@ -89,20 +97,41 @@ class CodeGenerator(var program: Program) {
             add_charInput(charInputTag)
         }
 
+        if (throwOverflowFlag) {
+            messageTagGenerator("OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n",1)
+            throwOverflowTag = messageCounter - 1
+            add_throwOverflowError(throwOverflowTag)
+        }
+
+        if (throwRuntimeFlag) {
+            add_throwRuntimeError()
+            throwRuntimeFlag = false
+        }
+
+        if (divideByZeroFlag) {
+            messageTagGenerator("DivideByZeroError: divide or modulo by zero\\n\\0",2)
+            divideByZeroTag = messageCounter - 1
+            add_checkDivideByZero(divideByZeroTag)
+        }
+
         if (freeArrayFlag || freePairFlag) {
 
             if (freeArrayFlag) {
                 messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0",2)
                 freeArrayTag = messageCounter - 1
                 add_freeArray(freeArrayTag)
-                add_throwRuntimeError()
+                if (throwRuntimeFlag) {
+                    add_throwRuntimeError()
+                }
             }
 
             if (freePairFlag) {
                 messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0",2)
                 freePairTag = messageCounter - 1
                 add_freePair(freePairTag)
-                add_throwRuntimeError()
+                if (throwRuntimeFlag) {
+                    add_throwRuntimeError()
+                }
             }
 
             if (!printStringFlag) {
@@ -213,12 +242,14 @@ class CodeGenerator(var program: Program) {
                     Type.compare(statement.expression.exprType,Type.TArray(Type.TAny)) -> {
                         printStringFlag = true
                         freeArrayFlag = true
+                        throwRuntimeFlag = true
                         instructions.add(Instruction.BL("p_free_array"))
                     }
 
                     Type.compare(statement.expression.exprType, Type.TPair(Type.TAny,Type.TAny)) -> {
                         printStringFlag = true
                         freePairFlag = true
+                        throwRuntimeFlag = true
                         instructions.add(Instruction.BL("p_free_pair"))
                     }
                 }
@@ -311,24 +342,18 @@ class CodeGenerator(var program: Program) {
             }
 
             is Expression.BinaryOperation -> {
-                // TODO: We are trying to calculate "A {binOp} B"
+                val e1 = expression.e1
+                val e2 = expression.e2
 
-                // TODO: Make function weight(Expression) that calculates number
-                // TODO:          of registers required to calculate expression.
+                if(weight(expression.e1) >= weight(expression.e2)) {
+                    compileExpression(e1, dest)
+                    compileExpression(e2, dest + 1)
+                } else {
+                    compileExpression(e2, dest + 1)
+                    compileExpression(e1, dest)
+                }
 
-                // TODO: if (weight(A) > weight(B))  // calculate A (i think. Look at haskell functions)
-                // TODO:    compileExpression(A, dest+1)
-                // TODO:    compileExpression(B, dest+2)
-                // TODO: else
-                // TODO:    compileExpression(B, dest+1)
-                // TODO:    compileExpression(A, dest+2)
-
-                // TODO: when(expression) {
-                // TODO:     Expression.BinaryOperator.PLUS
-                // TODO:                -> ADD dest+1 and dest+2 and put in dest
-                // TODO:     Expression.BinaryOperator.MINUS
-                // TODO:                -> SUB dest+1 and dest+2 and put in dest
-                // TODO:     etc etc etc
+                binOpInstructions(expression, dest)
 
                 // TODO: remember to generate message of possible error
             }
@@ -336,28 +361,9 @@ class CodeGenerator(var program: Program) {
                 // TODO: Here we want to calculate "{unop} A"
                 // TODO: very similar to above.
                 // TODO: compileExpression(A, dest+1)
+                //compileExpression(expression.expression, dest)
+                //unOpInstructions(expression, dest)
 
-                when (expression.operator) {
-                    Expression.UnaryOperator.MINUS -> {
-                        instructions.add(
-                            Instruction.LDRSimple(
-                                Operand.Register(dest),
-                                Operand.Literal.LInt(
-                                    // TODO: We cannot assume this is an int here.... do the same as above
-                                    // TODO: eg. ----5 is valid too
-                                    "-${(expression.expression as Expression.Literal.LInt).int}"
-                                )
-                            )
-                            // TODO: consider doing SUB 0, dest+1, dest (dest = 0 - dest) to make it negative
-                            // TODO: or MUL -1, dest+1, dest (dest = -1 * dest+1)
-                        )
-                    }
-                    Expression.UnaryOperator.CHR,
-                    Expression.UnaryOperator.LEN,
-                    Expression.UnaryOperator.NOT,
-                    Expression.UnaryOperator.ORD -> {
-                    }
-                }
             }
 
             // TODO: This will need more thinking as it can be both on lhs and rhs.

@@ -15,6 +15,50 @@ fun CodeGenerator.messageTagGenerator(content: String, numEscChars: Int = 0) {
     messageCounter += 1
 }
 
+fun CodeGenerator.add_throwOverflowError(tagValue: Int) {
+    // This should be called at the end of the program after checking the flags
+    // The required message for this:
+    //              "OverflowError: the result is too small/large to store in a 4-byte signed-integer.\n"
+    // resides at tagValue
+
+    instructions.addAll(arrayListOf(
+        Instruction.LABEL("p_throw_overflow_error"),
+        Instruction.LDRSimple(Operand.Register(0),Operand.MessageTag(tagValue)),
+        Instruction.BL("p_throw_runtime_error")
+    ))
+}
+
+fun CodeGenerator.add_throwRuntimeError() {
+    // This should be called at the end of the program, right after add_freeArray or add_freePair is called
+    // There are no required messages for this.
+
+    instructions.addAll(
+        arrayListOf(
+            Instruction.LABEL("p_throw_runtime_error"),
+            Instruction.BL("p_print_string"),
+            Instruction.MOV(Operand.Register(0),Operand.Constant(-1)),
+            Instruction.BL("exit")
+        )
+    )
+}
+
+fun CodeGenerator.add_checkDivideByZero(tagValue: Int) {
+    // This should be called at the end of the program after checking the flags
+    // The required message for this:
+    //              "DivideByZeroError: divide or modulo by zero\n\0"
+    // resides at tagValue
+
+
+    instructions.addAll(arrayListOf(
+        Instruction.LABEL("p_check_divide_by_zero"),
+        Instruction.PUSH(arrayListOf(Operand.Lr)),
+        Instruction.CMP(Operand.Register(1),Operand.Constant(0)),
+        Instruction.LDRCond(Operand.Register(0),Operand.MessageTag(tagValue),"EQ"),
+        Instruction.POP(arrayListOf(Operand.Pc))
+    ))
+}
+
+
 fun CodeGenerator.add_pPrintString(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
     // The required message for this: %.*s\0 resides at tagValue
@@ -169,19 +213,6 @@ fun CodeGenerator.add_freePair(tagValue: Int) {
     )
 }
 
-fun CodeGenerator.add_throwRuntimeError() {
-    // This should be called at the end of the program, right after add_freeArray or add_freePair is called
-    // There are no required messages for this.
-
-    instructions.addAll(
-        arrayListOf(
-            Instruction.LABEL("p_throw_runtime_error"),
-            Instruction.BL("p_print_string"),
-            Instruction.MOV(Operand.Register(0),Operand.Constant(-1)),
-            Instruction.BL("exit")
-        )
-    )
-}
 
 fun CodeGenerator.add_charInput(tagValue: Int) {
     // This should be called at the end of the program after chekcing the flags
