@@ -52,18 +52,21 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
             printStringFlag = true
         }
         Expression.BinaryOperator.MULT -> {
-            instructions.add(
+
+            instructions.addAll(arrayListOf(
                 Instruction.SMULL(
                     Operand.Register(dest),
                     Operand.Register(dest + 1),
                     Operand.Register(dest),
                     Operand.Register(dest + 1)
-                )
-            // TODO: CMP r5, r4, ASR #31
-            // TODO: BLNE p_throw_overflow_error
-            )
+                ),
+                Instruction.CMPCond(Operand.Register(5),Operand.Register(4),"ASR #31"),
+                Instruction.BCond("p_throw_overflow_error","LNE")
 
-            //TODO: flags that need to be set : printThrowOverflow, printThrowRuntime, printString
+            ))
+            throwOverflowFlag = true
+            throwRuntimeFlag = true
+            printStringFlag = true
         }
         Expression.BinaryOperator.DIV -> {
             instructions.addAll(
