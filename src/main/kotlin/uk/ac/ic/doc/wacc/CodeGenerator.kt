@@ -6,6 +6,7 @@ import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.helpers.*
 import java.io.File
 import java.lang.Exception
+import javax.swing.plaf.nimbus.State
 import kotlin.math.exp
 
 class CodeGenerator(var program: Program) {
@@ -48,105 +49,10 @@ class CodeGenerator(var program: Program) {
     fun compile(filename: String) {
         instructions.add(Instruction.Flag(".text"))
         instructions.add(Instruction.Flag(".global main"))
-        //TODO: Add functions to active scope
+        program.functions.forEach{ compileBlock(it.name, it.block) }
+        compileBlock("main", program.block)
 
-        //TODO: function foreach loop
-        instructions.add(Instruction.LABEL("main"))
-        compileStatement(program.block, "main")
-        instructions.add(Instruction.Flag(".ltorg"))
-
-
-        if (printStringFlag) {
-            messageTagGenerator("%.*s\\0", 1)
-            printStringTag = messageCounter - 1
-            add_pPrintString(printStringTag)
-        }
-
-        if (printBoolFlag) {
-            messageTagGenerator("true\\0", 1)
-            printBoolTrueTag = messageCounter - 1
-            messageTagGenerator("false\\0", 1)
-            printBoolFalseTag = messageCounter - 1
-            add_pPrintBool(printBoolTrueTag, printBoolFalseTag)
-        }
-
-        if (printIntFlag) {
-            messageTagGenerator("%d\\0", 1)
-            printIntTag = messageCounter - 1
-            add_pPrintInt(printIntTag)
-        }
-
-        if (printReferenceFlag) {
-            messageTagGenerator("%p\\0", 1)
-            printReferenceTag = messageCounter - 1
-            add_pPrintReference(printReferenceTag)
-        }
-
-        if (printLnFlag) {
-            messageTagGenerator("\\0", 1)
-            printLnTag = messageCounter - 1
-            add_pPrintLn(printLnTag)
-        }
-
-        if (intInputFlag) {
-            messageTagGenerator("%d\\0", 1)
-            intInputTag = messageCounter - 1
-            add_intInput(intInputTag)
-        }
-
-        if (charInputFlag) {
-            messageTagGenerator("%c\\0", 1)
-            charInputTag = messageCounter - 1
-            add_charInput(charInputTag)
-        }
-
-        if (throwOverflowFlag) {
-            messageTagGenerator(
-                "OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n",
-                1
-            )
-            throwOverflowTag = messageCounter - 1
-            add_throwOverflowError(throwOverflowTag)
-        }
-
-        if (throwRuntimeFlag) {
-            add_throwRuntimeError()
-            throwRuntimeFlag = false
-        }
-
-        if (divideByZeroFlag) {
-            messageTagGenerator("DivideByZeroError: divide or modulo by zero\\n\\0", 2)
-            divideByZeroTag = messageCounter - 1
-            add_checkDivideByZero(divideByZeroTag)
-        }
-
-        if (freeArrayFlag || freePairFlag) {
-
-            if (freeArrayFlag) {
-                messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0", 2)
-                freeArrayTag = messageCounter - 1
-                add_freeArray(freeArrayTag)
-                if (throwRuntimeFlag) {
-                    add_throwRuntimeError()
-                }
-            }
-
-            if (freePairFlag) {
-                messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0", 2)
-                freePairTag = messageCounter - 1
-                add_freePair(freePairTag)
-                if (throwRuntimeFlag) {
-                    add_throwRuntimeError()
-                }
-            }
-
-            if (!printStringFlag) {
-                messageTagGenerator("%.*s\\0", 1)
-                printStringTag = messageCounter - 1
-                add_pPrintString(printStringTag)
-            }
-
-        }
+        dataGenerator()
 
         val file = File("$filename.s")
 
@@ -163,21 +69,11 @@ class CodeGenerator(var program: Program) {
         when (statement) {
             is Statement.Block -> {
                 statement.scope.findFullSize()
-                //instructions.add(Instruction.LABEL(name))
-                if (name == "main") {
-                    instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
-                }
                 activeScope = activeScope.newSubScope(statement.scope)
                 decreaseSP(statement)
                 statement.statements.forEach { compileStatement(it) }
-                // TODO add later: increment label counter : if name not like ".L<Int>"
-                // TODO i don't think label counter should be handles here
                 increaseSP(statement)
-
-                if (name == "main") {
-                    instructions.add(Instruction.LDRSimple(Operand.Register(0), Operand.Literal.LInt("0")))
-                    instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
-                }
+                activeScope = activeScope.parentScope!!
             }
             is Statement.Skip -> {
             }
@@ -231,7 +127,6 @@ class CodeGenerator(var program: Program) {
                 }
             }
             is Statement.ReadInput -> {
-                //compileExpression(statement.expression,4)
                 instructions.add(Instruction.ADD(Operand.Register(4), Operand.Sp, Operand.Constant(0)))
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
 
@@ -289,9 +184,6 @@ class CodeGenerator(var program: Program) {
                 ifInstructions(statement)
             }
             is Statement.While -> {
-                // TODO: Create label L<labelCounter + 1> with block commands
-                // TODO: Create label L<labelCounter> with git cond
-
                 whileInstructions(statement)
             }
         }
