@@ -94,6 +94,7 @@ fun CodeGenerator.add_pPrintBool(trueTagValue: Int, falseTagValue: Int) {
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_bool"),
+            Instruction.PUSH(arrayListOf(Operand.Lr)),
             Instruction.CMP(Operand.Register(0), Operand.Constant(0)),
             Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(trueTagValue), "NE"),
             Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(falseTagValue), "EQ"),
