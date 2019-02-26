@@ -5,13 +5,13 @@ options {
 }
 
 expr: array_elem                            #arrayElem
+| unaryOper expr                            #unaryOp
 | expr (MULT | DIV | MOD) expr              #binaryOp1
 | expr (PLUS | MINUS) expr                  #binaryOp2
 | expr (GT | GTE | LT | LTE )expr           #binaryOp3
 | expr (EQ | NOTEQ) expr                    #binaryOp4
 | expr (AND) expr                           #binaryOp5
 | expr (OR) expr                            #binaryOp6
-| unaryOper expr                            #unaryOp
 | OPEN_PARENTHESES expr CLOSE_PARENTHESES   #parenth
 | (MINUS | PLUS)? INT_LITER                 #intLit
 | BOOL_LITER                                #boolLit
