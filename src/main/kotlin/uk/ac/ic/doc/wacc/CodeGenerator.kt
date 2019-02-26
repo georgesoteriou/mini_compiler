@@ -68,6 +68,10 @@ class CodeGenerator(var program: Program) {
     fun compileStatement(statement: Statement, name: String = ".L$labelCounter") {
         when (statement) {
             is Statement.Block -> {
+                //TODO: modify findFullSize for functions
+                //TODO: we are currently decreasing stack pointer using definitions in active scope
+                //TODO: these include the arguments of the function, and they should NOT count
+                //TODO: towards decreasing the stack
                 statement.scope.findFullSize()
                 activeScope = activeScope.newSubScope(statement.scope)
                 decreaseSP(statement)
@@ -198,7 +202,22 @@ class CodeGenerator(var program: Program) {
                 // TODO: Add jump to function
                 // TODO: MOVE r0 to r4
 
-
+                pushArgsToStack(expression)
+                instructions.add(
+                    Instruction.BL(expression.name))
+                instructions.add(
+                    Instruction.ADD(
+                        Operand.Sp,
+                        Operand.Sp,
+                        Operand.Offset(argsSize(expression))
+                    )
+                )
+                instructions.add(
+                    Instruction.MOV(
+                        Operand.Register(4),
+                        Operand.Register(0)
+                    )
+                )
             }
             is Expression.NewPair -> {
                 // TODO: Remove. Unused (Add else -> {})
