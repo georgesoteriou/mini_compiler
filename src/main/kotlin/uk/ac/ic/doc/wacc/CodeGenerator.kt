@@ -260,8 +260,6 @@ class CodeGenerator(var program: Program) {
                 }
 
                 binOpInstructions(expression, dest)
-
-                // TODO: remember to generate message of possible error
             }
             is Expression.UnaryOperation -> {
                 // TODO: Here we want to calculate "{unop} A"
