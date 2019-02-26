@@ -281,4 +281,7 @@ fun CodeGenerator.printTypeInstructions(expression: Expression) {
             instructions.add(Instruction.BL("p_print_bool"))
         }
     }
+    if (printLnFlag) {
+        instructions.add(Instruction.BL("p_print_ln"))
+    }
 }
