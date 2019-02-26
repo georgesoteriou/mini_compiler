@@ -100,8 +100,13 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
     override fun visitBoolLit(ctx: WaccParser.BoolLitContext): Expression =
         Expression.Literal.LBool(ctx.BOOL_LITER().toString().toBoolean())
 
-    override fun visitCharLit(ctx: WaccParser.CharLitContext): Expression =
-        Expression.Literal.LChar(ctx.CHAR_LITER().toString()[1])
+    override fun visitCharLit(ctx: WaccParser.CharLitContext): Expression {
+        var foundString = ctx.CHAR_LITER().toString()
+        foundString = foundString.reversed()
+        //println(foundString)
+        var charFound:Char = foundString[1]
+        return Expression.Literal.LChar(charFound)
+    }
 
     override fun visitStrLit(ctx: WaccParser.StrLitContext): Expression =
         Expression.Literal.LString(ctx.STR_LITER().toString().substring(1,ctx.STR_LITER().toString().length-1))

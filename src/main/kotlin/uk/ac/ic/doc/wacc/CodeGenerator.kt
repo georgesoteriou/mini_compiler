@@ -32,6 +32,7 @@ class CodeGenerator(var program: Program) {
 
     // TODO: consider refactoring so as to avoid use of so many flags and corresponding tags
 
+
     var printStringFlag = false
     var printIntFlag = false
     var printBoolFlag = false

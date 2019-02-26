@@ -263,7 +263,7 @@ fun CodeGenerator.printTypeInstructions(expression: Expression) {
 
         Type.compare(expression.exprType, Type.TString) -> {
             printStringFlag = true
-            messageTagGenerator((expression as Expression.Literal.LString).string)
+            //messageTagGenerator((expression as Expression.Literal.LString).string)
             // TODO: check here about what happens because message generator is called here so the tag
             // TODO: is generated here but it has already been passed through compileExpression so maybe
             // TODO: the function call to messageTagGenerator should be in compileExpression
