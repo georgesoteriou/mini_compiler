@@ -5,7 +5,7 @@ build/
 out/
 src/main/gen/
 .idea/misc.xml
-./test.wacc
+test.wacc
 *.s
 test
 
