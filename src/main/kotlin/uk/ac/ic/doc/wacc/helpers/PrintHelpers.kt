@@ -66,7 +66,7 @@ fun CodeGenerator.add_pPrintString(tagValue: Int) {
         arrayListOf(
             (Instruction.LABEL("p_print_string")),
             (Instruction.PUSH(arrayListOf(Operand.Lr))),
-            (Instruction.LDRSimple(Operand.Register(1), Operand.Register(0))),
+            (Instruction.LDRRegister(Operand.Register(1), Operand.Register(0), Operand.Offset(0))),
             (Instruction.ADD(
                 Operand.Register(2),
                 Operand.Register(0),
