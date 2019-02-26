@@ -4,6 +4,7 @@ import uk.ac.ic.doc.wacc.assembly_code.Instruction
 import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.helpers.*
+import java.io.File
 import java.lang.Exception
 import kotlin.math.exp
 
@@ -44,7 +45,8 @@ class CodeGenerator(var program: Program) {
     var throwRuntimeFlag = false
     var divideByZeroFlag = false
 
-    fun compile() {
+    fun compile(filename: String) {
+        instructions.add(Instruction.Flag(".text"))
         instructions.add(Instruction.Flag(".global main"))
         //TODO: Add functions to active scope
 
@@ -142,9 +144,22 @@ class CodeGenerator(var program: Program) {
 
         }
 
+        val file = File("$filename.s")
 
-        data.forEach { println(it.toString()) }
-        instructions.forEach { println(it.toString()) }
+        val isCreated :Boolean = file.createNewFile()
+
+        if(isCreated){
+            println("$filename compiled successfully.")
+            if(!data.isEmpty()) {
+                file.writeText(".data")
+            }
+
+            data.forEach { file.appendText(it.toString() + "\n") }
+
+            instructions.forEach {  file.appendText(it.toString() + "\n") }
+        } else{
+            println("$filename already exists.")
+        }
     }
 
     fun compileStatement(statement: Statement, name: String = ".L$labelCounter") {

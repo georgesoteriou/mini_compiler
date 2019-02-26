@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.misc.ParseCancellationException
 import uk.ac.ic.doc.wacc.grammar.WaccLexer
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
+import java.io.File
 import java.lang.RuntimeException
 import kotlin.system.exitProcess
 
@@ -33,7 +34,7 @@ fun main(args: Array<String>) {
         if (!semanticCheck(program)) {
             exitProcess(200)
         }
-      //CodeGenerator(program).compile()
+      CodeGenerator(program).compile(File(args[0]).nameWithoutExtension)
     } catch (e: ParseCancellationException) {
         println("Syntax error ")
         exitProcess(100)
