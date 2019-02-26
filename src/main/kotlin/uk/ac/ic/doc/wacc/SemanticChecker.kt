@@ -1,7 +1,7 @@
 package uk.ac.ic.doc.wacc
 
 import uk.ac.ic.doc.wacc.ast.*
-import uk.ac.ic.doc.wacc.visitors.ActiveScope
+import uk.ac.ic.doc.wacc.ast.ActiveScope
 
 fun errorLog(it: Statement) {
     when (it) {
@@ -31,12 +31,13 @@ fun semanticCheck(prog: Program): Boolean {
     }
 
     prog.functions.forEach { f ->
-        val definitions = f.params.zip(f.type.params).map { def -> Pair(def.first, def.second) }
+        val definitions =
+            f.params.zip(f.type.params).map { def -> Pair(def.first, Scope.Definition(def.second, false)) }
         f.block.scope.definitions.putAll(definitions)
         valid = valid && checkStatement(f.block, activeScope, f.type.type)
     }
 
-    valid = valid && checkStatement(prog.block as Statement.Block, activeScope, Type.TError)
+    valid = valid && checkStatement(prog.block, activeScope, Type.TError)
     return valid
 }
 
@@ -65,10 +66,15 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
                 && checkStatement(param.elseThen as Statement.Block, activeScope, returnType)
 
 
-        is Statement.PrintLn -> exprType(param.expression, activeScope) !is Type.TError
+        is Statement.PrintLn -> {
+            val type = exprType(param.expression, activeScope)
+            type !is Type.TError && type !is Type.TFunction
+        }
 
-        is Statement.Print -> exprType(param.expression, activeScope) !is Type.TError
-
+        is Statement.Print -> {
+            val type = exprType(param.expression, activeScope)
+            type !is Type.TError && type !is Type.TFunction
+        }
         is Statement.Exit -> exprType(param.expression, activeScope) is Type.TInt
 
         is Statement.Return -> {
@@ -104,7 +110,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
 
             val rhs = param.rhs
             if (rhs is Expression.CallFunction) {
-                val funType = activeScope.findDef(rhs.name).orElse(Type.TError) as? Type.TFunction ?: return false
+                val funType = activeScope.findType(rhs.name).orElse(Type.TError) as? Type.TFunction ?: return false
 
                 if (funType.params.size != rhs.params.size) {
                     return false
@@ -124,7 +130,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
 
             val rhs = param.rhs
             if (rhs is Expression.CallFunction) {
-                val funType = activeScope.findDef(rhs.name).orElse(Type.TError) as? Type.TFunction ?: return false
+                val funType = activeScope.findType(rhs.name).orElse(Type.TError) as? Type.TFunction ?: return false
 
                 if (funType.params.size != rhs.params.size) {
                     return false
@@ -162,16 +168,16 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
 
 fun exprType(expr: Expression, activeScope: ActiveScope): Type {
 
-    return when (expr) {
+    expr.exprType = when (expr) {
         is Expression.CallFunction -> {
-            val type = activeScope.findDef(expr.name).orElse(Type.TError)
+            val type = activeScope.findType(expr.name).orElse(Type.TError)
             when (type) {
                 is Type.TFunction -> type.type
                 else -> Type.TError
             }
         }
 
-        is Expression.Identifier -> activeScope.findDef(expr.name).orElse(Type.TError)
+        is Expression.Identifier -> activeScope.findType(expr.name).orElse(Type.TError)
 
         is Expression.Literal.LInt -> Type.TInt
         is Expression.Literal.LBool -> Type.TBool
@@ -190,7 +196,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
             }
             val array = Type.TArray(arrayElemType)
             array.size = expr.params.size
-            return array
+            array
         }
         is Expression.NewPair -> Type.TPair(exprType(expr.e1, activeScope), exprType(expr.e2, activeScope))
 
@@ -199,7 +205,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
             val e1Type = exprType(expr.e1, activeScope)
             val e2Type = exprType(expr.e2, activeScope)
             val op = expr.operator
-            return if (Type.compare(e1Type, e2Type)) {
+            if (Type.compare(e1Type, e2Type)) {
                 when (op) {
                     Expression.BinaryOperator.MULT,
                     Expression.BinaryOperator.DIV,
@@ -243,7 +249,7 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
         is Expression.UnaryOperation -> {
             val eType = exprType(expr.expression, activeScope)
             val op = expr.operator
-            return when (op) {
+            when (op) {
                 Expression.UnaryOperator.NOT ->
                     if (eType is Type.TBool) {
                         Type.TBool
@@ -285,20 +291,20 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
                 }
             }
 
-            var arrType = activeScope.findDef(expr.array).orElse(Type.TError)
+            var arrType = activeScope.findType(expr.array).orElse(Type.TError)
             repeat(expr.indexes.size) {
-                when (arrType) {
-                    is Type.TArray -> arrType = (arrType as Type.TArray).type
-                    is Type.TString -> arrType = Type.TChar
-                    else -> arrType = Type.TError
+                arrType = when (arrType) {
+                    is Type.TArray -> (arrType as Type.TArray).type
+                    is Type.TString -> Type.TChar
+                    else -> Type.TError
                 }
             }
-            return arrType
+            arrType
         }
 
         is Expression.Fst -> {
             val pairType = exprType(expr.expression, activeScope)
-            return when (pairType) {
+            when (pairType) {
                 is Type.TPair -> pairType.t1
                 is Type.TPairSimple -> Type.TPairSimple
                 else -> Type.TError
@@ -307,11 +313,13 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
 
         is Expression.Snd -> {
             val pairType = exprType(expr.expression, activeScope)
-            return when (pairType) {
+            when (pairType) {
                 is Type.TPair -> pairType.t2
                 is Type.TPairSimple -> Type.TPairSimple
                 else -> Type.TError
             }
         }
     }
+
+    return expr.exprType
 }

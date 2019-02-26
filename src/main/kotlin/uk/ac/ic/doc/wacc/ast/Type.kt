@@ -1,6 +1,6 @@
 package uk.ac.ic.doc.wacc.ast
 
-open class Type {
+sealed class Type {
 
     object TAny : Type()
     object TInt : Type()
@@ -29,6 +29,20 @@ open class Type {
                 return compare(t1.t1, t2.t1) && compare(t1.t2, t2.t2)
             }
             return false
+        }
+
+        fun size(t: Type): Int{
+            return when (t) {
+                is Type.TInt      -> 4
+                is Type.TBool     -> 1
+                is Type.TChar     -> 1
+                is Type.TString   -> 4
+                is Type.TArray    -> 4
+                is Type.TPair     -> 4
+                is Type.TAny      -> 4
+                is Type.TFunction -> 4
+                else              -> 0
+            }
         }
     }
 }

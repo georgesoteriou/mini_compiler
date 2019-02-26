@@ -33,10 +33,12 @@ fun main(args: Array<String>) {
         if (!semanticCheck(program)) {
             exitProcess(200)
         }
+      //CodeGenerator(program).compile()
     } catch (e: ParseCancellationException) {
         println("Syntax error ")
         exitProcess(100)
     }
+
 }
 
 
