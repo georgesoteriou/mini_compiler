@@ -6,7 +6,6 @@ import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.helpers.*
 import java.io.File
 import java.lang.Exception
-import javax.swing.plaf.nimbus.State
 import kotlin.math.exp
 
 class CodeGenerator(var program: Program) {
@@ -179,6 +178,8 @@ class CodeGenerator(var program: Program) {
                 compileExpression(statement.expression, 4)
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
                 printTypeInstructions(statement.expression)
+                instructions.add(Instruction.BL("p_print_ln"))
+
             }
             is Statement.If -> {
                 compileExpression(statement.condition, 4)
