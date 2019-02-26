@@ -1,3 +1,4 @@
 begin 
-	int x = 5 / 5
+	int x = 5 / 5;
+	print x
 end
