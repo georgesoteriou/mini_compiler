@@ -8,6 +8,23 @@ import uk.ac.ic.doc.wacc.ast.Type
 
 fun CodeGenerator.messageTagGenerator(content: String, numEscChars: Int = 0) {
     var length: Int = content.length
+    var escInString = 0
+    if (numEscChars == 0) {
+        for ( i in 0..content.length-2 ) {
+            if (content[i] == '\\') {
+                if ( i > 0 ) {
+                    if (content[i-1] != '\\' || content[i+1] != '\\') {
+                        escInString++
+                    }
+                } else if ( i == 0 ) {
+                    if ( content[i+1] != '\\') {
+                        escInString++
+                    }
+                }
+            }
+        }
+    }
+    length -= escInString
     length -= numEscChars
     data.add(Instruction.Flag("msg_$messageCounter:"))
     data.add(Instruction.WORD(length))
