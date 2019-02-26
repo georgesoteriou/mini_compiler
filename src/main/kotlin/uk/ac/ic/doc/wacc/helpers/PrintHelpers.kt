@@ -285,3 +285,97 @@ fun CodeGenerator.printTypeInstructions(expression: Expression) {
         instructions.add(Instruction.BL("p_print_ln"))
     }
 }
+
+fun CodeGenerator.dataGenerator() {
+    if (printStringFlag) {
+        messageTagGenerator("%.*s\\0", 1)
+        printStringTag = messageCounter - 1
+        add_pPrintString(printStringTag)
+    }
+
+    if (printBoolFlag) {
+        messageTagGenerator("true\\0", 1)
+        printBoolTrueTag = messageCounter - 1
+        messageTagGenerator("false\\0", 1)
+        printBoolFalseTag = messageCounter - 1
+        add_pPrintBool(printBoolTrueTag, printBoolFalseTag)
+    }
+
+    if (printIntFlag) {
+        messageTagGenerator("%d\\0", 1)
+        printIntTag = messageCounter - 1
+        add_pPrintInt(printIntTag)
+    }
+
+    if (printReferenceFlag) {
+        messageTagGenerator("%p\\0", 1)
+        printReferenceTag = messageCounter - 1
+        add_pPrintReference(printReferenceTag)
+    }
+
+    if (printLnFlag) {
+        messageTagGenerator("\\0", 1)
+        printLnTag = messageCounter - 1
+        add_pPrintLn(printLnTag)
+    }
+
+    if (intInputFlag) {
+        messageTagGenerator("%d\\0", 1)
+        intInputTag = messageCounter - 1
+        add_intInput(intInputTag)
+    }
+
+    if (charInputFlag) {
+        messageTagGenerator("%c\\0", 1)
+        charInputTag = messageCounter - 1
+        add_charInput(charInputTag)
+    }
+
+    if (throwOverflowFlag) {
+        messageTagGenerator(
+            "OverflowError: the result is too small/large to store in a 4-byte signed-integer.\\n",
+            1
+        )
+        throwOverflowTag = messageCounter - 1
+        add_throwOverflowError(throwOverflowTag)
+    }
+
+    if (throwRuntimeFlag) {
+        add_throwRuntimeError()
+        throwRuntimeFlag = false
+    }
+
+    if (divideByZeroFlag) {
+        messageTagGenerator("DivideByZeroError: divide or modulo by zero\\n\\0", 2)
+        divideByZeroTag = messageCounter - 1
+        add_checkDivideByZero(divideByZeroTag)
+    }
+
+    if (freeArrayFlag || freePairFlag) {
+
+        if (freeArrayFlag) {
+            messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0", 2)
+            freeArrayTag = messageCounter - 1
+            add_freeArray(freeArrayTag)
+            if (throwRuntimeFlag) {
+                add_throwRuntimeError()
+            }
+        }
+
+        if (freePairFlag) {
+            messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0", 2)
+            freePairTag = messageCounter - 1
+            add_freePair(freePairTag)
+            if (throwRuntimeFlag) {
+                add_throwRuntimeError()
+            }
+        }
+
+        if (!printStringFlag) {
+            messageTagGenerator("%.*s\\0", 1)
+            printStringTag = messageCounter - 1
+            add_pPrintString(printStringTag)
+        }
+
+    }
+}
