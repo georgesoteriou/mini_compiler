@@ -175,16 +175,6 @@ fun CodeGenerator.unOpInstructions(expr: Expression.UnaryOperation, dest: Int) {
 
     when (expr.operator) {
         Expression.UnaryOperator.MINUS -> {
-            if (!(expr.expression is Expression.UnaryOperation)) {
-                instructions.add(
-                    Instruction.LDRSimple(
-                        Operand.Register(dest),
-                        Operand.Literal.LInt(
-                            "-${(expr.expression as Expression.Literal.LInt).int}"
-                        )
-                    )
-                )
-            }
             instructions.add(
                 Instruction.RSBS(
                     Operand.Register(dest),
@@ -192,16 +182,36 @@ fun CodeGenerator.unOpInstructions(expr: Expression.UnaryOperation, dest: Int) {
                     Operand.Constant(0)
                 )
             )
+            throwOverflowFlag = true
+            throwRuntimeFlag = true
+            printStringFlag = true
+            instructions.add(
+                Instruction.BCond(
+                    "p_throw_overflow_error",
+                    "LVS"
+                )
+            )
         }
 
-        // TODO: consider doing SUB 0, dest+1, dest (dest = 0 - dest) to make it negative
-        // TODO: or MUL -1, dest+1, dest (dest = -1 * dest+1)
-
-
-        // TODO: BLVS overflow error
-        Expression.UnaryOperator.CHR,
-        Expression.UnaryOperator.LEN,
-        Expression.UnaryOperator.NOT,
+        Expression.UnaryOperator.CHR, //TODO: Literally nothing??
+        Expression.UnaryOperator.LEN -> {
+            instructions.add(
+                Instruction.LDRRegister(
+                    Operand.Register(dest),
+                    Operand.Register(dest),
+                    Operand.Offset(0)
+                )
+            )
+        }
+        Expression.UnaryOperator.NOT -> {
+            instructions.add(
+                Instruction.EOR(
+                    Operand.Register(dest),
+                    Operand.Register(dest),
+                    Operand.Constant(1)
+                )
+            )
+        }
         Expression.UnaryOperator.ORD -> {
         }
     }
