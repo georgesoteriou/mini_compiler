@@ -162,6 +162,7 @@ class CodeGenerator(var program: Program) {
                 }
             }
             is Statement.Return -> {
+                compileExpression(statement.expression, 0)
             }
             is Statement.Exit -> {
                 compileExpression(statement.expression, 4)
@@ -196,6 +197,8 @@ class CodeGenerator(var program: Program) {
             is Expression.CallFunction -> {
                 // TODO: Add jump to function
                 // TODO: MOVE r0 to r4
+
+
             }
             is Expression.NewPair -> {
                 // TODO: Remove. Unused (Add else -> {})
