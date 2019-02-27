@@ -157,6 +157,7 @@ fun CodeGenerator.add_pPrintReference(tagValue: Int) {
         arrayListOf(
             Instruction.LABEL("p_print_reference"),
             Instruction.PUSH(arrayListOf(Operand.Lr)),
+            Instruction.MOV(Operand.Register(1),Operand.Register(0)),
             Instruction.LDRSimple(Operand.Register(0), Operand.MessageTag(tagValue)),
             Instruction.ADD(
                 Operand.Register(0),
