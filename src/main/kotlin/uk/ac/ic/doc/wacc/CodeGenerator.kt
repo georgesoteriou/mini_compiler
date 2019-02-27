@@ -289,13 +289,9 @@ class CodeGenerator(var program: Program) {
                 val e1 = expression.e1
                 val e2 = expression.e2
 
-                if (weight(expression.e1) < weight(expression.e2)) {
-                    compileExpression(e1, dst)
-                    compileExpression(e2, dst + 1)
-                } else {
-                    compileExpression(e2, dst + 1)
-                    compileExpression(e1, dst)
-                }
+
+                compileExpression(e1, dst)
+                compileExpression(e2, dst + 1)
                 if(dst >= 10) {
                     instructions.add(Instruction.POP(arrayListOf(Operand.Register(11))))
                 }
