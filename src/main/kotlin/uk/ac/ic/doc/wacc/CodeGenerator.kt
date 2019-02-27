@@ -150,7 +150,7 @@ class CodeGenerator(var program: Program) {
                             instructions.add(Instruction.MOV(Operand.Register(1),Operand.Register(5)))
                             instructions.add(Instruction.BL("p_check_array_bounds"))
                             checkArrayOutOfBoundsFlag = true
-                            checkArrayNegativeBoundsFlag = true 
+                            checkArrayNegativeBoundsFlag = true
                             throwRuntimeFlag = true
                             instructions.add(Instruction.ADD(Operand.Register(5),Operand.Register(5),Operand.Constant(4)))
 

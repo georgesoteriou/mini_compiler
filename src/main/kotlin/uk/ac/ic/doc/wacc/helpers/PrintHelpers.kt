@@ -266,6 +266,32 @@ fun CodeGenerator.add_intInput(tagValue: Int) {
     )
 }
 
+
+fun CodeGenerator.add_checkArrayOutOfBounds(indexTooLarge: Int, negativeIndex : Int) {
+    // This should be called at the end of the program after checking the flags
+    // The required messages for this :
+    // ArrayIndexOutOfBoundsError: negative index\n\0
+    // resides at negativeIndex
+    // ArrayIndexOutOfBoundsError: index too large\n\0
+    // resides at indexTooLarge
+
+    instructions.addAll(
+        arrayListOf(
+            Instruction.LABEL("p_check_array_bounds"),
+            Instruction.PUSH(arrayListOf(Operand.Lr)),
+            Instruction.CMP(Operand.Register(0),Operand.Constant(0)),
+            Instruction.LDRCond(Operand.Register(0),Operand.MessageTag(negativeIndex),"LT"),
+            Instruction.BCond("p_throw_runtime_error","LLT"),
+            Instruction.LDRSimple(Operand.Register(1),Operand.Register(1)),
+            Instruction.CMP(Operand.Register(0),Operand.Register(1)),
+            Instruction.LDRCond(Operand.Register(0),Operand.MessageTag(indexTooLarge),"CS"),
+            Instruction.BCond("p_throw_runtime_error","CS"),
+            Instruction.POP(arrayListOf(Operand.Pc))
+        )
+    )
+
+}
+
 fun CodeGenerator.printTypeInstructions(expression: Expression) {
     when {
         Type.compare(expression.exprType, Type.TArray(Type.TAny)) ||
@@ -300,6 +326,7 @@ fun CodeGenerator.printTypeInstructions(expression: Expression) {
         }
     }
 }
+
 
 fun CodeGenerator.dataGenerator() {
     if (printStringFlag) {
