@@ -8,7 +8,7 @@ sealed class Operand {
     sealed class Literal: Operand() {
         data class LInt(var value:String): Literal() {
             override fun toString(): String {
-                var properValue = ""
+                /* var properValue = ""
                 properValue += value[0]
                 var stopChecking: Boolean = false
                 for ( i in 1 until value.length) {
@@ -18,8 +18,8 @@ sealed class Operand {
                         properValue += value[i]
                         stopChecking = true
                     }
-                }
-                return "=$properValue"
+                } */
+                return "=${Integer.parseInt(value)}"
             }
         }
         data class LChar(var value:Char): Literal() {
