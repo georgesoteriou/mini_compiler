@@ -8,6 +8,23 @@ import uk.ac.ic.doc.wacc.ast.Type
 
 fun CodeGenerator.messageTagGenerator(content: String, numEscChars: Int = 0) {
     var length: Int = content.length
+    var escInString = 0
+    if (numEscChars == 0) {
+        for ( i in 0..content.length-2 ) {
+            if (content[i] == '\\') {
+                if ( i > 0 ) {
+                    if (content[i-1] != '\\' || content[i+1] != '\\') {
+                        escInString++
+                    }
+                } else if ( i == 0 ) {
+                    if ( content[i+1] != '\\') {
+                        escInString++
+                    }
+                }
+            }
+        }
+    }
+    length -= escInString
     length -= numEscChars
     data.add(Instruction.Flag("msg_$messageCounter:"))
     data.add(Instruction.WORD(length))
@@ -94,6 +111,7 @@ fun CodeGenerator.add_pPrintBool(trueTagValue: Int, falseTagValue: Int) {
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_bool"),
+            Instruction.PUSH(arrayListOf(Operand.Lr)),
             Instruction.CMP(Operand.Register(0), Operand.Constant(0)),
             Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(trueTagValue), "NE"),
             Instruction.LDRCond(Operand.Register(0), Operand.MessageTag(falseTagValue), "EQ"),
@@ -263,7 +281,7 @@ fun CodeGenerator.printTypeInstructions(expression: Expression) {
 
         Type.compare(expression.exprType, Type.TString) -> {
             printStringFlag = true
-            messageTagGenerator((expression as Expression.Literal.LString).string)
+            //messageTagGenerator((expression as Expression.Literal.LString).string)
             // TODO: check here about what happens because message generator is called here so the tag
             // TODO: is generated here but it has already been passed through compileExpression so maybe
             // TODO: the function call to messageTagGenerator should be in compileExpression
@@ -280,9 +298,6 @@ fun CodeGenerator.printTypeInstructions(expression: Expression) {
             printBoolFlag = true
             instructions.add(Instruction.BL("p_print_bool"))
         }
-    }
-    if (printLnFlag) {
-        instructions.add(Instruction.BL("p_print_ln"))
     }
 }
 

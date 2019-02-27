@@ -7,7 +7,7 @@ sealed class Operand {
     }
     sealed class Literal: Operand() {
         data class LInt(var value:String): Literal() {
-            override fun toString(): String = "=$value"
+            override fun toString(): String = "=${Integer.parseInt(value)}"
         }
         data class LChar(var value:Char): Literal() {
             override fun toString(): String = "#'$value'"

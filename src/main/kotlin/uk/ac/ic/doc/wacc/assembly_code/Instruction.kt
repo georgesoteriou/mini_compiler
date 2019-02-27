@@ -134,12 +134,15 @@ sealed class Instruction {
     // TODO: which would entail changing all function calls to CMP
 
     data class AND(var rd: Operand.Register, var r1: Operand.Register, var r2: Operand.Register) : Instruction() {
-        override fun toString(): String = "ADD $rd, $r1, $r2"
+        override fun toString(): String = "AND $rd, $r1, $r2"
     }
 
     data class ORR(var rd: Operand.Register, var r1: Operand.Register, var r2: Operand.Register) : Instruction() {
         override fun toString(): String = "ORR $rd, $r1, $r2"
     }
 
+    data class EOR(var rd: Operand.Register, var rn: Operand.Register, var op: Operand.Constant) : Instruction() {
+        override fun toString(): String = "EOR $rd, $rn, $op"
+    }
 
 }

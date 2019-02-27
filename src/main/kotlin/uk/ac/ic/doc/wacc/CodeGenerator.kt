@@ -6,7 +6,6 @@ import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.helpers.*
 import java.io.File
 import java.lang.Exception
-import javax.swing.plaf.nimbus.State
 import kotlin.math.exp
 
 class CodeGenerator(var program: Program) {
@@ -32,6 +31,7 @@ class CodeGenerator(var program: Program) {
     var divideByZeroTag = -1
 
     // TODO: consider refactoring so as to avoid use of so many flags and corresponding tags
+
 
     var printStringFlag = false
     var printIntFlag = false
@@ -186,6 +186,8 @@ class CodeGenerator(var program: Program) {
                 compileExpression(statement.expression, 4)
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
                 printTypeInstructions(statement.expression)
+                instructions.add(Instruction.BL("p_print_ln"))
+
             }
             is Statement.If -> {
                 compileExpression(statement.condition, 4)
@@ -283,15 +285,13 @@ class CodeGenerator(var program: Program) {
                 }
 
                 binOpInstructions(expression, dest)
-
-                // TODO: remember to generate message of possible error
             }
             is Expression.UnaryOperation -> {
                 // TODO: Here we want to calculate "{unop} A"
                 // TODO: very similar to above.
                 // TODO: compileExpression(A, dest+1)
-                //compileExpression(expression.expression, dest)
-                //unOpInstructions(expression, dest)
+                compileExpression(expression.expression, dest)
+                unOpInstructions(expression, dest)
 
             }
 
