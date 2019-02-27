@@ -44,9 +44,12 @@ generateGrammarSource {
 }
 
 test {
-    
+
 }
 
 clean {
     project.delete fileTree('build').include('*.*')
+    project.delete fileTree('.').include('*.s')
+    project.delete fileTree('.').include('a.out')
+
 }

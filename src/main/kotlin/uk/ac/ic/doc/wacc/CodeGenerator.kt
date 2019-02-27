@@ -53,7 +53,6 @@ class CodeGenerator(var program: Program) {
         compileBlock("main", program.block)
 
         dataGenerator()
-
         val file = File("$filename.s")
 
         if (!data.isEmpty()) {

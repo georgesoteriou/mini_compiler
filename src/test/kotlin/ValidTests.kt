@@ -1,111 +1,67 @@
 import org.junit.Test
+import java.io.File
 
 
 class ValidTests {
 
 
+    // WHILE TESTS
     @Test
-    fun validAdvanced() {
-        testSynAndSem("src/test/resources/valid/advanced/", 0)
+    fun testFibonacciIterative() {
+        testcompile(File("src/test/resources/valid/while/fibonacciIterative.wacc"),
+            0,
+            "The first 20 fibonacci numbers are:\n" +
+                    "0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181, ...")
     }
 
     @Test
-    fun validArray() {
-        testSynAndSem("src/test/resources/valid/array/", 0)
+    fun testLoopCharCondition() {
+        testcompile(File("src/test/resources/valid/while/loopCharCondition.wacc"),
+            0,
+            "Change c\n" + "Should print \"Change c\" once before.")
     }
 
     @Test
-    fun validBasicExit() {
-        testSynAndSem("src/test/resources/valid/basic/exit/", 0)
+    fun testLoopIntCondition() {
+        testcompile(File("src/test/resources/valid/while/loopIntCondition.wacc"),
+            0,
+            "Change n\n" + "Should print \"Change n\" once before.")
+    }
+
+    // BASIC TESTS
+
+    @Test
+    fun testPrint() {
+        testcompile(File("src/test/resources/valid/IO/print/print.wacc"),
+            0,
+            "Hello World!")
     }
 
     @Test
-    fun validBasicSkip() {
-        testSynAndSem("src/test/resources/valid/basic/skip/", 0)
+    fun testPrintBool() {
+        testcompile(File("src/test/resources/valid/IO/print/printBool.wacc"),
+            0,
+            "True is true\n" + "False is false")
     }
 
-    @Test
-    fun validExpressions() {
-        testSynAndSem("src/test/resources/valid/expressions/", 0)
-    }
 
-    @Test
-    fun validFunctionNestedFunctions() {
-        testSynAndSem("src/test/resources/valid/function/nested_functions", 0)
-    }
 
-    @Test
-    fun validFunctionSimpleFunctions() {
-        testSynAndSem("src/test/resources/valid/function/simple_functions", 0)
-    }
 
-    @Test
-    fun validIf() {
-        testSynAndSem("src/test/resources/valid/if/", 0)
-    }
 
-    @Test
-    fun validIO() {
-        testSynAndSem("src/test/resources/valid/IO/basic", 0)
-    }
 
-    @Test
-    fun validIOPrint() {
-        testSynAndSem("src/test/resources/valid/IO/print/", 0)
-    }
 
-    @Test
-    fun validIORead() {
-        testSynAndSem("src/test/resources/valid/IO/read/", 0)
-    }
 
-    @Test
-    fun validPairs() {
-        testSynAndSem("src/test/resources/valid/pairs/", 0)
-    }
 
-    @Test
-    fun validRuntimeErrArrayOutOfBounds() {
-        testSynAndSem("src/test/resources/valid/runtimeErr/arrayOutOfBounds/", 0)
-    }
 
-    @Test
-    fun validRuntimeErrDivideByZero() {
-        testSynAndSem("src/test/resources/valid/runtimeErr/divideByZero/", 0)
-    }
 
-    @Test
-    fun validRuntimeErrDoubleFrees() {
-        testSynAndSem("src/test/resources/valid/runtimeErr/doubleFrees/", 0)
-    }
 
-    @Test
-    fun validRuntimeErrIntegerOverflow() {
-        testSynAndSem("src/test/resources/valid/runtimeErr/integerOverflow/", 0)
-    }
 
-    @Test
-    fun validRuntimeErrNullDereference() {
-        testSynAndSem("src/test/resources/valid/runtimeErr/nullDereference/", 0)
-    }
 
-    @Test
-    fun validScope() {
-        testSynAndSem("src/test/resources/valid/scope/", 0)
-    }
 
-    @Test
-    fun validSequence() {
-        testSynAndSem("src/test/resources/valid/sequence/", 0)
-    }
-
-    @Test
-    fun validVariables() {
-        testSynAndSem("src/test/resources/valid/variables/", 0)
-    }
-
-    @Test
-    fun validWhile() {
-        testSynAndSem("src/test/resources/valid/while/", 0)
-    }
+//    @Test
+//    fun testMultipleStringsAssignment() {
+//        testcompile(File("src/test/resources/valid/IO/print/multipleStringsAssignment.wacc"), 0,
+//            "s1 is Hi\ns2 is Hi\nThey are not the same.\nNow modify s1[0] = 'h'\ns1 is hi\ns2 is Hi\nThey are not the same."
+//        )
+//    }
 }
