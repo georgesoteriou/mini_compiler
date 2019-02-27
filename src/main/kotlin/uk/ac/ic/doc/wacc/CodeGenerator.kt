@@ -48,8 +48,7 @@ class CodeGenerator(var program: Program) {
     var throwOverflowFlag = false
     var throwRuntimeFlag = false
     var divideByZeroFlag = false
-    var checkArrayOutOfBoundsFlag = false
-    var checkArrayNegativeBoundsFlag = false
+    var checkArrayFlag = false
 
     fun compile(filename: String) {
         instructions.add(Instruction.Flag(".text"))
@@ -149,8 +148,7 @@ class CodeGenerator(var program: Program) {
                             instructions.add(Instruction.MOV(Operand.Register(0),Operand.Register(6)))
                             instructions.add(Instruction.MOV(Operand.Register(1),Operand.Register(5)))
                             instructions.add(Instruction.BL("p_check_array_bounds"))
-                            checkArrayOutOfBoundsFlag = true
-                            checkArrayNegativeBoundsFlag = true
+                            checkArrayFlag = true
                             throwRuntimeFlag = true
                             instructions.add(Instruction.ADD(Operand.Register(5),Operand.Register(5),Operand.Constant(4)))
 
