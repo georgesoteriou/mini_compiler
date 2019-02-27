@@ -29,7 +29,8 @@ class CodeGenerator(var program: Program) {
     var charInputTag = -1
     var throwOverflowTag = -1
     var divideByZeroTag = -1
-    var checkArrayTag = -1
+    var checkArrayOutOfBoundsTag = -1
+    var checkArrayNegativeBoundsTag = -1
 
 
     // TODO: consider refactoring so as to avoid use of so many flags and corresponding tags
@@ -47,7 +48,8 @@ class CodeGenerator(var program: Program) {
     var throwOverflowFlag = false
     var throwRuntimeFlag = false
     var divideByZeroFlag = false
-    var checkArrayFlag = false
+    var checkArrayOutOfBoundsFlag = false
+    var checkArrayNegativeBoundsFlag = false
 
     fun compile(filename: String) {
         instructions.add(Instruction.Flag(".text"))
@@ -147,7 +149,8 @@ class CodeGenerator(var program: Program) {
                             instructions.add(Instruction.MOV(Operand.Register(0),Operand.Register(6)))
                             instructions.add(Instruction.MOV(Operand.Register(1),Operand.Register(5)))
                             instructions.add(Instruction.BL("p_check_array_bounds"))
-                            checkArrayFlag = true
+                            checkArrayOutOfBoundsFlag = true
+                            checkArrayNegativeBoundsFlag = true 
                             throwRuntimeFlag = true
                             instructions.add(Instruction.ADD(Operand.Register(5),Operand.Register(5),Operand.Constant(4)))
 
