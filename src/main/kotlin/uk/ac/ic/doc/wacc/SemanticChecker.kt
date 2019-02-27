@@ -24,16 +24,15 @@ fun semanticCheck(prog: Program): Boolean {
     var valid = true
     val activeScope = ActiveScope(Scope(), null)
 
-
-
     if (!activeScope.addAll(prog.functions.map { Definition(it.name, it.type) })) {
         return false
     }
 
     prog.functions.forEach { f ->
         val definitions =
-            f.params.zip(f.type.params).map { def -> Pair(def.first, Scope.Definition(def.second, false)) }
+            f.params.zip(f.type.params).map { def -> Pair(def.first, Scope.Definition(def.second, true)) }
         f.block.scope.definitions.putAll(definitions)
+        f.block.scope.definitions[""] = Scope.Definition(Type.TAny, true)
         valid = valid && checkStatement(f.block, activeScope, f.type.type)
     }
 
