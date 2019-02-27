@@ -48,15 +48,16 @@ fun CodeGenerator.ifInstructions(statement: Statement.If) {
     )
     val l0 = "L${labelCounter}"
     val l1 = "L${labelCounter + 1}"
+
     instructions.add(
         Instruction.BCond(
             l0,
             "EQ"
         )
     )
+    labelCounter+=2
 
     compileStatement(statement.ifThen)
-    labelCounter++
 
     instructions.add(
         Instruction.BCond(
@@ -67,10 +68,10 @@ fun CodeGenerator.ifInstructions(statement: Statement.If) {
     instructions.add(
         Instruction.LABEL(l0)
     )
+    //labelCounter++
 
     compileStatement(statement.elseThen)
 
-    labelCounter++
 
     instructions.add(
         Instruction.LABEL(l1)

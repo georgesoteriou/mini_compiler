@@ -19,12 +19,7 @@ fun CodeGenerator.compileBlock(name: String, block: Statement.Block, params: Lis
         block.scope.blockSize -= Type.size(block.scope.definitions[it]!!.type)
     }
 
-    activeScope = activeScope.newSubScope(block.scope)
-
     compileStatement(block)
-
-    activeScope = activeScope.parentScope!!
-
 
     if(name == "main") {
         instructions.add(Instruction.LDRSimple(Operand.Register(0), Operand.Literal.LInt("0")))
