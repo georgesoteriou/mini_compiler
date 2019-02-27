@@ -34,7 +34,8 @@ fun main(args: Array<String>) {
         if (!semanticCheck(program)) {
             exitProcess(200)
         }
-      CodeGenerator(program).compile(File(args[0]).nameWithoutExtension)
+        //println(program)
+        CodeGenerator(program).compile(File(args[0]).nameWithoutExtension)
     } catch (e: ParseCancellationException) {
         println("Syntax error ")
         exitProcess(100)

@@ -49,7 +49,7 @@ class CodeGenerator(var program: Program) {
     fun compile(filename: String) {
         instructions.add(Instruction.Flag(".text"))
         instructions.add(Instruction.Flag(".global main"))
-        program.functions.forEach{ compileBlock(it.name, it.block) }
+        program.functions.forEach{ compileBlock(it.name, it.block, it.params) }
         compileBlock("main", program.block)
 
         dataGenerator()
@@ -72,12 +72,9 @@ class CodeGenerator(var program: Program) {
                 //TODO: we are currently decreasing stack pointer using definitions in active scope
                 //TODO: these include the arguments of the function, and they should NOT count
                 //TODO: towards decreasing the stack
-                statement.scope.findFullSize()
-                activeScope = activeScope.newSubScope(statement.scope)
                 decreaseSP(statement)
                 statement.statements.forEach { compileStatement(it) }
                 increaseSP(statement)
-                activeScope = activeScope.parentScope!!
             }
             is Statement.Skip -> {
             }
@@ -131,7 +128,7 @@ class CodeGenerator(var program: Program) {
                 }
             }
             is Statement.ReadInput -> {
-                instructions.add(Instruction.ADD(Operand.Register(4), Operand.Sp, Operand.Constant(0)))
+                instructions.add(Instruction.ADD(Operand.Register(4), Operand.Sp, Operand.Constant(4)))
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
 
                 when {
@@ -166,7 +163,13 @@ class CodeGenerator(var program: Program) {
                 }
             }
             is Statement.Return -> {
-                compileExpression(statement.expression, 0)
+                compileExpression(statement.expression, 4)
+                instructions.add(
+                    Instruction.MOV(
+                        Operand.Register(0),
+                        Operand.Register(4)
+                    )
+                )
             }
             is Statement.Exit -> {
                 compileExpression(statement.expression, 4)
@@ -214,7 +217,7 @@ class CodeGenerator(var program: Program) {
                 )
                 instructions.add(
                     Instruction.MOV(
-                        Operand.Register(4),
+                        Operand.Register(dest),
                         Operand.Register(0)
                     )
                 )
@@ -305,8 +308,8 @@ class CodeGenerator(var program: Program) {
     }
 
     private fun increaseSP(statement: Statement.Block) {
-        var declarationsSize = statement.scope.fullSize
-        for (i in 1..statement.scope.fullSize step 1024) {
+        var declarationsSize = statement.scope.blockSize
+        for (i in 1..statement.scope.blockSize step 1024) {
             instructions.add(
                 Instruction.ADD(
                     Operand.Sp, Operand.Sp, Operand.Offset(
@@ -323,8 +326,8 @@ class CodeGenerator(var program: Program) {
     }
 
     private fun decreaseSP(statement: Statement.Block): Int {
-        var declarationsSize = statement.scope.fullSize
-        for (i in 1..statement.scope.fullSize step 1024) {
+        var declarationsSize = statement.scope.blockSize
+        for (i in 1..statement.scope.blockSize step 1024) {
             instructions.add(
                 Instruction.SUB(
                     Operand.Sp, Operand.Sp, Operand.Offset(
