@@ -36,13 +36,20 @@ fun CodeGenerator.compileBlock(name: String, block: Statement.Block, params: Lis
 fun CodeGenerator.pushArgsToStack(func: Expression.CallFunction) {
     func.params.forEach {
         compileExpression(it, 4)
-        instructions.add(
-            Instruction.STROffset(
-                Operand.Register(4),
-                Operand.Sp,
-                Operand.Offset(- Type.size(it.exprType))
+        val size = Type.size(it.exprType)
+        if(size == 1) {
+            instructions.add(
+                Instruction.STRBOffset(
+                    Operand.Register(4), Operand.Sp, Operand.Offset(-size)
+                )
             )
-        )
+        } else {
+            instructions.add(
+                Instruction.STROffset(
+                    Operand.Register(4), Operand.Sp, Operand.Offset(-size)
+                )
+            )
+        }
     }
 }
 
