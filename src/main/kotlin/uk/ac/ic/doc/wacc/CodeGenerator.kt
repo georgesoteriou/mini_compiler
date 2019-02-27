@@ -29,6 +29,9 @@ class CodeGenerator(var program: Program) {
     var charInputTag = -1
     var throwOverflowTag = -1
     var divideByZeroTag = -1
+    var checkArrayOutOfBoundsTag = -1
+    var checkArrayNegativeBoundsTag = -1
+
 
     // TODO: consider refactoring so as to avoid use of so many flags and corresponding tags
 
@@ -45,6 +48,7 @@ class CodeGenerator(var program: Program) {
     var throwOverflowFlag = false
     var throwRuntimeFlag = false
     var divideByZeroFlag = false
+    var checkArrayFlag = false
 
     fun compile(filename: String) {
         instructions.add(Instruction.Flag(".text"))
@@ -106,26 +110,58 @@ class CodeGenerator(var program: Program) {
             }
 
             is Statement.VariableAssignment -> {
-                var type = statement.rhs.exprType
-                val name = (statement.lhs as Expression.Identifier).name
-                when (type) {
-                    is Type.TInt, is Type.TString -> {
+                var lhs = statement.lhs
+                when (lhs) {
+                    is Expression.Identifier -> {
+                        var type = statement.rhs.exprType
+                        val name = lhs.name
+                        when (type) {
+                            is Type.TInt, is Type.TString -> {
+                                compileExpression(statement.rhs, 4)
+                                wordAssignInstructions(name)
+                            }
+                            is Type.TBool, is Type.TChar -> {
+                                compileExpression(statement.rhs, 4)
+                                byteAssignInstructions(name)
+                            }
+                            is Type.TArray -> {
+                                val def = Definition(name, lhs.exprType)
+                                arrayAssignInstructions(def, statement.rhs as Expression.Literal.LArray)
+                            }
+                            is Type.TPair -> {
+                                val def = Definition(name, lhs.exprType)
+                                pairAssignInstructions(def, statement.rhs as Expression.Literal.LPair)
+                            }
+                        }
+                    }
+
+                    is Expression.ArrayElem -> {
                         compileExpression(statement.rhs, 4)
-                        wordAssignInstructions(name)
-                    }
-                    is Type.TBool, is Type.TChar -> {
-                        compileExpression(statement.rhs, 4)
-                        byteAssignInstructions(name)
-                    }
-                    is Type.TArray -> {
-                        val def = Definition(name, statement.lhs.exprType)
-                        arrayAssignInstructions(def, statement.rhs as Expression.Literal.LArray)
-                    }
-                    is Type.TPair -> {
-                        val def = Definition(name, statement.lhs.exprType)
-                        pairAssignInstructions(def, statement.rhs as Expression.Literal.LPair)
+                        instructions.add(Instruction.ADD(Operand.Register(5),Operand.Sp,Operand.Constant(activeScope.getPosition(lhs.array))))
+
+                        for ( i in 0 until lhs.indexes.size) {
+                            if ( i > 0) {
+                                instructions.add(Instruction.ADDCond(Operand.Register(5),Operand.Register(5),Operand.Register(6),"LSL #2"))
+                            }
+                            compileExpression(lhs.indexes[i],6)
+                            instructions.add(Instruction.LDRRegister(Operand.Register(5),Operand.Register(5),Operand.Offset(0)))
+                            instructions.add(Instruction.MOV(Operand.Register(0),Operand.Register(6)))
+                            instructions.add(Instruction.MOV(Operand.Register(1),Operand.Register(5)))
+                            instructions.add(Instruction.BL("p_check_array_bounds"))
+                            checkArrayFlag = true
+                            throwRuntimeFlag = true
+                            instructions.add(Instruction.ADD(Operand.Register(5),Operand.Register(5),Operand.Constant(4)))
+
+                        }
+
+                        if (lhs.indexes.size > 1) {
+                            instructions.add(Instruction.ADDCond(Operand.Register(5),Operand.Register(5),Operand.Register(6),"LSL #2"))
+                        }
+                        instructions.add(Instruction.STRSimple(Operand.Register(4),Operand.Register(5)))
                     }
                 }
+
+
             }
             is Statement.ReadInput -> {
                 instructions.add(Instruction.ADD(Operand.Register(4), Operand.Sp, Operand.Constant(0)))
