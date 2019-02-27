@@ -76,9 +76,13 @@ class CodeGenerator(var program: Program) {
                 //TODO: we are currently decreasing stack pointer using definitions in active scope
                 //TODO: these include the arguments of the function, and they should NOT count
                 //TODO: towards decreasing the stack
+                statement.scope.findFullSize()
+                statement.scope.blockSize = statement.scope.fullSize
+                activeScope = activeScope.newSubScope(statement.scope)
                 decreaseSP(statement)
                 statement.statements.forEach { compileStatement(it) }
                 increaseSP(statement)
+                activeScope = activeScope.parentScope!!
             }
             is Statement.Skip -> {
             }
