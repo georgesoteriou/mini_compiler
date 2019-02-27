@@ -164,7 +164,7 @@ class CodeGenerator(var program: Program) {
 
             }
             is Statement.ReadInput -> {
-                instructions.add(Instruction.ADD(Operand.Register(4), Operand.Sp, Operand.Constant(0)))
+                instructions.add(Instruction.ADD(Operand.Register(4), Operand.Sp, Operand.Constant(activeScope.getPosition((statement.expression as Expression.Identifier).name))))
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
 
                 when {
