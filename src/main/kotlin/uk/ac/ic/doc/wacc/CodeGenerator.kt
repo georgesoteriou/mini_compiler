@@ -200,8 +200,12 @@ class CodeGenerator(var program: Program) {
 
     }
 
-    fun compileExpression(expression: Expression, dest: Int) {
+    fun compileExpression(expression: Expression, dst: Int) {
         //TODO: if dest > 14. We have a problem. Add an if here to add regs to stack maybe
+        var dest = dst
+        if(dst > 10) {
+            dest = 10
+        }
         when (expression) {
             is Expression.CallFunction -> {
                 // TODO: Add jump to function
@@ -232,6 +236,9 @@ class CodeGenerator(var program: Program) {
             }
 
             is Expression.Literal.LInt -> {
+                if(dst > 10) {
+                    instructions.add(Instruction.PUSH(arrayListOf(Operand.Register(10))))
+                }
                 instructions.add(
                     Instruction.LDRSimple(
                         Operand.Register(dest),
@@ -240,6 +247,9 @@ class CodeGenerator(var program: Program) {
                 )
             }
             is Expression.Literal.LBool -> {
+                if(dst > 10) {
+                    instructions.add(Instruction.PUSH(arrayListOf(Operand.Register(10))))
+                }
                 instructions.add(
                     Instruction.MOV(
                         Operand.Register(dest),
@@ -248,6 +258,9 @@ class CodeGenerator(var program: Program) {
                 )
             }
             is Expression.Literal.LChar -> {
+                if(dst > 10) {
+                    instructions.add(Instruction.PUSH(arrayListOf(Operand.Register(10))))
+                }
                 instructions.add(
                     Instruction.MOV(
                         Operand.Register(dest),
@@ -276,14 +289,16 @@ class CodeGenerator(var program: Program) {
                 val e1 = expression.e1
                 val e2 = expression.e2
 
-                if (weight(expression.e1) >= weight(expression.e2)) {
-                    compileExpression(e1, dest)
-                    compileExpression(e2, dest + 1)
+                if (weight(expression.e1) < weight(expression.e2)) {
+                    compileExpression(e1, dst)
+                    compileExpression(e2, dst + 1)
                 } else {
-                    compileExpression(e2, dest + 1)
-                    compileExpression(e1, dest)
+                    compileExpression(e2, dst + 1)
+                    compileExpression(e1, dst)
                 }
-
+                if(dst >= 10) {
+                    instructions.add(Instruction.POP(arrayListOf(Operand.Register(11))))
+                }
                 binOpInstructions(expression, dest)
             }
             is Expression.UnaryOperation -> {
