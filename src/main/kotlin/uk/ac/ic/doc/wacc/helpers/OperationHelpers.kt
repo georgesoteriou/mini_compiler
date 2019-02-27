@@ -10,16 +10,16 @@ import java.lang.Integer.min
 fun CodeGenerator.weight(expr: Expression): Int
 // TODO: Make this work properly
         = when (expr) {
-    is Expression.BinaryOperation -> {
-        val e1 = expr.e1
-        val e2 = expr.e2
-        val max1 = max(weight(e1) + 1, weight(e2))
-        val max2 = max(weight(e1), weight(e2) + 1)
-        min(max1, max2)
-    }
-    is Expression.CallFunction -> 1 // TODO: idk, go through whole list of args?
-    is Expression.UnaryOperation -> 1 //TODO: not sure, 1?
-    else -> 1
+            is Expression.BinaryOperation -> {
+                val e1 = expr.e1
+                val e2 = expr.e2
+                val max1 = max(weight(e1) + 1, weight(e2))
+                val max2 = max(weight(e1), weight(e2) + 1)
+                min(max1, max2)
+            }
+            is Expression.CallFunction -> 1 // TODO: idk, go through whole list of args?
+            is Expression.UnaryOperation -> 1 //TODO: not sure, 1?
+            else -> 1
 }
 
 fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int) {
