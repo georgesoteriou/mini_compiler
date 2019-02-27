@@ -393,6 +393,14 @@ fun CodeGenerator.dataGenerator() {
         add_checkDivideByZero(divideByZeroTag)
     }
 
+    if(checkArrayFlag) {
+        messageTagGenerator("ArrayIndexOutOfBoundsError: negative index\\n\\0",2)
+        checkArrayNegativeBoundsTag = messageCounter - 1
+        messageTagGenerator("ArrayIndexOutOfBoundsError: index too large\\n\\0",2)
+        checkArrayOutOfBoundsTag = messageCounter - 1
+        add_checkArrayOutOfBounds(checkArrayOutOfBoundsTag,checkArrayNegativeBoundsTag)
+    }
+
     if (freeArrayFlag || freePairFlag) {
 
         if (freeArrayFlag) {
