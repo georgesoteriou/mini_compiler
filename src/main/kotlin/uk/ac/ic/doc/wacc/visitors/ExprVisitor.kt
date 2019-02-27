@@ -78,11 +78,11 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
     override fun visitUnaryOp(ctx: WaccParser.UnaryOpContext): Expression {
         val e = ctx.expr().accept(this)
         return when {
-            ctx.unaryOper().NOT() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.NOT)
-            ctx.unaryOper().MINUS() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.MINUS)
-            ctx.unaryOper().LEN() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.LEN)
-            ctx.unaryOper().ORD() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.ORD)
-            ctx.unaryOper().CHR() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.CHR)
+            ctx.unaryOper().NOT()  != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.NOT)
+            ctx.unaryOper().MINUS()!= null -> Expression.UnaryOperation(e, Expression.UnaryOperator.MINUS)
+            ctx.unaryOper().LEN()  != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.LEN)
+            ctx.unaryOper().ORD()  != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.ORD)
+            ctx.unaryOper().CHR()  != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.CHR)
             else -> throw RuntimeException("Unary Op does not exist")
         }
     }
