@@ -341,7 +341,7 @@ fun CodeGenerator.dataGenerator() {
     }
 
     if (charInputFlag) {
-        messageTagGenerator(" %c\\0", 1)
+        messageTagGenerator("%c\\0", 1)
         charInputTag = messageCounter - 1
         add_charInput(charInputTag)
     }
