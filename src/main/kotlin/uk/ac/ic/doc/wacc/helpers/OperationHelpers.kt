@@ -193,7 +193,6 @@ fun CodeGenerator.unOpInstructions(expr: Expression.UnaryOperation, dest: Int) {
             )
         }
 
-        Expression.UnaryOperator.CHR, //TODO: Literally nothing??
         Expression.UnaryOperator.LEN -> {
             instructions.add(
                 Instruction.LDRRegister(
@@ -212,8 +211,8 @@ fun CodeGenerator.unOpInstructions(expr: Expression.UnaryOperation, dest: Int) {
                 )
             )
         }
-        Expression.UnaryOperator.ORD -> {
-        }
+        Expression.UnaryOperator.CHR -> {}
+        Expression.UnaryOperator.ORD -> {}
     }
 
 }
