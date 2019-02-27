@@ -7,6 +7,7 @@ class Scope {
     var definitions: LinkedHashMap<String, Definition> = linkedMapOf()
 
     var fullSize = 0
+    var blockSize = 0
 
     fun findFullSize() {
         fullSize = definitions.values.fold(0) { next, def ->
