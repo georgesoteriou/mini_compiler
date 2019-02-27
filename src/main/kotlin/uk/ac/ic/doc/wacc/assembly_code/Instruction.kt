@@ -108,7 +108,11 @@ sealed class Instruction {
     data class STRBOffset(var register: Operand, var addrBase: Operand, var addrOffset: Operand.Offset) : Instruction() {
         override fun toString(): String {
             return if (addrOffset.value != 0) {
-                "STRB $register, [$addrBase, $addrOffset]"
+                if(addrOffset.value < 0) {
+                    "STRB $register, [$addrBase, $addrOffset]!"
+                } else {
+                    "STRB $register, [$addrBase, $addrOffset]"
+                }
             } else {
                 "STRB $register, [$addrBase]"
             }
