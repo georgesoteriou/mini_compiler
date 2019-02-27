@@ -60,7 +60,7 @@ fun CodeGenerator.binOpInstructions(expr: Expression.BinaryOperation, dest: Int)
                     Operand.Register(dest),
                     Operand.Register(dest + 1)
                 ),
-                Instruction.CMPCond(Operand.Register(5),Operand.Register(4),"ASR #31"),
+                Instruction.CMPCond(Operand.Register(dest + 1),Operand.Register(dest),"ASR #31"),
                 Instruction.BCond("p_throw_overflow_error","LNE")
 
             ))
