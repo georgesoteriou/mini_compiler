@@ -18,7 +18,7 @@ fun CodeGenerator.weight(expr: Expression): Int
                 min(max1, max2)
             }
             is Expression.CallFunction -> 1 // TODO: idk, go through whole list of args?
-            is Expression.UnaryOperation -> 1 //TODO: not sure, 1?
+            is Expression.UnaryOperation -> weight(expr.expression) //TODO: not sure, 1?
             else -> 1
 }
 
