@@ -13,6 +13,10 @@ sealed class Instruction {
         override fun toString(): String = "ADD $rd, $rn, $operand"
     }
 
+    data class ADDCond(var rd: Operand, var rn: Operand, var operand: Operand, var cond: String) : Instruction() {
+        override fun toString(): String = "ADD $rd, $rn, $operand, $cond"
+    }
+
     data class ADDS(var rd: Operand.Register, var r1: Operand.Register, var r2: Operand.Register) : Instruction() {
         override fun toString(): String = "ADDS $rd, $r1, $r2"
     }
