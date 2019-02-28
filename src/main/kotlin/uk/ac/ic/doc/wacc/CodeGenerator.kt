@@ -199,7 +199,21 @@ class CodeGenerator(var program: Program) {
 
             }
             is Statement.ReadInput -> {
-                instructions.add(Instruction.ADD(Operand.Register(4), Operand.Sp, Operand.Constant(activeScope.getPosition((statement.expression as Expression.Identifier).name))))
+                val expr = statement.expression
+                when (expr) {
+                    is Expression.Identifier -> {
+                        val offset = activeScope.getPosition(expr.name)
+                        instructions.add(Instruction.ADD(Operand.Register(4), Operand.Sp, Operand.Constant(offset)))
+                    }
+                    is Expression.Snd -> {
+                        compileExpression(expr, 4)
+                        instructions.removeAt(instructions.size - 1)
+                    }
+                    is Expression.Fst -> {
+                        compileExpression(expr, 4)
+                        instructions.removeAt(instructions.size - 1)
+                    }
+                }
                 instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
 
                 when {
