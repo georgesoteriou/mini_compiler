@@ -358,7 +358,7 @@ class CodeGenerator(var program: Program) {
                     throwRuntimeFlag = true
                     printStringFlag = true
                     instructions.add(Instruction.ADD(Operand.Register(4),Operand.Register(4),Operand.Constant(4)))
-                    instructions.add(Instruction.ADDCond(Operand.Register(4),Operand.Register(4),Operand.Register(6),"LSL #2"))
+                    instructions.add(Instruction.ADDCond(Operand.Register(4),Operand.Register(4),Operand.Register(5),"LSL #2"))
 
                 }
                 instructions.add(Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0)))
