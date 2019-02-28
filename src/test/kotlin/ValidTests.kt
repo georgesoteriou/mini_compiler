@@ -894,7 +894,7 @@ class ValidTests {
         @Test
         fun createRefPair() {
             testCompile(
-                File("src/test/resources/valid/pairs/createPair.wacc"),
+                File("src/test/resources/valid/pairs/createRefPair.wacc"),
                 0
             )
         }
