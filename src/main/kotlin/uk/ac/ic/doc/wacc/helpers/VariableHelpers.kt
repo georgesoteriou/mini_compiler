@@ -27,25 +27,34 @@ fun CodeGenerator.wordAssignInstructions(name: String) = instructions.add(
 
 
 fun CodeGenerator.addPointerLDR(e1: Expression, dest: Int) {
-    var pos = activeScope.getPosition((e1 as Expression.Identifier).name)
-    when (e1.exprType) {
-        is Type.TBool, is Type.TChar -> {
-            instructions.add(
-                Instruction.LDRRegCond(
-                    Operand.Register(dest),
-                    Operand.Sp,
-                    Operand.Offset(pos),
-                    "SB"
-                )
-            )
+    when (e1) {
+        is Expression.Identifier -> {
+            val pos = activeScope.getPosition(e1.name)
+            when (e1.exprType) {
+                is Type.TBool, is Type.TChar -> {
+                    instructions.add(
+                        Instruction.LDRRegCond(
+                            Operand.Register(dest),
+                            Operand.Sp,
+                            Operand.Offset(pos),
+                            "SB"
+                        )
+                    )
+                }
+                else -> {
+                    instructions.add(
+                        Instruction.LDRRegister(
+                            Operand.Register(dest),
+                            Operand.Sp,
+                            Operand.Offset(pos)
+                        )
+                    )
+                }
+            }
         }
         else -> {
             instructions.add(
-                Instruction.LDRRegister(
-                    Operand.Register(dest),
-                    Operand.Sp,
-                    Operand.Offset(pos)
-                )
+                Instruction.LDRSimple(Operand.Register(dest),Operand.Literal.LInt("0"))
             )
         }
     }
