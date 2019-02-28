@@ -5,7 +5,7 @@ import java.io.File
 @Test
 fun test() {
     testCompile(
-        File("src/test/resources/"),
+        File("src/test/"),
         0
     )
 }
@@ -450,6 +450,23 @@ class ValidTests {
     class Function {
         class NestedFunctions {
             @Test
+            fun fibonacciRecursive() {
+                testCompile(
+                    File("src/test/resources/valid/function/nested_functions/fibonacciRecursive.wacc"),
+                    0, "The first 20 fibonacci numbers are:\n" +
+                            "0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 610, 987, 1597, 2584, 4181..."
+                )
+            }
+
+            @Test
+            fun fixedPointRealArithmetic() {
+                testCompile(
+                    File("src/test/resources/valid/function/nested_functions/fixedPointRealArithmetic.wacc"),
+                    0, "Using fixed-point real: 10 / 3 * 3 = 10"
+                )
+            }
+
+            @Test
             fun functionConditionalReturn() {
                 testCompile(
                     File("src/test/resources/valid/function/nested_functions/functionConditionalReturn.wacc"),
@@ -837,6 +854,20 @@ class ValidTests {
 
     class Pairs {
         @Test
+        fun checkRefPair() {
+            testCompile(
+                File("src/test/resources/valid/pairs/checkRefPair.wacc"),
+                0, "true\n" +
+                        "10\n" +
+                        "10\n" +
+                        "true\n" +
+                        "a\n" +
+                        "a\n" +
+                        "true"
+            )
+        }
+
+        @Test
         fun createPair() {
             testCompile(
                 File("src/test/resources/valid/pairs/createPair.wacc"),
@@ -845,17 +876,17 @@ class ValidTests {
         }
 
         @Test
-        fun createPair2() {
+        fun createPair02() {
             testCompile(
-                File("src/test/resources/valid/pairs/createPair2.wacc"),
+                File("src/test/resources/valid/pairs/createPair02.wacc"),
                 0
             )
         }
 
         @Test
-        fun createPair3() {
+        fun createPair03() {
             testCompile(
-                File("src/test/resources/valid/pairs/createPair3.wacc"),
+                File("src/test/resources/valid/pairs/createPair03.wacc"),
                 0
             )
         }
@@ -918,6 +949,22 @@ class ValidTests {
         }
 
         @Test
+        fun printPair() {
+            testCompile(
+                File("src/test/resources/valid/pairs/printPair.wacc"),
+                0, " = (10, a)"
+            )
+        }
+
+        @Test
+        fun printPairOfNulls() {
+            testCompile(
+                File("src/test/resources/valid/pairs/printPairOfNulls.wacc"),
+                0, " = ((nil),(nil))"
+            )
+        }
+
+        @Test
         fun writeFst() {
             testCompile(
                 File("src/test/resources/valid/pairs/writeFst.wacc"),
@@ -936,10 +983,171 @@ class ValidTests {
         }
     }
     class RuntimeErr {
-        class ArrayOutOfBounds {}
-        class DivideByZero {}
-        class IntegerOverflow {}
-        class NullDereference {}
+        class ArrayOutOfBounds {
+            @Test
+            fun arrayNegBounds() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/arrayOutOfBounds/arrayNegBounds.wacc"),
+                    255, "Error"
+                )
+            }
+        }
+
+        @Test
+        fun arrayOutOfBounds() {
+            testCompile(
+                File("src/test/resources/valid/runtimeErr/arrayOutOfBounds/arrayOutOfBounds.wacc"),
+                255, "Error"
+            )
+        }
+
+        @Test
+        fun arrayOutOfBoundsWrite() {
+            testCompile(
+                File("src/test/resources/valid/runtimeErr/arrayOutOfBounds/arrayOutOfBoundsWrite.wacc"),
+                255, "Error"
+            )
+        }
+        class DivideByZero {
+            @Test
+            fun divideByZero() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/divideByZero/divideByZero.wacc"),
+                    255, "Error"
+                )
+            }
+
+            @Test
+            fun divZero() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/divideByZero/divZero.wacc"),
+                    255, "Error"
+                )
+            }
+
+            @Test
+            fun modByZero() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/divideByZero/modByZero.wacc"),
+                    255, "Error"
+                )
+            }
+        }
+        class IntegerOverflow {
+            @Test
+            fun intJustOverflow() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/integerOverflow/intJustOverflow.wacc"),
+                    255, "2147483646\n" +
+                            "2147483647\nError"
+                )
+            }
+
+            @Test
+            fun intmultOverflow() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/integerOverflow/intmultOverflow.wacc"),
+                    255, "2147483\n" +
+                            "2147483000\nError"
+                )
+            }
+
+            @Test
+            fun intnegateOverflow() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/integerOverflow/intnegateOverflow.wacc"),
+                    255, "-2147483648\n" +
+                            "Error"
+                )
+            }
+
+            @Test
+            fun intnegateOverflow2() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/integerOverflow/intnegateOverflow2.wacc"),
+                    255, "-2147483648\n" +
+                            "Error"
+                )
+            }
+
+            @Test
+            fun intnegateOverflow3() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/integerOverflow/intnegateOverflow3.wacc"),
+                    255, "-20000\n" +
+                            "Error"
+                )
+            }
+
+            @Test
+            fun intnegateOverflow4() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/integerOverflow/intnegateOverflow4.wacc"),
+                    255, "-2000000000\n" +
+                            "Error"
+                )
+            }
+
+            @Test
+            fun intUnderflow() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/integerOverflow/intUnderflow.wacc"),
+                    255, "-2147483647\n" +
+                            "-2147483648\n" +
+                            "Error"
+                )
+            }
+
+            @Test
+            fun intWayOverflow() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/integerOverflow/intWayOverflow.wacc"),
+                    255, "2000000000\n" +
+                            "Error"
+                )
+            }
+        }
+        class NullDereference {
+            @Test
+            fun freeNull() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/nullDereference/freeNull.wacc"),
+                    255, "Error"
+                )
+            }
+
+            @Test
+            fun setNull1() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/nullDereference/setNull1.wacc"),
+                    255, "Error"
+                )
+            }
+
+            @Test
+            fun setNull2() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/nullDereference/setNull2.wacc"),
+                    255, "Error"
+                )
+            }
+
+            @Test
+            fun useNull1() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/nullDereference/useNull1.wacc"),
+                    255, "Error"
+                )
+            }
+
+            @Test
+            fun useNull2() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/nullDereference/useNull2.wacc"),
+                    255, "Error"
+                )
+            }
+        }
     }
 
     class Scope {
@@ -972,6 +1180,24 @@ class ValidTests {
             testCompile(
                 File("src/test/resources/valid/scope/intsAndKeywords.wacc"),
                 0
+            )
+        }
+
+        @Test
+        fun printAllTypes() {
+            testCompile(
+                File("src/test/resources/valid/scope/printAllTypes.wacc"),
+                0, "( [1, 2, 3] , [a, b, c] )\n" +
+                        "[  = (a, true),  = (b, false) ]\n" +
+                        "1, 2\n" +
+                        "array, of, strings\n" +
+                        "true, false, true\n" +
+                        "xyz\n" +
+                        "1, 2, 3\n" +
+                        "this is a string\n" +
+                        "true\n" +
+                        "x\n" +
+                        "5"
             )
         }
 
@@ -1019,8 +1245,185 @@ class ValidTests {
             )
         }
     }
-    class Sequence {}
-    class Variables {}
+    class Sequence {
+        @Test
+        fun basicSeq() {
+            testCompile(
+                File("src/test/resources/valid/sequence/basicSeq.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun basicSeq2() {
+            testCompile(
+                File("src/test/resources/valid/sequence/basicSeq2.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun boolAssignment() {
+            testCompile(
+                File("src/test/resources/valid/sequence/boolAssignment.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun charAssignment() {
+            testCompile(
+                File("src/test/resources/valid/sequence/charAssignment.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun exitSimple() {
+            testCompile(
+                File("src/test/resources/valid/sequence/exitSimple.wacc"),
+                42
+            )
+        }
+
+        @Test
+        fun intAssignment() {
+            testCompile(
+                File("src/test/resources/valid/sequence/intAssignment.wacc"),
+                20
+            )
+        }
+
+        @Test
+        fun intLeadingZeros() {
+            testCompile(
+                File("src/test/resources/valid/sequence/intLeadingZeros.wacc"),
+                0, "42\n" +
+                        "0"
+            )
+        }
+
+        @Test
+        fun stringAssignment() {
+            testCompile(
+                File("src/test/resources/valid/sequence/stringAssignment.wacc"),
+                0
+            )
+        }
+    }
+    class Variables {
+        @Test
+        fun _VarNames() {
+            testCompile(
+                File("src/test/resources/valid/variables/_VarNames.wacc"),
+                19
+            )
+        }
+
+        @Test
+        fun boolDeclaration() {
+            testCompile(
+                File("src/test/resources/valid/variables/boolDeclaration.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun boolDeclaration2() {
+            testCompile(
+                File("src/test/resources/valid/variables/boolDeclaration2.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun capCharDeclaration() {
+            testCompile(
+                File("src/test/resources/valid/variables/capCharDeclaration.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun charDeclaration() {
+            testCompile(
+                File("src/test/resources/valid/variables/charDeclaration.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun charDeclaration2() {
+            testCompile(
+                File("src/test/resources/valid/variables/charDeclaration2.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun emptyStringDeclaration() {
+            testCompile(
+                File("src/test/resources/valid/variables/emptyStringDeclaration.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun intDeclaration() {
+            testCompile(
+                File("src/test/resources/valid/variables/intDeclaration.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun longVarNames() {
+            testCompile(
+                File("src/test/resources/valid/variables/longVarNames.wacc"),
+                5
+            )
+        }
+
+        @Test
+        fun manyVariables() {
+            testCompile(
+                File("src/test/resources/valid/variables/manyVariables.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun negIntDeclaration() {
+            testCompile(
+                File("src/test/resources/valid/variables/negIntDeclaration.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun puncCharDeclaration() {
+            testCompile(
+                File("src/test/resources/valid/variables/puncCharDeclaration.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun stringDeclaration() {
+            testCompile(
+                File("src/test/resources/valid/variables/stringDeclaration.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun zeroIntDeclaration() {
+            testCompile(
+                File("src/test/resources/valid/variables/zeroIntDeclaration.wacc"),
+                0
+            )
+        }
+    }
     class While {
         @Test
         fun testFibonacciIterative() {
@@ -1050,5 +1453,72 @@ class ValidTests {
         }
     }
 
+    @Test
+    fun max() {
+        testCompile(
+            File("src/test/resources/valid/while/max.wacc"),
+            0, "max value = 17"
+        )
+    }
 
+    @Test
+    fun min() {
+        testCompile(
+            File("src/test/resources/valid/while/min.wacc"),
+            0, "min value = 10"
+        )
+    }
+
+    @Test
+    fun rmStyleAdd() {
+        testCompile(
+            File("src/test/resources/valid/while/rmStyleAdd.wacc"),
+            0, "initial value of x: 3\n" +
+                    "(+)(+)(+)(+)(+)(+)(+)\n" +
+                    "final value of x: 10"
+        )
+    }
+
+    @Test
+    fun whileBasic() {
+        testCompile(
+            File("src/test/resources/valid/while/whileBasic.wacc"),
+            0
+        )
+    }
+
+    @Test
+    fun whileBoolFlip() {
+        testCompile(
+            File("src/test/resources/valid/while/whileBoolFlip.wacc"),
+            0, "flip b!\n" +
+                    "end of loop"
+        )
+    }
+
+    @Test
+    fun whileCount() {
+        testCompile(
+            File("src/test/resources/valid/while/whileCount.wacc"),
+            0, "Can you count to 10?\n" +
+                    "1\n" +
+                    "2\n" +
+                    "3\n" +
+                    "4\n" +
+                    "5\n" +
+                    "6\n" +
+                    "7\n" +
+                    "8\n" +
+                    "9\n" +
+                    "10"
+        )
+    }
+
+    @Test
+    fun whileFalse() {
+        testCompile(
+            File("src/test/resources/valid/while/whileFalse.wacc"),
+            0, "end of loop"
+        )
+    }
 }
