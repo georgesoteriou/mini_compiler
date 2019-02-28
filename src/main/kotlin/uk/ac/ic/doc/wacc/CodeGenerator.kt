@@ -102,7 +102,15 @@ class CodeGenerator(var program: Program) {
                             arrayAssignInstructions(statement.lhs, (statement.rhs as Expression.Literal.LArray))
                         }
                         is Type.TPair -> {
-                            pairAssignInstructions(statement.lhs, (statement.rhs as Expression.Literal.LPair))
+                            val rhs = statement.rhs
+                            when (rhs) {
+                                is Expression.Literal.LPair -> {
+
+                                }
+                                is Expression.NewPair -> {
+                                    pairAssignInstructions(statement.lhs, rhs)
+                                }
+                            }
                         }
                     }
                 }
@@ -130,7 +138,15 @@ class CodeGenerator(var program: Program) {
                             }
                             is Type.TPair -> {
                                 val def = Definition(name, lhs.exprType)
-                                pairAssignInstructions(def, statement.rhs as Expression.Literal.LPair)
+                                val rhs = statement.rhs
+                                when (rhs) {
+                                    is Expression.Literal.LPair -> {
+
+                                    }
+                                    is Expression.NewPair -> {
+                                        pairAssignInstructions(def, rhs)
+                                    }
+                                }
                             }
                         }
                     }
@@ -368,31 +384,26 @@ class CodeGenerator(var program: Program) {
 
             }
             is Expression.Fst -> {
+                val offset = activeScope.getPosition((expression.expression as Expression.Identifier).name)
                 instructions.addAll(arrayListOf(
-                    Instruction.STROffset(Operand.Register(4),Operand.Sp,Operand.Offset(4)),
-                    Instruction.LDRRegister(Operand.Register(4),Operand.Sp,Operand.Offset(4)),
+                    Instruction.LDRRegister(Operand.Register(4),Operand.Sp,Operand.Offset(offset)),
                     Instruction.MOV(Operand.Register(0),Operand.Register(4)),
                     Instruction.BL("p_check_null_pointer"),
                     Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0)),
-                    Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0)),
-                    Instruction.STROffset(Operand.Register(4),Operand.Sp,Operand.Offset(0)),
-                    Instruction.ADD(Operand.Sp,Operand.Sp,Operand.Constant(8))
+                    Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0))
                     ))
                 checkNullPointerFlag = true
                 throwRuntimeFlag = true
                 printStringFlag = true
             }
             is Expression.Snd -> {
-
+                val offset = activeScope.getPosition((expression.expression as Expression.Identifier).name)
                 instructions.addAll(arrayListOf(
-                    Instruction.STROffset(Operand.Register(4),Operand.Sp,Operand.Offset(4)),
-                    Instruction.LDRRegister(Operand.Register(4),Operand.Sp,Operand.Offset(4)),
+                    Instruction.LDRRegister(Operand.Register(4),Operand.Sp,Operand.Offset(offset)),
                     Instruction.MOV(Operand.Register(0),Operand.Register(4)),
                     Instruction.BL("p_check_null_pointer"),
                     Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(4)),
-                    Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0)),
-                    Instruction.STROffset(Operand.Register(4),Operand.Sp,Operand.Offset(0)),
-                    Instruction.ADD(Operand.Sp,Operand.Sp,Operand.Constant(8))
+                    Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0))
                 ))
                 checkNullPointerFlag = true
                 throwRuntimeFlag = true

@@ -66,7 +66,7 @@ fun CodeGenerator.pairNullInstructions() {
     )
 }
 
-fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression.Literal.LPair) {
+fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression.NewPair) {
     instructions.add(
         Instruction.LDRSimple(
             Operand.Register(0),
@@ -82,8 +82,8 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
     )
     var typeL = (definition.type as Type.TPair).t1
     var typeR = (definition.type as Type.TPair).t2
-    var e1 = (rhs as Expression.NewPair).e1
-    var e2 = (rhs as Expression.NewPair).e2
+    var e1 = rhs.e1
+    var e2 = rhs.e2
 
     elemAssignInstructions(typeL, e1)
 
