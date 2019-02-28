@@ -8,7 +8,6 @@ import uk.ac.ic.doc.wacc.grammar.WaccLexer
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
 import java.io.File
-import java.lang.RuntimeException
 import kotlin.system.exitProcess
 
 fun main(args: Array<String>) {

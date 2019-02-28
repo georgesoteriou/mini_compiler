@@ -179,6 +179,20 @@ class CodeGenerator(var program: Program) {
                         throwRuntimeFlag = true
                         printStringFlag = true
                     }
+                    is Expression.Snd -> {
+                        compileExpression(statement.rhs,4)
+                        val offset = activeScope.getPosition(lhs.expression.name)
+                        instructions.addAll(arrayListOf(
+                            Instruction.LDRRegister(Operand.Register(5),Operand.Sp,Operand.Offset(offset)),
+                            Instruction.MOV(Operand.Register(0),Operand.Register(5)),
+                            Instruction.BL("p_check_null_pointer"),
+                            Instruction.LDRRegister(Operand.Register(5),Operand.Register(5),Operand.Offset(4)),
+                            Instruction.STROffset(Operand.Register(4),Operand.Register(5),Operand.Offset(0))
+                        ))
+                        checkNullPointerFlag = true
+                        throwRuntimeFlag = true
+                        printStringFlag = true
+                    }
 
                 }
 
