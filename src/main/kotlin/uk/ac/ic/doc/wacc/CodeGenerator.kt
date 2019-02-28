@@ -107,6 +107,14 @@ class CodeGenerator(var program: Program) {
                             is Expression.NewPair -> {
                                 pairAssignInstructions(statement.lhs, rhs)
                             }
+                            is Expression.Identifier -> {
+                                compileExpression(rhs, 4)
+                                instructions.add(Instruction.STROffset(
+                                    Operand.Register(4),
+                                    Operand.Sp,
+                                    Operand.Offset(activeScope.getPosition(name))
+                                ))
+                            }
                         }
                     }
                 }
@@ -136,8 +144,19 @@ class CodeGenerator(var program: Program) {
                                 val def = Definition(name, lhs.exprType)
                                 val rhs = statement.rhs
                                 when (rhs) {
+                                    is Expression.Literal.LPair -> {
+                                        pairNullInstructions(def)
+                                    }
                                     is Expression.NewPair -> {
                                         pairAssignInstructions(def, rhs)
+                                    }
+                                    is Expression.Identifier -> {
+                                        compileExpression(rhs, 4)
+                                        instructions.add(Instruction.STROffset(
+                                            Operand.Register(4),
+                                            Operand.Sp,
+                                            Operand.Offset(activeScope.getPosition(name))
+                                        ))
                                     }
                                 }
                             }
