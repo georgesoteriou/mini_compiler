@@ -203,8 +203,8 @@ class CodeGenerator(var program: Program) {
                     )
                 )
 
-               // increaseSP(currentBlock!!)
-                instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
+                //increaseSP(currentBlock!!)
+               // instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
             }
             is Statement.Exit -> {
                 compileExpression(statement.expression, 4)
