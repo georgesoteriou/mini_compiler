@@ -349,6 +349,25 @@ class CodeGenerator(var program: Program) {
             // TODO: You might want to ignore this and use your assign/declare functions for lhs.
             // TODO: And only use the functions below for the rhs to lookup values in the scope/stack
             is Expression.ArrayElem -> {
+                instructions.add(Instruction.ADD(Operand.Register(4),Operand.Sp,Operand.Constant(activeScope.getPosition(expression.array))))
+
+                for ( i in 0 until expression.indexes.size) {
+                    compileExpression(expression.indexes[i],5)
+                    instructions.add(Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0)))
+                    instructions.add(Instruction.MOV(Operand.Register(0),Operand.Register(5)))
+                    instructions.add(Instruction.MOV(Operand.Register(1),Operand.Register(4)))
+                    instructions.add(Instruction.BL("p_check_array_bounds"))
+                    checkArrayFlag = true
+                    throwRuntimeFlag = true
+                    printStringFlag = true
+                    instructions.add(Instruction.ADD(Operand.Register(4),Operand.Register(4),Operand.Constant(4)))
+                    instructions.add(Instruction.ADDCond(Operand.Register(4),Operand.Register(4),Operand.Register(5),"LSL #2"))
+
+                }
+                instructions.add(Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0)))
+
+
+
             }
             is Expression.Fst -> {
             }
