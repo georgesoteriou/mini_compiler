@@ -31,8 +31,8 @@ sealed class Expression {
     data class UnaryOperation(var expression: Expression, var operator: UnaryOperator) : Expression()
 
     data class ArrayElem(var array: String, var indexes: List<Expression>) : Expression()
-    data class Fst(var expression: Expression) : Expression()
-    data class Snd(var expression: Expression) : Expression()
+    data class Fst(var expression: Identifier) : Expression()
+    data class Snd(var expression: Identifier) : Expression()
 
 
 }
