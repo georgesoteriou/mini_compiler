@@ -1,13 +1,13 @@
 stages:
   - assemble
- #- test
+  - test
 
 assemble:
   stage: assemble
   script:
     - make
 
-#test:
-#  stage: test
-#  script:
-#    - make test
+test:
+  stage: test
+  script:
+    - make test

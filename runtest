@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#echo "======================================================="
+if ./compile $1; then
+    arm-linux-gnueabi-gcc -o a.out -mcpu=arm1176jzf-s -mtune=arm1176jzf-s $2.s
+    qemu-arm -L /usr/arm-linux-gnueabi/ a.out
+else
+    ./compile $1;
+fi

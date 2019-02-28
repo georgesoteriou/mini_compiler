@@ -43,10 +43,16 @@ generateGrammarSource {
     }
 }
 
+
 test {
-    
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 clean {
     project.delete fileTree('build').include('*.*')
+    project.delete fileTree('.').include('*.s')
+    project.delete fileTree('.').include('a.out')
+
 }
