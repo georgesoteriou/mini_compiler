@@ -6,7 +6,7 @@ import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.ast.Function
 
-fun CodeGenerator.compileBlock(name: String, block: Statement.Block, params: List<String> = listOf()) {
+fun CodeGenerator.compileBlock(name: String, block: Statement.Block, isFunction: Boolean, params: List<String> = listOf()) {
     if(name != "") {
         instructions.add(Instruction.LABEL(name))
         instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
@@ -24,7 +24,9 @@ fun CodeGenerator.compileBlock(name: String, block: Statement.Block, params: Lis
     activeScope = activeScope.newSubScope(block.scope)
     decreaseSP(block)
     block.statements.forEach { compileStatement(it) }
-    increaseSP(block)
+    if(!isFunction) {
+        increaseSP(block)
+    }
 
     if(name == "main") {
         instructions.add(Instruction.LDRSimple(Operand.Register(0), Operand.Literal.LInt("0")))
@@ -32,7 +34,7 @@ fun CodeGenerator.compileBlock(name: String, block: Statement.Block, params: Lis
 
     activeScope = activeScope.parentScope!!
 
-    if(name != "") {
+    if(name != "" && !isFunction) {
         instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
         instructions.add(Instruction.Flag(".ltorg"))
     }
