@@ -988,7 +988,7 @@ class ValidTests {
             fun arrayNegBounds() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/arrayOutOfBounds/arrayNegBounds.wacc"),
-                    255, "Error"
+                    255
                 )
             }
         }
@@ -997,7 +997,7 @@ class ValidTests {
         fun arrayOutOfBounds() {
             testCompile(
                 File("src/test/resources/valid/runtimeErr/arrayOutOfBounds/arrayOutOfBounds.wacc"),
-                255, "Error"
+                255
             )
         }
 
@@ -1005,7 +1005,7 @@ class ValidTests {
         fun arrayOutOfBoundsWrite() {
             testCompile(
                 File("src/test/resources/valid/runtimeErr/arrayOutOfBounds/arrayOutOfBoundsWrite.wacc"),
-                255, "Error"
+                255
             )
         }
         class DivideByZero {
@@ -1013,7 +1013,7 @@ class ValidTests {
             fun divideByZero() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/divideByZero/divideByZero.wacc"),
-                    255, "Error"
+                    255
                 )
             }
 
@@ -1021,7 +1021,7 @@ class ValidTests {
             fun divZero() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/divideByZero/divZero.wacc"),
-                    255, "Error"
+                    255
                 )
             }
 
@@ -1029,7 +1029,7 @@ class ValidTests {
             fun modByZero() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/divideByZero/modByZero.wacc"),
-                    255, "Error"
+                    255
                 )
             }
         }
@@ -1039,7 +1039,7 @@ class ValidTests {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/integerOverflow/intJustOverflow.wacc"),
                     255, "2147483646\n" +
-                            "2147483647\nError"
+                            "2147483647"
                 )
             }
 
@@ -1048,7 +1048,7 @@ class ValidTests {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/integerOverflow/intmultOverflow.wacc"),
                     255, "2147483\n" +
-                            "2147483000\nError"
+                            "2147483000"
                 )
             }
 
@@ -1056,8 +1056,7 @@ class ValidTests {
             fun intnegateOverflow() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/integerOverflow/intnegateOverflow.wacc"),
-                    255, "-2147483648\n" +
-                            "Error"
+                    255, "-2147483648"
                 )
             }
 
@@ -1065,8 +1064,7 @@ class ValidTests {
             fun intnegateOverflow2() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/integerOverflow/intnegateOverflow2.wacc"),
-                    255, "-2147483648\n" +
-                            "Error"
+                    255, "-2147483648"
                 )
             }
 
@@ -1074,8 +1072,7 @@ class ValidTests {
             fun intnegateOverflow3() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/integerOverflow/intnegateOverflow3.wacc"),
-                    255, "-20000\n" +
-                            "Error"
+                    255, "-20000"
                 )
             }
 
@@ -1083,8 +1080,7 @@ class ValidTests {
             fun intnegateOverflow4() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/integerOverflow/intnegateOverflow4.wacc"),
-                    255, "-2000000000\n" +
-                            "Error"
+                    255, "-2000000000"
                 )
             }
 
@@ -1093,8 +1089,7 @@ class ValidTests {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/integerOverflow/intUnderflow.wacc"),
                     255, "-2147483647\n" +
-                            "-2147483648\n" +
-                            "Error"
+                            "-2147483648"
                 )
             }
 
@@ -1102,8 +1097,7 @@ class ValidTests {
             fun intWayOverflow() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/integerOverflow/intWayOverflow.wacc"),
-                    255, "2000000000\n" +
-                            "Error"
+                    255, "2000000000"
                 )
             }
         }
@@ -1112,7 +1106,7 @@ class ValidTests {
             fun freeNull() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/nullDereference/freeNull.wacc"),
-                    255, "Error"
+                    255
                 )
             }
 
@@ -1120,7 +1114,7 @@ class ValidTests {
             fun setNull1() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/nullDereference/setNull1.wacc"),
-                    255, "Error"
+                    255
                 )
             }
 
@@ -1128,7 +1122,7 @@ class ValidTests {
             fun setNull2() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/nullDereference/setNull2.wacc"),
-                    255, "Error"
+                    255
                 )
             }
 
@@ -1136,7 +1130,7 @@ class ValidTests {
             fun useNull1() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/nullDereference/useNull1.wacc"),
-                    255, "Error"
+                    255
                 )
             }
 
@@ -1144,7 +1138,7 @@ class ValidTests {
             fun useNull2() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/nullDereference/useNull2.wacc"),
-                    255, "Error"
+                    255
                 )
             }
         }
