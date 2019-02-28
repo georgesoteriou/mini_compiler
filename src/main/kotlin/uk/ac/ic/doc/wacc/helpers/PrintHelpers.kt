@@ -267,6 +267,19 @@ fun CodeGenerator.add_intInput(tagValue: Int) {
     )
 }
 
+fun CodeGenerator.add_checkNullPointer(tagValue:Int) {
+    // This should be called at the end of the program after checking the flags
+    // The required messages for this : NullReferenceError: dereference a null reference\n\0 resides at tagValue
+
+    instructions.addAll(arrayListOf(
+        Instruction.LABEL("p_check_null_pointer"),
+        Instruction.PUSH(arrayListOf(Operand.Lr)),
+        Instruction.CMP(Operand.Register(0),Operand.Constant(0)),
+        Instruction.LDRCond(Operand.Register(0),Operand.MessageTag(tagValue),"EQ"),
+        Instruction.BCond("p_throw_runtime_error","LEQ"),
+        Instruction.POP(arrayListOf(Operand.Pc))
+    ))
+}
 
 fun CodeGenerator.add_checkArrayOutOfBounds(indexTooLarge: Int, negativeIndex : Int) {
     // This should be called at the end of the program after checking the flags
