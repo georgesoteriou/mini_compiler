@@ -50,14 +50,19 @@ class CodeGenerator(var program: Program) {
     var divideByZeroFlag = false
     var checkArrayFlag = false
 
+    var currentBlock : Statement.Block? = null
+
     fun compile(filename: String) {
         instructions.add(Instruction.Flag(".text"))
         instructions.add(Instruction.Flag(".global main"))
-        program.functions.forEach{ compileBlock(it.name, it.block, it.params) }
+        program.functions.forEach{
+            currentBlock = it.block
+            compileBlock(it.name, it.block, it.params)
+        }
+        currentBlock = program.block
         compileBlock("main", program.block)
 
         dataGenerator()
-
         val file = File("$filename.s")
 
         if (!data.isEmpty()) {
@@ -72,17 +77,7 @@ class CodeGenerator(var program: Program) {
     fun compileStatement(statement: Statement, name: String = ".L$labelCounter") {
         when (statement) {
             is Statement.Block -> {
-                //TODO: modify findFullSize for functions
-                //TODO: we are currently decreasing stack pointer using definitions in active scope
-                //TODO: these include the arguments of the function, and they should NOT count
-                //TODO: towards decreasing the stack
-                statement.scope.findFullSize()
-                statement.scope.blockSize = statement.scope.fullSize
-                activeScope = activeScope.newSubScope(statement.scope)
-                decreaseSP(statement)
-                statement.statements.forEach { compileStatement(it) }
-                increaseSP(statement)
-                activeScope = activeScope.parentScope!!
+                compileBlock("", statement)
             }
             is Statement.Skip -> {
             }
@@ -210,6 +205,9 @@ class CodeGenerator(var program: Program) {
                         Operand.Register(4)
                     )
                 )
+
+               // increaseSP(currentBlock!!)
+                instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
             }
             is Statement.Exit -> {
                 compileExpression(statement.expression, 4)
@@ -267,6 +265,7 @@ class CodeGenerator(var program: Program) {
                         Operand.Register(0)
                     )
                 )
+
             }
             is Expression.NewPair -> {
                 // TODO: Remove. Unused (Add else -> {})
@@ -356,43 +355,6 @@ class CodeGenerator(var program: Program) {
             is Expression.Snd -> {
             }
         }
-    }
-
-    private fun increaseSP(statement: Statement.Block) {
-        var declarationsSize = statement.scope.blockSize
-        for (i in 1..statement.scope.blockSize step 1024) {
-            instructions.add(
-                Instruction.ADD(
-                    Operand.Sp, Operand.Sp, Operand.Offset(
-                        if (declarationsSize > 1024) {
-                            declarationsSize -= 1024
-                            1024
-                        } else {
-                            declarationsSize
-                        }
-                    )
-                )
-            )
-        }
-    }
-
-    private fun decreaseSP(statement: Statement.Block): Int {
-        var declarationsSize = statement.scope.blockSize
-        for (i in 1..statement.scope.blockSize step 1024) {
-            instructions.add(
-                Instruction.SUB(
-                    Operand.Sp, Operand.Sp, Operand.Offset(
-                        if (declarationsSize > 1024) {
-                            declarationsSize -= 1024
-                            1024
-                        } else {
-                            declarationsSize
-                        }
-                    )
-                )
-            )
-        }
-        return declarationsSize
     }
 
 
