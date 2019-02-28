@@ -85,31 +85,27 @@ class CodeGenerator(var program: Program) {
             is Statement.VariableDeclaration -> {
                 var type = statement.lhs.type
                 val name = statement.lhs.name
-                if (statement.rhs is Expression.Literal.LPair) {
-                    pairNullInstructions()
-                } else {
-                    when (type) {
-                        is Type.TInt, is Type.TString -> {
-                            compileExpression(statement.rhs, 4)
-                            wordAssignInstructions(name)
-                        }
-                        is Type.TBool, is Type.TChar -> {
-                            compileExpression(statement.rhs, 4)
-                            byteAssignInstructions(name)
-                        }
+                when (type) {
+                    is Type.TInt, is Type.TString -> {
+                        compileExpression(statement.rhs, 4)
+                        wordAssignInstructions(name)
+                    }
+                    is Type.TBool, is Type.TChar -> {
+                        compileExpression(statement.rhs, 4)
+                        byteAssignInstructions(name)
+                    }
 
-                        is Type.TArray -> {
-                            arrayAssignInstructions(statement.lhs, (statement.rhs as Expression.Literal.LArray))
-                        }
-                        is Type.TPair -> {
-                            val rhs = statement.rhs
-                            when (rhs) {
-                                is Expression.Literal.LPair -> {
-
-                                }
-                                is Expression.NewPair -> {
-                                    pairAssignInstructions(statement.lhs, rhs)
-                                }
+                    is Type.TArray -> {
+                        arrayAssignInstructions(statement.lhs, (statement.rhs as Expression.Literal.LArray))
+                    }
+                    is Type.TPair -> {
+                        val rhs = statement.rhs
+                        when (rhs) {
+                            is Expression.Literal.LPair -> {
+                                pairNullInstructions(statement.lhs)
+                            }
+                            is Expression.NewPair -> {
+                                pairAssignInstructions(statement.lhs, rhs)
                             }
                         }
                     }
@@ -140,9 +136,6 @@ class CodeGenerator(var program: Program) {
                                 val def = Definition(name, lhs.exprType)
                                 val rhs = statement.rhs
                                 when (rhs) {
-                                    is Expression.Literal.LPair -> {
-
-                                    }
                                     is Expression.NewPair -> {
                                         pairAssignInstructions(def, rhs)
                                     }
@@ -172,6 +165,35 @@ class CodeGenerator(var program: Program) {
                         instructions.add(Instruction.ADD(Operand.Register(5),Operand.Register(5),Operand.Register(6)))
                         instructions.add(Instruction.STRBOffset(Operand.Register(4),Operand.Register(5),Operand.Offset(0)))
                     }
+                    is Expression.Fst -> {
+                        compileExpression(statement.rhs,4)
+                        val offset = activeScope.getPosition(lhs.expression.name)
+                        instructions.addAll(arrayListOf(
+                            Instruction.LDRRegister(Operand.Register(5),Operand.Sp,Operand.Offset(offset)),
+                            Instruction.MOV(Operand.Register(0),Operand.Register(5)),
+                            Instruction.BL("p_check_null_pointer"),
+                            Instruction.LDRRegister(Operand.Register(5),Operand.Register(5),Operand.Offset(0)),
+                            Instruction.STROffset(Operand.Register(4),Operand.Register(5),Operand.Offset(0))
+                        ))
+                        checkNullPointerFlag = true
+                        throwRuntimeFlag = true
+                        printStringFlag = true
+                    }
+                    is Expression.Snd -> {
+                        compileExpression(statement.rhs,4)
+                        val offset = activeScope.getPosition(lhs.expression.name)
+                        instructions.addAll(arrayListOf(
+                            Instruction.LDRRegister(Operand.Register(5),Operand.Sp,Operand.Offset(offset)),
+                            Instruction.MOV(Operand.Register(0),Operand.Register(5)),
+                            Instruction.BL("p_check_null_pointer"),
+                            Instruction.LDRRegister(Operand.Register(5),Operand.Register(5),Operand.Offset(4)),
+                            Instruction.STROffset(Operand.Register(4),Operand.Register(5),Operand.Offset(0))
+                        ))
+                        checkNullPointerFlag = true
+                        throwRuntimeFlag = true
+                        printStringFlag = true
+                    }
+
                 }
 
 
