@@ -28,12 +28,12 @@ fun CodeGenerator.compileBlock(name: String, block: Statement.Block, params: Lis
 
     if(name == "main") {
         instructions.add(Instruction.LDRSimple(Operand.Register(0), Operand.Literal.LInt("0")))
-        instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
     }
 
     activeScope = activeScope.parentScope!!
 
     if(name != "") {
+        instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
         instructions.add(Instruction.Flag(".ltorg"))
     }
 }
