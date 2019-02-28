@@ -57,10 +57,10 @@ class CodeGenerator(var program: Program) {
         instructions.add(Instruction.Flag(".global main"))
         program.functions.forEach{
             currentBlock = it.block
-            compileBlock(it.name, it.block, it.params)
+            compileBlock(it.name, it.block, true, it.params)
         }
         currentBlock = program.block
-        compileBlock("main", program.block)
+        compileBlock("main", program.block, false)
 
         dataGenerator()
         val file = File("$filename.s")
@@ -77,7 +77,7 @@ class CodeGenerator(var program: Program) {
     fun compileStatement(statement: Statement, name: String = ".L$labelCounter") {
         when (statement) {
             is Statement.Block -> {
-                compileBlock("", statement)
+                compileBlock("", statement, false)
             }
             is Statement.Skip -> {
             }
@@ -203,8 +203,8 @@ class CodeGenerator(var program: Program) {
                     )
                 )
 
-                //increaseSP(currentBlock!!)
-               // instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
+                increaseSP(currentBlock!!)
+                instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
             }
             is Statement.Exit -> {
                 compileExpression(statement.expression, 4)
