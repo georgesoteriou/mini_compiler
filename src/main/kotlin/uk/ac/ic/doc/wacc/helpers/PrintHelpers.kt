@@ -402,6 +402,15 @@ fun CodeGenerator.dataGenerator() {
         add_checkArrayOutOfBounds(checkArrayOutOfBoundsTag,checkArrayNegativeBoundsTag)
     }
 
+    if (checkNullPointerFlag) {
+        if (throwRuntimeFlag) {
+            add_throwRuntimeError()
+        }
+
+        messageTagGenerator("NullReferenceError: dereference a null reference\\n\\0",2)
+        checkNullPointerTag = messageCounter - 1
+        add_checkNullPointer(checkNullPointerTag)
+    }
     if (freeArrayFlag || freePairFlag) {
 
         if (freeArrayFlag) {
