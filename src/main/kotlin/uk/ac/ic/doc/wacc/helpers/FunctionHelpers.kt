@@ -24,10 +24,9 @@ fun CodeGenerator.compileBlock(name: String, block: Statement.Block, params: Lis
     activeScope = activeScope.newSubScope(block.scope)
     decreaseSP(block)
     block.statements.forEach { compileStatement(it) }
-
+    increaseSP(block)
 
     if(name == "main") {
-        increaseSP(block)
         instructions.add(Instruction.LDRSimple(Operand.Register(0), Operand.Literal.LInt("0")))
         instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
     }

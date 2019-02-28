@@ -206,7 +206,7 @@ class CodeGenerator(var program: Program) {
                     )
                 )
 
-                increaseSP(currentBlock!!)
+               // increaseSP(currentBlock!!)
                 instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
             }
             is Statement.Exit -> {
