@@ -31,7 +31,7 @@ class CodeGenerator(var program: Program) {
     var divideByZeroTag = -1
     var checkArrayOutOfBoundsTag = -1
     var checkArrayNegativeBoundsTag = -1
-    var checkNullPointerTag = -1 
+    var checkNullPointerTag = -1
 
     // TODO: consider refactoring so as to avoid use of so many flags and corresponding tags
 
@@ -368,6 +368,19 @@ class CodeGenerator(var program: Program) {
 
             }
             is Expression.Fst -> {
+                instructions.addAll(arrayListOf(
+                    Instruction.STROffset(Operand.Register(4),Operand.Sp,Operand.Offset(4)),
+                    Instruction.LDRRegister(Operand.Register(4),Operand.Sp,Operand.Offset(4)),
+                    Instruction.MOV(Operand.Register(0),Operand.Register(4)),
+                    Instruction.BL("p_check_null_pointer"),
+                    Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0)),
+                    Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0)),
+                    Instruction.STROffset(Operand.Register(4),Operand.Sp,Operand.Offset(0)),
+                    Instruction.ADD(Operand.Sp,Operand.Sp,Operand.Constant(8))
+                    ))
+                checkNullPointerFlag = true
+                throwRuntimeFlag = true
+                printStringFlag = true 
             }
             is Expression.Snd -> {
             }
