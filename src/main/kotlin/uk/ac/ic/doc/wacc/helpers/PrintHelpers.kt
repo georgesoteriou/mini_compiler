@@ -283,7 +283,7 @@ fun CodeGenerator.add_checkArrayOutOfBounds(indexTooLarge: Int, negativeIndex : 
             Instruction.CMP(Operand.Register(0),Operand.Constant(0)),
             Instruction.LDRCond(Operand.Register(0),Operand.MessageTag(negativeIndex),"LT"),
             Instruction.BCond("p_throw_runtime_error","LLT"),
-            Instruction.LDRSimple(Operand.Register(1),Operand.Register(1)),
+            Instruction.LDRRegister(Operand.Register(1),Operand.Register(1),Operand.Offset(0)),
             Instruction.CMP(Operand.Register(0),Operand.Register(1)),
             Instruction.LDRCond(Operand.Register(0),Operand.MessageTag(indexTooLarge),"CS"),
             Instruction.BCond("p_throw_runtime_error","CS"),
