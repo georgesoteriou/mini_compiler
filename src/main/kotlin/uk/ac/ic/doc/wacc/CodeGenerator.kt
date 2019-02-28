@@ -31,7 +31,7 @@ class CodeGenerator(var program: Program) {
     var divideByZeroTag = -1
     var checkArrayOutOfBoundsTag = -1
     var checkArrayNegativeBoundsTag = -1
-
+    var checkNullPointerTag = -1 
 
     // TODO: consider refactoring so as to avoid use of so many flags and corresponding tags
 
@@ -49,6 +49,7 @@ class CodeGenerator(var program: Program) {
     var throwRuntimeFlag = false
     var divideByZeroFlag = false
     var checkArrayFlag = false
+    var checkNullPointerFlag = false
 
     var currentBlock : Statement.Block? = null
 
