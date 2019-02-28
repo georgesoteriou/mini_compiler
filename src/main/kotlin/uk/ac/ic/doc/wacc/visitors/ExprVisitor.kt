@@ -134,8 +134,10 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
     override fun visitLhsIdent(ctx: WaccParser.LhsIdentContext): Expression =
         Expression.Identifier(ctx.IDENT().toString())
 
-    override fun visitFst(ctx: WaccParser.FstContext): Expression = Expression.Fst(ctx.expr().accept(this))
+    override fun visitFst(ctx: WaccParser.FstContext): Expression = Expression.Fst(
+        ctx.expr().accept(this) as Expression.Identifier)
 
-    override fun visitSnd(ctx: WaccParser.SndContext): Expression = Expression.Snd(ctx.expr().accept(this))
+    override fun visitSnd(ctx: WaccParser.SndContext): Expression = Expression.Snd(
+        ctx.expr().accept(this) as Expression.Identifier)
 
 }

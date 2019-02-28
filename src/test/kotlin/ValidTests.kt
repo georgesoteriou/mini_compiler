@@ -1445,74 +1445,75 @@ class ValidTests {
                 "Change n\n" + "Should print \"Change n\" once before."
             )
         }
+        @Test
+        fun max() {
+            testCompile(
+                File("src/test/resources/valid/while/max.wacc"),
+                0, "max value = 17"
+            )
+        }
+
+        @Test
+        fun min() {
+            testCompile(
+                File("src/test/resources/valid/while/min.wacc"),
+                0, "min value = 10"
+            )
+        }
+
+        @Test
+        fun rmStyleAdd() {
+            testCompile(
+                File("src/test/resources/valid/while/rmStyleAdd.wacc"),
+                0, "initial value of x: 3\n" +
+                        "(+)(+)(+)(+)(+)(+)(+)\n" +
+                        "final value of x: 10"
+            )
+        }
+
+        @Test
+        fun whileBasic() {
+            testCompile(
+                File("src/test/resources/valid/while/whileBasic.wacc"),
+                0
+            )
+        }
+
+        @Test
+        fun whileBoolFlip() {
+            testCompile(
+                File("src/test/resources/valid/while/whileBoolFlip.wacc"),
+                0, "flip b!\n" +
+                        "end of loop"
+            )
+        }
+
+        @Test
+        fun whileCount() {
+            testCompile(
+                File("src/test/resources/valid/while/whileCount.wacc"),
+                0, "Can you count to 10?\n" +
+                        "1\n" +
+                        "2\n" +
+                        "3\n" +
+                        "4\n" +
+                        "5\n" +
+                        "6\n" +
+                        "7\n" +
+                        "8\n" +
+                        "9\n" +
+                        "10"
+            )
+        }
+
+        @Test
+        fun whileFalse() {
+            testCompile(
+                File("src/test/resources/valid/while/whileFalse.wacc"),
+                0, "end of loop"
+            )
+        }
     }
 
-    @Test
-    fun max() {
-        testCompile(
-            File("src/test/resources/valid/while/max.wacc"),
-            0, "max value = 17"
-        )
-    }
 
-    @Test
-    fun min() {
-        testCompile(
-            File("src/test/resources/valid/while/min.wacc"),
-            0, "min value = 10"
-        )
-    }
-
-    @Test
-    fun rmStyleAdd() {
-        testCompile(
-            File("src/test/resources/valid/while/rmStyleAdd.wacc"),
-            0, "initial value of x: 3\n" +
-                    "(+)(+)(+)(+)(+)(+)(+)\n" +
-                    "final value of x: 10"
-        )
-    }
-
-    @Test
-    fun whileBasic() {
-        testCompile(
-            File("src/test/resources/valid/while/whileBasic.wacc"),
-            0
-        )
-    }
-
-    @Test
-    fun whileBoolFlip() {
-        testCompile(
-            File("src/test/resources/valid/while/whileBoolFlip.wacc"),
-            0, "flip b!\n" +
-                    "end of loop"
-        )
-    }
-
-    @Test
-    fun whileCount() {
-        testCompile(
-            File("src/test/resources/valid/while/whileCount.wacc"),
-            0, "Can you count to 10?\n" +
-                    "1\n" +
-                    "2\n" +
-                    "3\n" +
-                    "4\n" +
-                    "5\n" +
-                    "6\n" +
-                    "7\n" +
-                    "8\n" +
-                    "9\n" +
-                    "10"
-        )
-    }
-
-    @Test
-    fun whileFalse() {
-        testCompile(
-            File("src/test/resources/valid/while/whileFalse.wacc"),
-            0, "end of loop"
-        )
-    }
 }

@@ -51,7 +51,8 @@ fun CodeGenerator.addPointerLDR(e1: Expression, dest: Int) {
     }
 }
 
-fun CodeGenerator.pairNullInstructions() {
+fun CodeGenerator.pairNullInstructions(lhs: Definition) {
+    val offset = activeScope.getPosition(lhs.name)
     instructions.add(
         Instruction.LDRSimple(
             Operand.Register(4),
@@ -59,9 +60,10 @@ fun CodeGenerator.pairNullInstructions() {
         )
     )
     instructions.add(
-        Instruction.STRSimple(
+        Instruction.STROffset(
             Operand.Register(4),
-            Operand.Sp
+            Operand.Sp,
+            Operand.Offset(offset)
         )
     )
 }
