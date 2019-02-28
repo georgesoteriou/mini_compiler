@@ -43,8 +43,11 @@ generateGrammarSource {
     }
 }
 
-test {
 
+test {
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 
 clean {

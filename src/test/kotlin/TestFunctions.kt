@@ -5,30 +5,36 @@ import java.io.File
 import java.io.InputStreamReader
 
 
-fun testcompile(file: File, expectedExit: Int, expectedOut: String) {
+fun testCompile(file: File, expectedExit: Int, expectedOut: String = "") {
     if (file.extension == "wacc") {
         val process = Runtime.getRuntime().exec("./runtest ${file.path} ${file.nameWithoutExtension}")
 
         val input = BufferedReader(InputStreamReader(process.inputStream))
 
 
-        var error = BufferedReader(InputStreamReader(process.errorStream))
+        val error = BufferedReader(InputStreamReader(process.errorStream))
+
+        var out = ""
+        input.lines().forEach { out += "$it\n" }
+
+        var eout = ""
+        error.lines().forEach { eout += "$it\n" }
 
         // check error code
         val exitCode = process.waitFor()
         if(exitCode != expectedExit) {
+            println("Error:\n$eout")
             Assert.fail("At ${file.canonicalFile}, wrong exit code.\nExpected: $expectedExit \nBut got: $exitCode")
         }
 
         if(expectedExit != 200 && expectedExit != 100) {
             // Check output
-            var out = ""
-            input.lines().forEach { out += "$it\n" }
-            out = out.dropLast(1)
-            if (out != expectedOut) {
+            if (expectedOut !in out) {
+                println("Error:\n$eout")
                 Assert.fail("At ${file.canonicalFile}, wrong output.\nExpected:\n$expectedOut \nBut got:\n$out")
             }
         }
+        println("TEST PASSED: ${file.path}")
 
     }
 }

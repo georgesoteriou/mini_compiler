@@ -10,6 +10,6 @@ clean:
 	./gradlew clean
 
 test: all
-	./gradlew test
+	./gradlew cleanTest test
 
 .PHONY: all build clean test
