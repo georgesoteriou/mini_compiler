@@ -71,6 +71,7 @@ fun CodeGenerator.add_checkDivideByZero(tagValue: Int) {
         Instruction.PUSH(arrayListOf(Operand.Lr)),
         Instruction.CMP(Operand.Register(1),Operand.Constant(0)),
         Instruction.LDRCond(Operand.Register(0),Operand.MessageTag(tagValue),"EQ"),
+        Instruction.BCond("p_throw_runtime_error","LEQ"),
         Instruction.POP(arrayListOf(Operand.Pc))
     ))
 }
