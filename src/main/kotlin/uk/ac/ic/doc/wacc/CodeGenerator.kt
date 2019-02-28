@@ -371,7 +371,12 @@ class CodeGenerator(var program: Program) {
                 // TODO: Remove. Unused (Add else -> {})
             }
             is Expression.Literal.LPair -> {
-                // TODO: Remove. Unused (Add else -> {})
+                instructions.add(
+                    Instruction.LDRSimple(
+                        Operand.Register(dest),
+                        Operand.Literal.LInt("0")
+                    )
+                )
             }
 
             is Expression.BinaryOperation -> {
