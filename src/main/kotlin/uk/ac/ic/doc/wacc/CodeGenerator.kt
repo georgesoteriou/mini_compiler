@@ -152,11 +152,8 @@ class CodeGenerator(var program: Program) {
                             instructions.add(Instruction.ADD(Operand.Register(5),Operand.Register(5),Operand.Constant(4)))
 
                         }
-
-                        if (lhs.indexes.size > 1) {
-                            instructions.add(Instruction.ADDCond(Operand.Register(5),Operand.Register(5),Operand.Register(6),"LSL #2"))
-                        }
-                        instructions.add(Instruction.STRSimple(Operand.Register(4),Operand.Register(5)))
+                        instructions.add(Instruction.ADD(Operand.Register(5),Operand.Register(5),Operand.Register(6)))
+                        instructions.add(Instruction.STRBOffset(Operand.Register(4),Operand.Register(5),Operand.Offset(0)))
                     }
                 }
 
