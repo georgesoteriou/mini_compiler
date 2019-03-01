@@ -622,13 +622,13 @@ class ValidTests {
                 )
             }
 
-//            @Test
-//            fun functionReturnPair() {
-//                testCompile(
-//                    File("src/test/resources/valid/function/simple_functions/functionReturnPair.wacc"),
-//                    0, "10"
-//                )
-//            }
+            @Test
+            fun functionReturnPair() {
+                testCompile(
+                    File("src/test/resources/valid/function/simple_functions/functionReturnPair.wacc"),
+                    0, "10"
+                )
+            }
 
             @Test
             fun functionSimple() {
