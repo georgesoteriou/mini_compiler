@@ -19,7 +19,7 @@ fun CodeGenerator.whileInstructions(statement: Statement.While) {
     )
 
     labelCounter += 2
-    compileStatement(statement.then, l1)
+    compileStatement(statement.then)
 
     instructions.add(
         Instruction.LABEL(l0)

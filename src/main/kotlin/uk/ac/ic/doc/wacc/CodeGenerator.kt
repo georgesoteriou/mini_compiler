@@ -75,7 +75,7 @@ class CodeGenerator(var program: Program) {
         instructions.forEach { file.appendText(it.toString() + "\n") }
     }
 
-    fun compileStatement(statement: Statement, name: String = ".L$labelCounter") {
+    fun compileStatement(statement: Statement) {
         when (statement) {
             is Statement.Block -> {
                 compileBlock("", statement, false)
@@ -85,6 +85,8 @@ class CodeGenerator(var program: Program) {
             is Statement.VariableDeclaration -> {
                 var type = statement.lhs.type
                 val name = statement.lhs.name
+                activeScope.declare(name)
+
                 when (type) {
                     is Type.TInt, is Type.TString -> {
                         compileExpression(statement.rhs, 4)
@@ -118,7 +120,6 @@ class CodeGenerator(var program: Program) {
                         }
                     }
                 }
-                activeScope.declare(name)
             }
 
             is Statement.VariableAssignment -> {
