@@ -1052,21 +1052,21 @@ class ValidTests {
                 )
             }
 
-//            @Test
-//            fun intnegateOverflow() {
-//                testCompile(
-//                    File("src/test/resources/valid/runtimeErr/integerOverflow/intnegateOverflow.wacc"),
-//                    255, "-2147483648"
-//                )
-//            }
+            @Test
+            fun intnegateOverflow() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/integerOverflow/intnegateOverflow.wacc"),
+                    255, "-2147483648"
+                )
+            }
 
-//            @Test
-//            fun intnegateOverflow2() {
-//                testCompile(
-//                    File("src/test/resources/valid/runtimeErr/integerOverflow/intnegateOverflow2.wacc"),
-//                    255, "-2147483648"
-//                )
-//            }
+            @Test
+            fun intnegateOverflow2() {
+                testCompile(
+                    File("src/test/resources/valid/runtimeErr/integerOverflow/intnegateOverflow2.wacc"),
+                    255, "-2147483648"
+                )
+            }
 
             @Test
             fun intnegateOverflow3() {

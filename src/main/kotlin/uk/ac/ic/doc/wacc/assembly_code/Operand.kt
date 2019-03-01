@@ -7,30 +7,13 @@ sealed class Operand {
     }
     sealed class Literal: Operand() {
         data class LInt(var value:String): Literal() {
-            override fun toString(): String {
-                /* var properValue = ""
-                properValue += value[0]
-                var stopChecking: Boolean = false
-                for ( i in 1 until value.length) {
-                    if (value[i] == '0' && !stopChecking) {
-                        continue
-                    } else {
-                        properValue += value[i]
-                        stopChecking = true
-                    }
-                } */
-                return "=${Integer.parseInt(value)}"
-            }
+            override fun toString(): String = "=$value"
         }
         data class LChar(var value:Char): Literal() {
             override fun toString(): String = "#'$value'"
         }
         data class LBool(var value:Boolean): Literal() {
             override fun toString(): String = "#${if(value) {1} else {0}}"
-        }
-        data class LString(var value:String): Literal() {
-            //TODO: Strings
-            override fun toString(): String = "TODO"
         }
     }
 

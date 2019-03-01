@@ -4,6 +4,7 @@ import org.antlr.v4.runtime.BailErrorStrategy
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.misc.ParseCancellationException
+import uk.ac.ic.doc.wacc.ast.AstOptimizer
 import uk.ac.ic.doc.wacc.grammar.WaccLexer
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
@@ -30,10 +31,12 @@ fun main(args: Array<String>) {
         val visitor = ProgramVisitor()
         val program = parseResource(args[0]).accept(visitor)
 
+        AstOptimizer(program).optimize()
+
         if (!semanticCheck(program)) {
             exitProcess(200)
         }
-        //println(program)
+        //(program)
         val out = File(args[0])
         CodeGenerator(program).compile(out.nameWithoutExtension)
     } catch (e: ParseCancellationException) {
