@@ -36,8 +36,8 @@ fun main(args: Array<String>) {
         if (!semanticCheck(program)) {
             exitProcess(200)
         }
-        val out = File(args[0])
-        CodeGenerator(program).compile(out.nameWithoutExtension)
+        val outputFile = File(args[0]).nameWithoutExtension
+        CodeGenerator(program).compile().outputAssembly(outputFile)
     } catch (e: ParseCancellationException) {
         println("Syntax error ")
         exitProcess(100)

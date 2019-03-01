@@ -8,6 +8,34 @@ import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Statement
 import uk.ac.ic.doc.wacc.ast.Type
 
+fun CodeGenerator.declare(statement: Statement.VariableDeclaration) {
+    val type = statement.lhs.type
+    val name = statement.lhs.name
+    activeScope.declare(name)
+    when (type) {
+        is Type.TInt, is Type.TString -> {
+            compileExpression(statement.rhs, 4)
+            wordAssignInstructions(name)
+        }
+        is Type.TBool, is Type.TChar -> {
+            compileExpression(statement.rhs, 4)
+            byteAssignInstructions(name)
+        }
+        is Type.TArray -> arrayDeclare(statement)
+        is Type.TPair -> pairDeclare(statement)
+    }
+}
+
+fun CodeGenerator.assign(statement: Statement.VariableAssignment) {
+    val lhs = statement.lhs
+    when (lhs) {
+        is Expression.Identifier -> identifierAssign(statement, lhs)
+        is Expression.ArrayElem -> arrayElemAssign(statement, lhs)
+        is Expression.Fst -> pairElemAssign(statement, lhs.expression.name, 0)
+        is Expression.Snd -> pairElemAssign(statement, lhs.expression.name, 4)
+    }
+}
+
 fun CodeGenerator.pairDeclare(statement: Statement.VariableDeclaration) {
     val rhs = statement.rhs
     when (rhs) {
@@ -190,44 +218,6 @@ fun CodeGenerator.wordAssignInstructions(name: String) = instructions.add(
         Operand.Offset(activeScope.getPosition(name))
     )
 )
-
-
-fun CodeGenerator.addPointerLDR(e1: Expression, dest: Int) {
-    when (e1) {
-        is Expression.Identifier -> {
-            val pos = activeScope.getPosition(e1.name)
-            when (e1.exprType) {
-                is Type.TBool, is Type.TChar -> {
-                    instructions.add(
-                        Instruction.LDRRegCond(
-                            Operand.Register(dest),
-                            Operand.Sp,
-                            Operand.Offset(pos),
-                            "SB"
-                        )
-                    )
-                }
-                else -> {
-                    instructions.add(
-                        Instruction.LDRRegister(
-                            Operand.Register(dest),
-                            Operand.Sp,
-                            Operand.Offset(pos)
-                        )
-                    )
-                }
-            }
-        }
-        else -> {
-            instructions.add(
-                Instruction.LDRSimple(
-                    Operand.Register(dest),
-                    Operand.Literal.LInt("0")
-                )
-            )
-        }
-    }
-}
 
 fun CodeGenerator.pairNullInstructions(lhs: Definition) {
     val offset = activeScope.getPosition(lhs.name)
@@ -428,3 +418,24 @@ fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Liter
         }
     )
 }
+
+fun CodeGenerator.freeVariable(statement: Statement.FreeVariable) {
+    compileExpression(statement.expression, 4)
+    instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
+    when {
+        Type.compare(statement.expression.exprType, Type.TArray(Type.TAny)) -> {
+            printStringFlag = true
+            freeArrayFlag = true
+            throwRuntimeFlag = true
+            instructions.add(Instruction.BL("p_free_array"))
+        }
+
+        Type.compare(statement.expression.exprType, Type.TPair(Type.TAny, Type.TAny)) -> {
+            printStringFlag = true
+            freePairFlag = true
+            throwRuntimeFlag = true
+            instructions.add(Instruction.BL("p_free_pair"))
+        }
+    }
+}
+

@@ -5,7 +5,6 @@ import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.ast.Function
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
-import java.lang.RuntimeException
 import java.util.*
 
 class FunctionVisitor : WaccParserBaseVisitor<Function>() {

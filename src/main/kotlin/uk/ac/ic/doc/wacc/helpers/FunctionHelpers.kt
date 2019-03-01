@@ -4,9 +4,10 @@ import uk.ac.ic.doc.wacc.CodeGenerator
 import uk.ac.ic.doc.wacc.assembly_code.Instruction
 import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.*
-import uk.ac.ic.doc.wacc.ast.Function
 
-fun CodeGenerator.compileBlock(name: String, block: Statement.Block, isFunction: Boolean, params: List<String> = listOf()) {
+const val MAX_SUB_SIZE = 1024
+
+fun CodeGenerator.compileBlock(name: String, block: Statement.Block, isFunction: Boolean = false, params: List<String> = listOf()) {
     if(name != "") {
         instructions.add(Instruction.LABEL(name))
         instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
@@ -64,7 +65,7 @@ fun CodeGenerator.pushArgsToStack(func: Expression.CallFunction) {
     activeScope.currentScope.fullSize -= stackOffset
 }
 
-fun CodeGenerator.argsSize(func: Expression.CallFunction) : Int {
+fun argsSize(func: Expression.CallFunction) : Int {
     var size = 0
     func.params.forEach {
         size += Type.size(it.exprType)
@@ -74,13 +75,13 @@ fun CodeGenerator.argsSize(func: Expression.CallFunction) : Int {
 
 fun CodeGenerator.increaseSP(statement: Statement.Block) {
     var declarationsSize = statement.scope.blockSize
-    for (i in 1..statement.scope.blockSize step 1024) {
+    for (i in 1..statement.scope.blockSize step MAX_SUB_SIZE) {
         instructions.add(
             Instruction.ADD(
                 Operand.Sp, Operand.Sp, Operand.Offset(
-                    if (declarationsSize > 1024) {
-                        declarationsSize -= 1024
-                        1024
+                    if (declarationsSize > MAX_SUB_SIZE) {
+                        declarationsSize -= MAX_SUB_SIZE
+                        MAX_SUB_SIZE
                     } else {
                         declarationsSize
                     }
@@ -92,13 +93,13 @@ fun CodeGenerator.increaseSP(statement: Statement.Block) {
 
 fun CodeGenerator.decreaseSP(statement: Statement.Block): Int {
     var declarationsSize = statement.scope.blockSize
-    for (i in 1..statement.scope.blockSize step 1024) {
+    for (i in 1..statement.scope.blockSize step MAX_SUB_SIZE) {
         instructions.add(
             Instruction.SUB(
                 Operand.Sp, Operand.Sp, Operand.Offset(
-                    if (declarationsSize > 1024) {
-                        declarationsSize -= 1024
-                        1024
+                    if (declarationsSize > MAX_SUB_SIZE) {
+                        declarationsSize -= MAX_SUB_SIZE
+                        MAX_SUB_SIZE
                     } else {
                         declarationsSize
                     }
@@ -109,3 +110,20 @@ fun CodeGenerator.decreaseSP(statement: Statement.Block): Int {
     return declarationsSize
 }
 
+fun CodeGenerator.returnStatementInstructions(statement: Statement.Return) {
+    compileExpression(statement.expression, 4)
+    instructions.add(
+        Instruction.MOV(
+            Operand.Register(0),
+            Operand.Register(4)
+        )
+    )
+    increaseSP(currentBlock!!)
+    instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
+}
+
+fun CodeGenerator.exitStatementInstructions(statement: Statement.Exit) {
+    compileExpression(statement.expression, 4)
+    instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
+    instructions.add(Instruction.BL("exit"))
+}

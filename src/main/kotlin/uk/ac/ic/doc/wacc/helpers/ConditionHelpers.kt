@@ -40,6 +40,7 @@ fun CodeGenerator.whileInstructions(statement: Statement.While) {
 }
 
 fun CodeGenerator.ifInstructions(statement: Statement.If) {
+    compileExpression(statement.condition, 4)
     instructions.add(
         Instruction.CMP(
             Operand.Register(4),

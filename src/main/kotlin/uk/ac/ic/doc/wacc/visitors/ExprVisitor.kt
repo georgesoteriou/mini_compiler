@@ -104,7 +104,7 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
         var foundString = ctx.CHAR_LITER().toString()
         foundString = foundString.reversed()
         //println(foundString)
-        var charFound:Char = foundString[1]
+        val charFound:Char = foundString[1]
         return Expression.Literal.LChar(charFound)
     }
 
