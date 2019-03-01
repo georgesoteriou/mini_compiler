@@ -6,6 +6,38 @@ import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Type
 
+var messageCounter = 0
+var printStringTag = -1
+var printBoolTrueTag = -1
+var printBoolFalseTag = -1
+var printIntTag = -1
+var printReferenceTag = -1
+var printLnTag = -1
+var freeArrayTag = -1
+var freePairTag = -1
+var intInputTag = -1
+var charInputTag = -1
+var throwOverflowTag = -1
+var divideByZeroTag = -1
+var checkArrayOutOfBoundsTag = -1
+var checkArrayNegativeBoundsTag = -1
+var checkNullPointerTag = -1
+
+var printStringFlag = false
+var printIntFlag = false
+var printBoolFlag = false
+var printLnFlag = false
+var printReferenceFlag = false
+var freeArrayFlag = false
+var freePairFlag = false
+var intInputFlag = false
+var charInputFlag = false
+var throwOverflowFlag = false
+var throwRuntimeFlag = false
+var divideByZeroFlag = false
+var checkArrayFlag = false
+var checkNullPointerFlag = false
+
 fun CodeGenerator.messageTagGenerator(content: String, numEscChars: Int = 0) {
     // Generates msgs to be put in the data section of the assembly code
     var length: Int = content.length

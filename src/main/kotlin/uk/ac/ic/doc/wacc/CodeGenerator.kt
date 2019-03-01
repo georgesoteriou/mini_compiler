@@ -5,8 +5,6 @@ import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.*
 import uk.ac.ic.doc.wacc.helpers.*
 import java.io.File
-import java.lang.Exception
-import kotlin.math.exp
 
 class CodeGenerator(var program: Program) {
 
@@ -14,38 +12,7 @@ class CodeGenerator(var program: Program) {
     var instructions: MutableList<Instruction> = arrayListOf()
     var data: MutableList<Instruction> = arrayListOf()
     var activeScope = ActiveScope(Scope(), null)
-    var messageCounter = 0
 
-    var printStringTag = -1
-    var printBoolTrueTag = -1
-    var printBoolFalseTag = -1
-    var printIntTag = -1
-    var printReferenceTag = -1
-    var printLnTag = -1
-    var freeArrayTag = -1
-    var freePairTag = -1
-    var intInputTag = -1
-    var charInputTag = -1
-    var throwOverflowTag = -1
-    var divideByZeroTag = -1
-    var checkArrayOutOfBoundsTag = -1
-    var checkArrayNegativeBoundsTag = -1
-    var checkNullPointerTag = -1
-
-    var printStringFlag = false
-    var printIntFlag = false
-    var printBoolFlag = false
-    var printLnFlag = false
-    var printReferenceFlag = false
-    var freeArrayFlag = false
-    var freePairFlag = false
-    var intInputFlag = false
-    var charInputFlag = false
-    var throwOverflowFlag = false
-    var throwRuntimeFlag = false
-    var divideByZeroFlag = false
-    var checkArrayFlag = false
-    var checkNullPointerFlag = false
 
     var currentBlock: Statement.Block? = null
 
@@ -92,186 +59,20 @@ class CodeGenerator(var program: Program) {
                         compileExpression(statement.rhs, 4)
                         byteAssignInstructions(name)
                     }
+                    is Type.TArray -> arrayDeclare(statement)
+                    is Type.TPair -> pairDeclare(statement)
 
-                    is Type.TArray -> {
-                        val rhs = statement.rhs
-                        when (rhs) {
-                            is Expression.Literal.LArray -> arrayAssignInstructions(statement.lhs, rhs)
-                            else -> {
-                                compileExpression(rhs, 4)
-                                instructions.add(
-                                    Instruction.STROffset(
-                                        Operand.Register(4),
-                                        Operand.Sp,
-                                        Operand.Offset(activeScope.getPosition(name))
-                                    )
-                                )
-                            }
-                        }
-                    }
-                    is Type.TPair -> {
-                        val rhs = statement.rhs
-                        when (rhs) {
-                            is Expression.Literal.LPair -> {
-                                pairNullInstructions(statement.lhs)
-                            }
-                            is Expression.NewPair -> {
-                                pairAssignInstructions(statement.lhs, rhs)
-                            }
-                            else -> {
-                                compileExpression(rhs, 4)
-                                instructions.add(
-                                    Instruction.STROffset(
-                                        Operand.Register(4),
-                                        Operand.Sp,
-                                        Operand.Offset(activeScope.getPosition(name))
-                                    )
-                                )
-                            }
-                        }
-                    }
                 }
             }
 
             is Statement.VariableAssignment -> {
-                var lhs = statement.lhs
+                val lhs = statement.lhs
                 when (lhs) {
-                    is Expression.Identifier -> {
-                        var type = statement.rhs.exprType
-                        val name = lhs.name
-                        when (type) {
-                            is Type.TInt, is Type.TString -> {
-                                compileExpression(statement.rhs, 4)
-                                wordAssignInstructions(name)
-                            }
-                            is Type.TBool, is Type.TChar -> {
-                                compileExpression(statement.rhs, 4)
-                                byteAssignInstructions(name)
-                            }
-                            is Type.TArray -> {
-                                val def = Definition(name, lhs.exprType)
-                                arrayAssignInstructions(def, statement.rhs as Expression.Literal.LArray)
-                            }
-                            is Type.TPair -> {
-                                val def = Definition(name, lhs.exprType)
-                                val rhs = statement.rhs
-                                when (rhs) {
-                                    is Expression.Literal.LPair -> {
-                                        pairNullInstructions(def)
-                                    }
-                                    is Expression.NewPair -> {
-                                        pairAssignInstructions(def, rhs)
-                                    }
-                                    else -> {
-                                        compileExpression(rhs, 4)
-                                        instructions.add(
-                                            Instruction.STROffset(
-                                                Operand.Register(4),
-                                                Operand.Sp,
-                                                Operand.Offset(activeScope.getPosition(name))
-                                            )
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    is Expression.ArrayElem -> {
-                        compileExpression(statement.rhs, 4)
-                        instructions.add(
-                            Instruction.ADD(
-                                Operand.Register(5),
-                                Operand.Sp,
-                                Operand.Constant(activeScope.getPosition(lhs.array))
-                            )
-                        )
-
-                        for (i in 0 until lhs.indexes.size) {
-                            if (i > 0) {
-                                instructions.add(
-                                    Instruction.ADDCond(
-                                        Operand.Register(5),
-                                        Operand.Register(5),
-                                        Operand.Register(6),
-                                        "LSL #2"
-                                    )
-                                )
-                            }
-                            compileExpression(lhs.indexes[i], 6)
-                            instructions.add(
-                                Instruction.LDRRegister(
-                                    Operand.Register(5),
-                                    Operand.Register(5),
-                                    Operand.Offset(0)
-                                )
-                            )
-                            instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(6)))
-                            instructions.add(Instruction.MOV(Operand.Register(1), Operand.Register(5)))
-                            instructions.add(Instruction.BL("p_check_array_bounds"))
-                            checkArrayFlag = true
-                            throwRuntimeFlag = true
-                            instructions.add(
-                                Instruction.ADD(
-                                    Operand.Register(5),
-                                    Operand.Register(5),
-                                    Operand.Constant(4)
-                                )
-                            )
-
-                        }
-                        instructions.add(
-                            Instruction.ADDCond(
-                                Operand.Register(5),
-                                Operand.Register(5),
-                                Operand.Register(6),
-                                "LSL #2"
-                            )
-                        )
-                        instructions.add(
-                            Instruction.STRBOffset(
-                                Operand.Register(4),
-                                Operand.Register(5),
-                                Operand.Offset(0)
-                            )
-                        )
-                    }
-                    is Expression.Fst -> {
-                        compileExpression(statement.rhs, 4)
-                        val offset = activeScope.getPosition(lhs.expression.name)
-                        instructions.addAll(
-                            arrayListOf(
-                                Instruction.LDRRegister(Operand.Register(5), Operand.Sp, Operand.Offset(offset)),
-                                Instruction.MOV(Operand.Register(0), Operand.Register(5)),
-                                Instruction.BL("p_check_null_pointer"),
-                                Instruction.LDRRegister(Operand.Register(5), Operand.Register(5), Operand.Offset(0)),
-                                Instruction.STROffset(Operand.Register(4), Operand.Register(5), Operand.Offset(0))
-                            )
-                        )
-                        checkNullPointerFlag = true
-                        throwRuntimeFlag = true
-                        printStringFlag = true
-                    }
-                    is Expression.Snd -> {
-                        compileExpression(statement.rhs, 4)
-                        val offset = activeScope.getPosition(lhs.expression.name)
-                        instructions.addAll(
-                            arrayListOf(
-                                Instruction.LDRRegister(Operand.Register(5), Operand.Sp, Operand.Offset(offset)),
-                                Instruction.MOV(Operand.Register(0), Operand.Register(5)),
-                                Instruction.BL("p_check_null_pointer"),
-                                Instruction.LDRRegister(Operand.Register(5), Operand.Register(5), Operand.Offset(4)),
-                                Instruction.STROffset(Operand.Register(4), Operand.Register(5), Operand.Offset(0))
-                            )
-                        )
-                        checkNullPointerFlag = true
-                        throwRuntimeFlag = true
-                        printStringFlag = true
-                    }
-
+                    is Expression.Identifier -> identifierAssign(statement, lhs)
+                    is Expression.ArrayElem -> arrayElemAssign(statement, lhs)
+                    is Expression.Fst -> pairElemAssign(statement, lhs.expression.name, 0)
+                    is Expression.Snd -> pairElemAssign(statement, lhs.expression.name, 4)
                 }
-
-
             }
             is Statement.ReadInput -> {
                 val expr = statement.expression
@@ -574,7 +375,8 @@ class CodeGenerator(var program: Program) {
                 printStringFlag = true
 
             }
-            else -> {}
+            else -> {
+            }
         }
     }
 

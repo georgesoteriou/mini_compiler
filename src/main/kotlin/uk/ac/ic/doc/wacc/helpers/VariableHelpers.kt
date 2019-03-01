@@ -8,6 +8,172 @@ import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Statement
 import uk.ac.ic.doc.wacc.ast.Type
 
+fun CodeGenerator.pairDeclare(statement: Statement.VariableDeclaration) {
+    val rhs = statement.rhs
+    when (rhs) {
+        is Expression.Literal.LPair -> {
+            pairNullInstructions(statement.lhs)
+        }
+        is Expression.NewPair -> {
+            pairAssignInstructions(statement.lhs, rhs)
+        }
+        else -> {
+            compileExpression(rhs, 4)
+            instructions.add(
+                Instruction.STROffset(
+                    Operand.Register(4),
+                    Operand.Sp,
+                    Operand.Offset(activeScope.getPosition(statement.lhs.name))
+                )
+            )
+        }
+    }
+}
+
+fun CodeGenerator.arrayDeclare(statement: Statement.VariableDeclaration) {
+    val rhs = statement.rhs
+    if (rhs is Expression.Literal.LArray) {
+        arrayAssignInstructions(statement.lhs, rhs)
+    } else {
+        compileExpression(rhs, 4)
+        instructions.add(
+            Instruction.STROffset(
+                Operand.Register(4),
+                Operand.Sp,
+                Operand.Offset(activeScope.getPosition(statement.lhs.name))
+            )
+        )
+    }
+}
+
+fun CodeGenerator.identifierAssign(statement: Statement.VariableAssignment, lhs: Expression.Identifier) {
+    val type = statement.rhs.exprType
+    val name = lhs.name
+    when (type) {
+        is Type.TInt, is Type.TString -> {
+            compileExpression(statement.rhs, 4)
+            wordAssignInstructions(name)
+        }
+        is Type.TBool, is Type.TChar -> {
+            compileExpression(statement.rhs, 4)
+            byteAssignInstructions(name)
+        }
+        is Type.TArray -> {
+            val def = Definition(name, lhs.exprType)
+            arrayAssignInstructions(def, statement.rhs as Expression.Literal.LArray)
+        }
+        is Type.TPair -> {
+            val def = Definition(name, lhs.exprType)
+            val rhs = statement.rhs
+            when (rhs) {
+                is Expression.Literal.LPair -> {
+                    pairNullInstructions(def)
+                }
+                is Expression.NewPair -> {
+                    pairAssignInstructions(def, rhs)
+                }
+                else -> {
+                    compileExpression(rhs, 4)
+                    instructions.add(
+                        Instruction.STROffset(
+                            Operand.Register(4),
+                            Operand.Sp,
+                            Operand.Offset(activeScope.getPosition(name))
+                        )
+                    )
+                }
+            }
+        }
+    }
+}
+
+fun CodeGenerator.arrayElemAssign(statement: Statement.VariableAssignment, lhs: Expression.ArrayElem) {
+    compileExpression(statement.rhs, 4)
+    instructions.add(
+        Instruction.ADD(
+            Operand.Register(5),
+            Operand.Sp,
+            Operand.Constant(activeScope.getPosition(lhs.array))
+        )
+    )
+
+    for (i in 0 until lhs.indexes.size) {
+        if (i > 0) {
+            instructions.add(
+                Instruction.ADDCond(
+                    Operand.Register(5),
+                    Operand.Register(5),
+                    Operand.Register(6),
+                    "LSL #2"
+                )
+            )
+        }
+        compileExpression(lhs.indexes[i], 6)
+        instructions.add(
+            Instruction.LDRRegister(
+                Operand.Register(5),
+                Operand.Register(5),
+                Operand.Offset(0)
+            )
+        )
+        instructions.add(
+            Instruction.MOV(
+                Operand.Register(0),
+                Operand.Register(6)
+            )
+        )
+        instructions.add(
+            Instruction.MOV(
+                Operand.Register(1),
+                Operand.Register(5)
+            )
+        )
+        instructions.add(Instruction.BL("p_check_array_bounds"))
+        checkArrayFlag = true
+        throwRuntimeFlag = true
+        instructions.add(
+            Instruction.ADD(
+                Operand.Register(5),
+                Operand.Register(5),
+                Operand.Constant(4)
+            )
+        )
+
+    }
+    instructions.add(
+        Instruction.ADDCond(
+            Operand.Register(5),
+            Operand.Register(5),
+            Operand.Register(6),
+            "LSL #2"
+        )
+    )
+    instructions.add(
+        Instruction.STRBOffset(
+            Operand.Register(4),
+            Operand.Register(5),
+            Operand.Offset(0)
+        )
+    )
+}
+
+fun CodeGenerator.pairElemAssign(statement: Statement.VariableAssignment, name: String, pairOffset: Int) {
+    compileExpression(statement.rhs, 4)
+    val offset = activeScope.getPosition(name)
+    instructions.addAll(
+        arrayListOf(
+            Instruction.LDRRegister(Operand.Register(5), Operand.Sp, Operand.Offset(offset)),
+            Instruction.MOV(Operand.Register(0), Operand.Register(5)),
+            Instruction.BL("p_check_null_pointer"),
+            Instruction.LDRRegister(Operand.Register(5), Operand.Register(5), Operand.Offset(pairOffset)),
+            Instruction.STROffset(Operand.Register(4), Operand.Register(5), Operand.Offset(0))
+        )
+    )
+    checkNullPointerFlag = true
+    throwRuntimeFlag = true
+    printStringFlag = true
+}
+
 
 fun CodeGenerator.byteAssignInstructions(name: String) = instructions.add(
     Instruction.STRBOffset(
@@ -54,7 +220,10 @@ fun CodeGenerator.addPointerLDR(e1: Expression, dest: Int) {
         }
         else -> {
             instructions.add(
-                Instruction.LDRSimple(Operand.Register(dest), Operand.Literal.LInt("0"))
+                Instruction.LDRSimple(
+                    Operand.Register(dest),
+                    Operand.Literal.LInt("0")
+                )
             )
         }
     }
@@ -91,10 +260,10 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
             Operand.Register(0)
         )
     )
-    var typeL = (definition.type as Type.TPair).t1
-    var typeR = (definition.type as Type.TPair).t2
-    var e1 = rhs.e1
-    var e2 = rhs.e2
+    val typeL = (definition.type as Type.TPair).t1
+    val typeR = (definition.type as Type.TPair).t2
+    val e1 = rhs.e1
+    val e2 = rhs.e2
 
     elemAssignInstructions(typeL, e1)
 
@@ -230,7 +399,7 @@ fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Liter
         offset += Type.size(type)
     }
 
-    //Storing no. of array elems
+    // Storing no. of array elements
     instructions.add(
         Instruction.LDRSimple(
             Operand.Register(5),
@@ -243,8 +412,8 @@ fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Liter
             Operand.Register(4)
         )
     )
-    //Store array to sp
-    var pos = activeScope.getPosition(lhs.name)
+    // Store array to sp
+    val pos = activeScope.getPosition(lhs.name)
     instructions.add(
         when (pos) {
             0 -> Instruction.STRSimple(
