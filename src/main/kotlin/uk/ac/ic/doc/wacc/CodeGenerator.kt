@@ -51,12 +51,12 @@ class CodeGenerator(var program: Program) {
     var checkArrayFlag = false
     var checkNullPointerFlag = false
 
-    var currentBlock : Statement.Block? = null
+    var currentBlock: Statement.Block? = null
 
     fun compile(filename: String) {
         instructions.add(Instruction.Flag(".text"))
         instructions.add(Instruction.Flag(".global main"))
-        program.functions.forEach{
+        program.functions.forEach {
             currentBlock = it.block
             compileBlock(it.name, it.block, true, it.params)
         }
@@ -99,15 +99,17 @@ class CodeGenerator(var program: Program) {
 
                     is Type.TArray -> {
                         val rhs = statement.rhs
-                        when(rhs) {
+                        when (rhs) {
                             is Expression.Literal.LArray -> arrayAssignInstructions(statement.lhs, rhs)
                             else -> {
                                 compileExpression(rhs, 4)
-                                instructions.add(Instruction.STROffset(
-                                    Operand.Register(4),
-                                    Operand.Sp,
-                                    Operand.Offset(activeScope.getPosition(name))
-                                ))
+                                instructions.add(
+                                    Instruction.STROffset(
+                                        Operand.Register(4),
+                                        Operand.Sp,
+                                        Operand.Offset(activeScope.getPosition(name))
+                                    )
+                                )
                             }
                         }
                     }
@@ -122,11 +124,13 @@ class CodeGenerator(var program: Program) {
                             }
                             else -> {
                                 compileExpression(rhs, 4)
-                                instructions.add(Instruction.STROffset(
-                                    Operand.Register(4),
-                                    Operand.Sp,
-                                    Operand.Offset(activeScope.getPosition(name))
-                                ))
+                                instructions.add(
+                                    Instruction.STROffset(
+                                        Operand.Register(4),
+                                        Operand.Sp,
+                                        Operand.Offset(activeScope.getPosition(name))
+                                    )
+                                )
                             }
                         }
                     }
@@ -164,11 +168,13 @@ class CodeGenerator(var program: Program) {
                                     }
                                     else -> {
                                         compileExpression(rhs, 4)
-                                        instructions.add(Instruction.STROffset(
-                                            Operand.Register(4),
-                                            Operand.Sp,
-                                            Operand.Offset(activeScope.getPosition(name))
-                                        ))
+                                        instructions.add(
+                                            Instruction.STROffset(
+                                                Operand.Register(4),
+                                                Operand.Sp,
+                                                Operand.Offset(activeScope.getPosition(name))
+                                            )
+                                        )
                                     }
                                 }
                             }
@@ -177,49 +183,91 @@ class CodeGenerator(var program: Program) {
 
                     is Expression.ArrayElem -> {
                         compileExpression(statement.rhs, 4)
-                        instructions.add(Instruction.ADD(Operand.Register(5),Operand.Sp,Operand.Constant(activeScope.getPosition(lhs.array))))
+                        instructions.add(
+                            Instruction.ADD(
+                                Operand.Register(5),
+                                Operand.Sp,
+                                Operand.Constant(activeScope.getPosition(lhs.array))
+                            )
+                        )
 
-                        for ( i in 0 until lhs.indexes.size) {
-                            if ( i > 0) {
-                                instructions.add(Instruction.ADDCond(Operand.Register(5),Operand.Register(5),Operand.Register(6),"LSL #2"))
+                        for (i in 0 until lhs.indexes.size) {
+                            if (i > 0) {
+                                instructions.add(
+                                    Instruction.ADDCond(
+                                        Operand.Register(5),
+                                        Operand.Register(5),
+                                        Operand.Register(6),
+                                        "LSL #2"
+                                    )
+                                )
                             }
-                            compileExpression(lhs.indexes[i],6)
-                            instructions.add(Instruction.LDRRegister(Operand.Register(5),Operand.Register(5),Operand.Offset(0)))
-                            instructions.add(Instruction.MOV(Operand.Register(0),Operand.Register(6)))
-                            instructions.add(Instruction.MOV(Operand.Register(1),Operand.Register(5)))
+                            compileExpression(lhs.indexes[i], 6)
+                            instructions.add(
+                                Instruction.LDRRegister(
+                                    Operand.Register(5),
+                                    Operand.Register(5),
+                                    Operand.Offset(0)
+                                )
+                            )
+                            instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(6)))
+                            instructions.add(Instruction.MOV(Operand.Register(1), Operand.Register(5)))
                             instructions.add(Instruction.BL("p_check_array_bounds"))
                             checkArrayFlag = true
                             throwRuntimeFlag = true
-                            instructions.add(Instruction.ADD(Operand.Register(5),Operand.Register(5),Operand.Constant(4)))
+                            instructions.add(
+                                Instruction.ADD(
+                                    Operand.Register(5),
+                                    Operand.Register(5),
+                                    Operand.Constant(4)
+                                )
+                            )
 
                         }
-                        instructions.add(Instruction.ADDCond(Operand.Register(5),Operand.Register(5),Operand.Register(6), "LSL #2"))
-                        instructions.add(Instruction.STRBOffset(Operand.Register(4),Operand.Register(5),Operand.Offset(0)))
+                        instructions.add(
+                            Instruction.ADDCond(
+                                Operand.Register(5),
+                                Operand.Register(5),
+                                Operand.Register(6),
+                                "LSL #2"
+                            )
+                        )
+                        instructions.add(
+                            Instruction.STRBOffset(
+                                Operand.Register(4),
+                                Operand.Register(5),
+                                Operand.Offset(0)
+                            )
+                        )
                     }
                     is Expression.Fst -> {
-                        compileExpression(statement.rhs,4)
+                        compileExpression(statement.rhs, 4)
                         val offset = activeScope.getPosition(lhs.expression.name)
-                        instructions.addAll(arrayListOf(
-                            Instruction.LDRRegister(Operand.Register(5),Operand.Sp,Operand.Offset(offset)),
-                            Instruction.MOV(Operand.Register(0),Operand.Register(5)),
-                            Instruction.BL("p_check_null_pointer"),
-                            Instruction.LDRRegister(Operand.Register(5),Operand.Register(5),Operand.Offset(0)),
-                            Instruction.STROffset(Operand.Register(4),Operand.Register(5),Operand.Offset(0))
-                        ))
+                        instructions.addAll(
+                            arrayListOf(
+                                Instruction.LDRRegister(Operand.Register(5), Operand.Sp, Operand.Offset(offset)),
+                                Instruction.MOV(Operand.Register(0), Operand.Register(5)),
+                                Instruction.BL("p_check_null_pointer"),
+                                Instruction.LDRRegister(Operand.Register(5), Operand.Register(5), Operand.Offset(0)),
+                                Instruction.STROffset(Operand.Register(4), Operand.Register(5), Operand.Offset(0))
+                            )
+                        )
                         checkNullPointerFlag = true
                         throwRuntimeFlag = true
                         printStringFlag = true
                     }
                     is Expression.Snd -> {
-                        compileExpression(statement.rhs,4)
+                        compileExpression(statement.rhs, 4)
                         val offset = activeScope.getPosition(lhs.expression.name)
-                        instructions.addAll(arrayListOf(
-                            Instruction.LDRRegister(Operand.Register(5),Operand.Sp,Operand.Offset(offset)),
-                            Instruction.MOV(Operand.Register(0),Operand.Register(5)),
-                            Instruction.BL("p_check_null_pointer"),
-                            Instruction.LDRRegister(Operand.Register(5),Operand.Register(5),Operand.Offset(4)),
-                            Instruction.STROffset(Operand.Register(4),Operand.Register(5),Operand.Offset(0))
-                        ))
+                        instructions.addAll(
+                            arrayListOf(
+                                Instruction.LDRRegister(Operand.Register(5), Operand.Sp, Operand.Offset(offset)),
+                                Instruction.MOV(Operand.Register(0), Operand.Register(5)),
+                                Instruction.BL("p_check_null_pointer"),
+                                Instruction.LDRRegister(Operand.Register(5), Operand.Register(5), Operand.Offset(4)),
+                                Instruction.STROffset(Operand.Register(4), Operand.Register(5), Operand.Offset(0))
+                            )
+                        )
                         checkNullPointerFlag = true
                         throwRuntimeFlag = true
                         printStringFlag = true
@@ -322,7 +370,7 @@ class CodeGenerator(var program: Program) {
     fun compileExpression(expression: Expression, dst: Int) {
         //TODO: if dest > 14. We have a problem. Add an if here to add regs to stack maybe
         var dest = dst
-        if(dst > 10) {
+        if (dst > 10) {
             dest = 10
         }
         when (expression) {
@@ -332,7 +380,8 @@ class CodeGenerator(var program: Program) {
 
                 pushArgsToStack(expression)
                 instructions.add(
-                    Instruction.BL(expression.name))
+                    Instruction.BL(expression.name)
+                )
                 instructions.add(
                     Instruction.ADD(
                         Operand.Sp,
@@ -356,7 +405,7 @@ class CodeGenerator(var program: Program) {
             }
 
             is Expression.Literal.LInt -> {
-                if(dst > 10) {
+                if (dst > 10) {
                     instructions.add(Instruction.PUSH(arrayListOf(Operand.Register(10))))
                 }
                 instructions.add(
@@ -367,7 +416,7 @@ class CodeGenerator(var program: Program) {
                 )
             }
             is Expression.Literal.LBool -> {
-                if(dst > 10) {
+                if (dst > 10) {
                     instructions.add(Instruction.PUSH(arrayListOf(Operand.Register(10))))
                 }
                 instructions.add(
@@ -378,7 +427,7 @@ class CodeGenerator(var program: Program) {
                 )
             }
             is Expression.Literal.LChar -> {
-                if(dst > 10) {
+                if (dst > 10) {
                     instructions.add(Instruction.PUSH(arrayListOf(Operand.Register(10))))
                 }
                 instructions.add(
@@ -417,7 +466,7 @@ class CodeGenerator(var program: Program) {
 
                 compileExpression(e1, dst)
                 compileExpression(e2, dst + 1)
-                if(dst >= 10) {
+                if (dst >= 10) {
                     instructions.add(Instruction.POP(arrayListOf(Operand.Register(11))))
                 }
                 binOpInstructions(expression, dest)
@@ -435,48 +484,114 @@ class CodeGenerator(var program: Program) {
             // TODO: You might want to ignore this and use your assign/declare functions for lhs.
             // TODO: And only use the functions below for the rhs to lookup values in the scope/stack
             is Expression.ArrayElem -> {
-                instructions.add(Instruction.ADD(Operand.Register(4),Operand.Sp,Operand.Constant(activeScope.getPosition(expression.array))))
+                instructions.add(
+                    Instruction.ADD(
+                        Operand.Register(4),
+                        Operand.Sp,
+                        Operand.Constant(activeScope.getPosition(expression.array))
+                    )
+                )
 
-                for ( i in 0 until expression.indexes.size) {
-                    compileExpression(expression.indexes[i],5)
-                    instructions.add(Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0)))
-                    instructions.add(Instruction.MOV(Operand.Register(0),Operand.Register(5)))
-                    instructions.add(Instruction.MOV(Operand.Register(1),Operand.Register(4)))
+                for (i in 0 until expression.indexes.size) {
+                    compileExpression(expression.indexes[i], 5)
+                    instructions.add(
+                        Instruction.LDRRegister(
+                            Operand.Register(4),
+                            Operand.Register(4),
+                            Operand.Offset(0)
+                        )
+                    )
+                    instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(5)))
+                    instructions.add(Instruction.MOV(Operand.Register(1), Operand.Register(4)))
                     instructions.add(Instruction.BL("p_check_array_bounds"))
                     checkArrayFlag = true
                     throwRuntimeFlag = true
                     printStringFlag = true
-                    instructions.add(Instruction.ADD(Operand.Register(4),Operand.Register(4),Operand.Constant(4)))
-                    instructions.add(Instruction.ADDCond(Operand.Register(4),Operand.Register(4),Operand.Register(5),"LSL #2"))
-
+                    instructions.add(Instruction.ADD(Operand.Register(4), Operand.Register(4), Operand.Constant(4)))
+                    if (Type.size(expression.exprType) != 1) {
+                        instructions.add(
+                            Instruction.ADDCond(
+                                Operand.Register(4),
+                                Operand.Register(4),
+                                Operand.Register(5),
+                                "LSL #2"
+                            )
+                        )
+                    } else {
+                        instructions.add(
+                            Instruction.ADD(
+                                Operand.Register(4),
+                                Operand.Register(4),
+                                Operand.Register(5)
+                            )
+                        )
+                    }
                 }
-                instructions.add(Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0)))
-
+                if (Type.size(expression.exprType) != 1) {
+                    instructions.add(
+                        Instruction.LDRRegister(
+                            Operand.Register(4),
+                            Operand.Register(4),
+                            Operand.Offset(0)
+                        )
+                    )
+                } else {
+                    instructions.add(
+                        Instruction.LDRRegCond(
+                            Operand.Register(4),
+                            Operand.Register(4),
+                            Operand.Offset(0),
+                            "SB"
+                        )
+                    )
+                }
 
 
             }
             is Expression.Fst -> {
                 val offset = activeScope.getPosition((expression.expression as Expression.Identifier).name)
-                instructions.addAll(arrayListOf(
-                    Instruction.LDRRegister(Operand.Register(4),Operand.Sp,Operand.Offset(offset)),
-                    Instruction.MOV(Operand.Register(0),Operand.Register(4)),
-                    Instruction.BL("p_check_null_pointer"),
-                    Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0)),
-                    Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0))
-                    ))
+                instructions.addAll(
+                    arrayListOf(
+                        Instruction.LDRRegister(Operand.Register(4), Operand.Sp, Operand.Offset(offset)),
+                        Instruction.MOV(Operand.Register(0), Operand.Register(4)),
+                        Instruction.BL("p_check_null_pointer"),
+                        Instruction.LDRRegister(Operand.Register(4), Operand.Register(4), Operand.Offset(0)),
+                        Instruction.LDRRegister(Operand.Register(4), Operand.Register(4), Operand.Offset(0))
+                    )
+                )
                 checkNullPointerFlag = true
                 throwRuntimeFlag = true
                 printStringFlag = true
             }
             is Expression.Snd -> {
                 val offset = activeScope.getPosition((expression.expression as Expression.Identifier).name)
-                instructions.addAll(arrayListOf(
-                    Instruction.LDRRegister(Operand.Register(4),Operand.Sp,Operand.Offset(offset)),
-                    Instruction.MOV(Operand.Register(0),Operand.Register(4)),
-                    Instruction.BL("p_check_null_pointer"),
-                    Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(4)),
-                    Instruction.LDRRegister(Operand.Register(4),Operand.Register(4),Operand.Offset(0))
-                ))
+                instructions.addAll(
+                    arrayListOf(
+                        Instruction.LDRRegister(Operand.Register(4), Operand.Sp, Operand.Offset(offset)),
+                        Instruction.MOV(Operand.Register(0), Operand.Register(4)),
+                        Instruction.BL("p_check_null_pointer"),
+                        Instruction.LDRRegister(Operand.Register(4), Operand.Register(4), Operand.Offset(4))
+                    )
+                )
+
+                if (Type.size(expression.expression.exprType) != 1) {
+                    instructions.add(
+                        Instruction.LDRRegister(
+                            Operand.Register(4),
+                            Operand.Register(4),
+                            Operand.Offset(0)
+                        )
+                    )
+                } else {
+                    instructions.add(
+                        Instruction.LDRRegCond(
+                            Operand.Register(4),
+                            Operand.Register(4),
+                            Operand.Offset(0),
+                            "SB"
+                        )
+                    )
+                }
                 checkNullPointerFlag = true
                 throwRuntimeFlag = true
                 printStringFlag = true

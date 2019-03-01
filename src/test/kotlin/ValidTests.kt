@@ -1181,8 +1181,7 @@ class ValidTests {
         fun printAllTypes() {
             testCompile(
                 File("src/test/resources/valid/scope/printAllTypes.wacc"),
-                0, "( [1, 2, 3] , [a, b, c] )\n" +
-                        "[  = (a, true),  = (b, false) ]\n" +
+                0, "= (b, false) ]\n" +
                         "1, 2\n" +
                         "array, of, strings\n" +
                         "true, false, true\n" +

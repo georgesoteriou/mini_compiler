@@ -309,6 +309,11 @@ fun CodeGenerator.add_checkArrayOutOfBounds(indexTooLarge: Int, negativeIndex : 
 
 fun CodeGenerator.printTypeInstructions(expression: Expression) {
     when {
+        Type.compare(expression.exprType, Type.TArray(Type.TChar)) -> {
+            printStringFlag = true
+            instructions.add(Instruction.BL("p_print_string"))
+        }
+
         Type.compare(expression.exprType, Type.TArray(Type.TAny)) ||
                 Type.compare(expression.exprType, Type.TPair(Type.TAny, Type.TAny)) -> {
             printReferenceFlag = true
