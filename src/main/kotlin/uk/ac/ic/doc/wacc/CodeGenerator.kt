@@ -107,7 +107,7 @@ class CodeGenerator(var program: Program) {
                             is Expression.NewPair -> {
                                 pairAssignInstructions(statement.lhs, rhs)
                             }
-                            is Expression.Identifier -> {
+                            else -> {
                                 compileExpression(rhs, 4)
                                 instructions.add(Instruction.STROffset(
                                     Operand.Register(4),
@@ -150,7 +150,7 @@ class CodeGenerator(var program: Program) {
                                     is Expression.NewPair -> {
                                         pairAssignInstructions(def, rhs)
                                     }
-                                    is Expression.Identifier -> {
+                                    else -> {
                                         compileExpression(rhs, 4)
                                         instructions.add(Instruction.STROffset(
                                             Operand.Register(4),
