@@ -1,6 +1,9 @@
 package uk.ac.ic.doc.wacc.helpers
 
 import uk.ac.ic.doc.wacc.CodeGenerator
+import uk.ac.ic.doc.wacc.CodeGenerator.Companion.BYTE
+import uk.ac.ic.doc.wacc.CodeGenerator.Companion.MIN_EXPR_REG
+import uk.ac.ic.doc.wacc.CodeGenerator.Companion.WORD
 import uk.ac.ic.doc.wacc.assembly_code.Instruction
 import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.Definition
@@ -14,11 +17,11 @@ fun CodeGenerator.declare(statement: Statement.VariableDeclaration) {
     activeScope.declare(name)
     when (type) {
         is Type.TInt, is Type.TString -> {
-            compileExpression(statement.rhs, 4)
+            compileExpression(statement.rhs, MIN_EXPR_REG)
             wordAssignInstructions(name)
         }
         is Type.TBool, is Type.TChar -> {
-            compileExpression(statement.rhs, 4)
+            compileExpression(statement.rhs, MIN_EXPR_REG)
             byteAssignInstructions(name)
         }
         is Type.TArray -> arrayDeclare(statement)
@@ -32,7 +35,7 @@ fun CodeGenerator.assign(statement: Statement.VariableAssignment) {
         is Expression.Identifier -> identifierAssign(statement, lhs)
         is Expression.ArrayElem -> arrayElemAssign(statement, lhs)
         is Expression.Fst -> pairElemAssign(statement, lhs.expression.name, 0)
-        is Expression.Snd -> pairElemAssign(statement, lhs.expression.name, 4)
+        is Expression.Snd -> pairElemAssign(statement, lhs.expression.name, WORD)
     }
 }
 
@@ -46,10 +49,10 @@ fun CodeGenerator.pairDeclare(statement: Statement.VariableDeclaration) {
             pairAssignInstructions(statement.lhs, rhs)
         }
         else -> {
-            compileExpression(rhs, 4)
+            compileExpression(rhs, MIN_EXPR_REG)
             instructions.add(
                 Instruction.STROffset(
-                    Operand.Register(4),
+                    Operand.Register(MIN_EXPR_REG),
                     Operand.Sp,
                     Operand.Offset(activeScope.getPosition(statement.lhs.name))
                 )
@@ -63,10 +66,10 @@ fun CodeGenerator.arrayDeclare(statement: Statement.VariableDeclaration) {
     if (rhs is Expression.Literal.LArray) {
         arrayAssignInstructions(statement.lhs, rhs)
     } else {
-        compileExpression(rhs, 4)
+        compileExpression(rhs, MIN_EXPR_REG)
         instructions.add(
             Instruction.STROffset(
-                Operand.Register(4),
+                Operand.Register(MIN_EXPR_REG),
                 Operand.Sp,
                 Operand.Offset(activeScope.getPosition(statement.lhs.name))
             )
@@ -79,11 +82,11 @@ fun CodeGenerator.identifierAssign(statement: Statement.VariableAssignment, lhs:
     val name = lhs.name
     when (type) {
         is Type.TInt, is Type.TString -> {
-            compileExpression(statement.rhs, 4)
+            compileExpression(statement.rhs, MIN_EXPR_REG)
             wordAssignInstructions(name)
         }
         is Type.TBool, is Type.TChar -> {
-            compileExpression(statement.rhs, 4)
+            compileExpression(statement.rhs, MIN_EXPR_REG)
             byteAssignInstructions(name)
         }
         is Type.TArray -> {
@@ -101,10 +104,10 @@ fun CodeGenerator.identifierAssign(statement: Statement.VariableAssignment, lhs:
                     pairAssignInstructions(def, rhs)
                 }
                 else -> {
-                    compileExpression(rhs, 4)
+                    compileExpression(rhs, MIN_EXPR_REG)
                     instructions.add(
                         Instruction.STROffset(
-                            Operand.Register(4),
+                            Operand.Register(MIN_EXPR_REG),
                             Operand.Sp,
                             Operand.Offset(activeScope.getPosition(name))
                         )
@@ -116,7 +119,7 @@ fun CodeGenerator.identifierAssign(statement: Statement.VariableAssignment, lhs:
 }
 
 fun CodeGenerator.arrayElemAssign(statement: Statement.VariableAssignment, lhs: Expression.ArrayElem) {
-    compileExpression(statement.rhs, 4)
+    compileExpression(statement.rhs, MIN_EXPR_REG)
     instructions.add(
         Instruction.ADD(
             Operand.Register(5),
@@ -129,31 +132,31 @@ fun CodeGenerator.arrayElemAssign(statement: Statement.VariableAssignment, lhs: 
         if (i > 0) {
             instructions.add(
                 Instruction.ADDCond(
-                    Operand.Register(5),
-                    Operand.Register(5),
-                    Operand.Register(6),
+                    Operand.Register(MIN_EXPR_REG + 1),
+                    Operand.Register(MIN_EXPR_REG + 1),
+                    Operand.Register(MIN_EXPR_REG + 2),
                     "LSL #2"
                 )
             )
         }
-        compileExpression(lhs.indexes[i], 6)
+        compileExpression(lhs.indexes[i], MIN_EXPR_REG + 2)
         instructions.add(
             Instruction.LDRRegister(
-                Operand.Register(5),
-                Operand.Register(5),
+                Operand.Register(MIN_EXPR_REG + 1),
+                Operand.Register(MIN_EXPR_REG + 1),
                 Operand.Offset(0)
             )
         )
         instructions.add(
             Instruction.MOV(
                 Operand.Register(0),
-                Operand.Register(6)
+                Operand.Register(MIN_EXPR_REG + 2)
             )
         )
         instructions.add(
             Instruction.MOV(
                 Operand.Register(1),
-                Operand.Register(5)
+                Operand.Register(MIN_EXPR_REG + 1)
             )
         )
         instructions.add(Instruction.BL("p_check_array_bounds"))
@@ -161,40 +164,55 @@ fun CodeGenerator.arrayElemAssign(statement: Statement.VariableAssignment, lhs: 
         throwRuntimeFlag = true
         instructions.add(
             Instruction.ADD(
-                Operand.Register(5),
-                Operand.Register(5),
-                Operand.Constant(4)
+                Operand.Register(MIN_EXPR_REG + 1),
+                Operand.Register(MIN_EXPR_REG + 1),
+                Operand.Constant(WORD)
             )
         )
 
     }
     instructions.add(
         Instruction.ADDCond(
-            Operand.Register(5),
-            Operand.Register(5),
-            Operand.Register(6),
+            Operand.Register(MIN_EXPR_REG + 1),
+            Operand.Register(MIN_EXPR_REG + 1),
+            Operand.Register(MIN_EXPR_REG + 2),
             "LSL #2"
         )
     )
     instructions.add(
         Instruction.STRBOffset(
-            Operand.Register(4),
-            Operand.Register(5),
+            Operand.Register(MIN_EXPR_REG),
+            Operand.Register(MIN_EXPR_REG + 1),
             Operand.Offset(0)
         )
     )
 }
 
 fun CodeGenerator.pairElemAssign(statement: Statement.VariableAssignment, name: String, pairOffset: Int) {
-    compileExpression(statement.rhs, 4)
+    compileExpression(statement.rhs, MIN_EXPR_REG)
     val offset = activeScope.getPosition(name)
     instructions.addAll(
         arrayListOf(
-            Instruction.LDRRegister(Operand.Register(5), Operand.Sp, Operand.Offset(offset)),
-            Instruction.MOV(Operand.Register(0), Operand.Register(5)),
+            Instruction.LDRRegister(
+                Operand.Register(MIN_EXPR_REG + 1),
+                Operand.Sp,
+                Operand.Offset(offset)
+            ),
+            Instruction.MOV(
+                Operand.Register(0),
+                Operand.Register(MIN_EXPR_REG + 1)
+            ),
             Instruction.BL("p_check_null_pointer"),
-            Instruction.LDRRegister(Operand.Register(5), Operand.Register(5), Operand.Offset(pairOffset)),
-            Instruction.STROffset(Operand.Register(4), Operand.Register(5), Operand.Offset(0))
+            Instruction.LDRRegister(
+                Operand.Register(MIN_EXPR_REG + 1),
+                Operand.Register(MIN_EXPR_REG + 1),
+                Operand.Offset(pairOffset)
+            ),
+            Instruction.STROffset(
+                Operand.Register(MIN_EXPR_REG),
+                Operand.Register(MIN_EXPR_REG + 1),
+                Operand.Offset(0)
+            )
         )
     )
     checkNullPointerFlag = true
@@ -205,7 +223,7 @@ fun CodeGenerator.pairElemAssign(statement: Statement.VariableAssignment, name: 
 
 fun CodeGenerator.byteAssignInstructions(name: String) = instructions.add(
     Instruction.STRBOffset(
-        Operand.Register(4),
+        Operand.Register(MIN_EXPR_REG),
         Operand.Sp,
         Operand.Offset(activeScope.getPosition(name))
     )
@@ -213,7 +231,7 @@ fun CodeGenerator.byteAssignInstructions(name: String) = instructions.add(
 
 fun CodeGenerator.wordAssignInstructions(name: String) = instructions.add(
     Instruction.STROffset(
-        Operand.Register(4),
+        Operand.Register(MIN_EXPR_REG),
         Operand.Sp,
         Operand.Offset(activeScope.getPosition(name))
     )
@@ -223,13 +241,13 @@ fun CodeGenerator.pairNullInstructions(lhs: Definition) {
     val offset = activeScope.getPosition(lhs.name)
     instructions.add(
         Instruction.LDRSimple(
-            Operand.Register(4),
+            Operand.Register(MIN_EXPR_REG),
             Operand.Literal.LInt("0")
         )
     )
     instructions.add(
         Instruction.STROffset(
-            Operand.Register(4),
+            Operand.Register(MIN_EXPR_REG),
             Operand.Sp,
             Operand.Offset(offset)
         )
@@ -246,7 +264,7 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
     instructions.add(Instruction.BL("malloc"))
     instructions.add(
         Instruction.MOV(
-            Operand.Register(4),
+            Operand.Register(MIN_EXPR_REG),
             Operand.Register(0)
         )
     )
@@ -269,14 +287,14 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
     if (Type.size(typeL) != 1) {
         instructions.add(
             Instruction.STRSimple(
-                Operand.Register(5),
+                Operand.Register(MIN_EXPR_REG + 1),
                 Operand.Register(0)
             )
         )
     } else {
         instructions.add(
             Instruction.STRBOffset(
-                Operand.Register(5),
+                Operand.Register(MIN_EXPR_REG + 1),
                 Operand.Register(0),
                 Operand.Offset(0)
             )
@@ -286,7 +304,7 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
     instructions.add(
         Instruction.STRSimple(
             Operand.Register(0),
-            Operand.Register(4)
+            Operand.Register(MIN_EXPR_REG)
         )
     )
 
@@ -304,14 +322,14 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
     if (Type.size(typeR) != 1) {
         instructions.add(
             Instruction.STRSimple(
-                Operand.Register(5),
+                Operand.Register(MIN_EXPR_REG + 1),
                 Operand.Register(0)
             )
         )
     } else {
         instructions.add(
             Instruction.STRBOffset(
-                Operand.Register(5),
+                Operand.Register(MIN_EXPR_REG + 1),
                 Operand.Register(0),
                 Operand.Offset(0)
             )
@@ -321,14 +339,14 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
     instructions.add(
         Instruction.STROffset(
             Operand.Register(0),
-            Operand.Register(4),
-            Operand.Offset(4)
+            Operand.Register(MIN_EXPR_REG),
+            Operand.Offset(WORD)
         )
     )
 
     instructions.add(
         Instruction.STROffset(
-            Operand.Register(4),
+            Operand.Register(MIN_EXPR_REG),
             Operand.Sp,
             Operand.Offset(
                 activeScope.getPosition((definition.name))
@@ -340,10 +358,10 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
 fun CodeGenerator.elemAssignInstructions(type: Type, expr: Expression) {
     when (type) {
         is Type.TArray, is Type.TPair -> {
-            addPointerLDR(expr, 5)
+            addPointerLDR(expr, MIN_EXPR_REG + 1)
         }
         else -> {
-            compileExpression(expr, 5)
+            compileExpression(expr, MIN_EXPR_REG + 1)
         }
     }
 }
@@ -353,14 +371,14 @@ fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Liter
         Instruction.LDRSimple(
             Operand.Register(0),
             Operand.Literal.LInt(
-                (rhs.params.size * Type.size((lhs.type as Type.TArray).type) + 4).toString()
+                (rhs.params.size * Type.size((lhs.type as Type.TArray).type) + WORD).toString()
             )
         )
     )
     instructions.add(Instruction.BL("malloc"))
     instructions.add(
         Instruction.MOV(
-            Operand.Register(4),
+            Operand.Register(MIN_EXPR_REG),
             Operand.Register(0)
         )
     )
@@ -369,19 +387,19 @@ fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Liter
     val type = (rhs.exprType as Type.TArray).type
     rhs.params.forEach {
         elemAssignInstructions(type, it)
-        if (Type.size(type) != 1) {
+        if (Type.size(type) != BYTE) {
             instructions.add(
                 Instruction.STROffset(
-                    Operand.Register(5),
-                    Operand.Register(4),
+                    Operand.Register(MIN_EXPR_REG + 1),
+                    Operand.Register(MIN_EXPR_REG),
                     Operand.Offset(offset)
                 )
             )
         } else {
             instructions.add(
                 Instruction.STRBOffset(
-                    Operand.Register(5),
-                    Operand.Register(4),
+                    Operand.Register(MIN_EXPR_REG + 1),
+                    Operand.Register(MIN_EXPR_REG),
                     Operand.Offset(offset)
                 )
             )
@@ -392,14 +410,14 @@ fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Liter
     // Storing no. of array elements
     instructions.add(
         Instruction.LDRSimple(
-            Operand.Register(5),
+            Operand.Register(MIN_EXPR_REG + 1),
             Operand.Literal.LInt(rhs.params.size.toString())
         )
     )
     instructions.add(
         Instruction.STRSimple(
-            Operand.Register(5),
-            Operand.Register(4)
+            Operand.Register(MIN_EXPR_REG + 1),
+            Operand.Register(MIN_EXPR_REG)
         )
     )
     // Store array to sp
@@ -407,11 +425,11 @@ fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Liter
     instructions.add(
         when (pos) {
             0 -> Instruction.STRSimple(
-                Operand.Register(4),
+                Operand.Register(MIN_EXPR_REG),
                 Operand.Sp
             )
             else -> Instruction.STROffset(
-                Operand.Register(4),
+                Operand.Register(MIN_EXPR_REG),
                 Operand.Sp,
                 Operand.Offset(pos)
             )
@@ -421,7 +439,7 @@ fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Liter
 
 fun CodeGenerator.freeVariable(statement: Statement.FreeVariable) {
     compileExpression(statement.expression, 4)
-    instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(4)))
+    instructions.add(Instruction.MOV(Operand.Register(0), Operand.Register(MIN_EXPR_REG)))
     when {
         Type.compare(statement.expression.exprType, Type.TArray(Type.TAny)) -> {
             printStringFlag = true

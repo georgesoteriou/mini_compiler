@@ -7,6 +7,15 @@ import java.io.File
 
 class CodeGenerator(var program: Program) {
 
+    companion object {
+        const val BYTE  = 1
+        const val WORD  = 4
+        const val TRUE  = 1
+        const val FALSE = 0
+        const val MAX_EXPR_REG = 10
+        const val MIN_EXPR_REG = 4
+    }
+
     var labelCounter = 0
     var instructions: MutableList<Instruction> = arrayListOf()
     var data: MutableList<Instruction> = arrayListOf()
@@ -70,13 +79,13 @@ class CodeGenerator(var program: Program) {
                 expression.expression.name,
                 expression.expression.exprType,
                 0,
-                4
+                MIN_EXPR_REG
             )
             is Expression.Snd -> pairElemExprInstructions(
                 expression.expression.name,
                 expression.expression.exprType,
-                4,
-                4
+                WORD,
+                MIN_EXPR_REG
             )
         }
     }

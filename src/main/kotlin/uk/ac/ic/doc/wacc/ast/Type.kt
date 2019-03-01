@@ -1,5 +1,8 @@
 package uk.ac.ic.doc.wacc.ast
 
+import uk.ac.ic.doc.wacc.CodeGenerator.Companion.BYTE
+import uk.ac.ic.doc.wacc.CodeGenerator.Companion.WORD
+
 sealed class Type {
 
     object TAny : Type()
@@ -27,24 +30,24 @@ sealed class Type {
             if (t1 is TPair && t2 is TPair) {
                 return compare(t1.t1, t2.t1) && compare(t1.t2, t2.t2)
             }
-            if(t1 is TArray && t2 is TArray) {
+            if (t1 is TArray && t2 is TArray) {
                 return compare(t1.type, t2.type)
             }
             if (t1::class == t2::class) return true
             return false
         }
 
-        fun size(t: Type): Int{
+        fun size(t: Type): Int {
             return when (t) {
-                is Type.TInt      -> 4
-                is Type.TBool     -> 1
-                is Type.TChar     -> 1
-                is Type.TString   -> 4
-                is Type.TArray    -> 4
-                is Type.TPair     -> 4
-                is Type.TAny      -> 4
-                is Type.TFunction -> 4
-                else              -> 0
+                is Type.TInt,
+                is Type.TString,
+                is Type.TArray,
+                is Type.TPair,
+                is Type.TAny,
+                is Type.TFunction -> WORD
+                is Type.TBool,
+                is Type.TChar -> BYTE
+                else -> 0
             }
         }
     }

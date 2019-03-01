@@ -1,6 +1,11 @@
 package uk.ac.ic.doc.wacc.helpers
 
 import uk.ac.ic.doc.wacc.CodeGenerator
+import uk.ac.ic.doc.wacc.CodeGenerator.Companion.BYTE
+import uk.ac.ic.doc.wacc.CodeGenerator.Companion.FALSE
+import uk.ac.ic.doc.wacc.CodeGenerator.Companion.MAX_EXPR_REG
+import uk.ac.ic.doc.wacc.CodeGenerator.Companion.TRUE
+import uk.ac.ic.doc.wacc.CodeGenerator.Companion.WORD
 import uk.ac.ic.doc.wacc.assembly_code.Instruction
 import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.Expression
@@ -81,10 +86,10 @@ fun CodeGenerator.arrayElemExprInstructions(expression: Expression.ArrayElem, ds
             Instruction.ADD(
                 Operand.Register(dst),
                 Operand.Register(dst),
-                Operand.Constant(4)
+                Operand.Constant(WORD)
             )
         )
-        if (Type.size(expression.exprType) != 1) {
+        if (Type.size(expression.exprType) != BYTE) {
             instructions.add(
                 Instruction.ADDCond(
                     Operand.Register(dst),
@@ -103,7 +108,7 @@ fun CodeGenerator.arrayElemExprInstructions(expression: Expression.ArrayElem, ds
             )
         }
     }
-    if (Type.size(expression.exprType) != 1) {
+    if (Type.size(expression.exprType) != BYTE) {
         instructions.add(
             Instruction.LDRRegister(
                 Operand.Register(dst),
@@ -135,7 +140,7 @@ fun CodeGenerator.pairElemExprInstructions(name: String, type: Type, pairOffset:
     )
 
 
-    if (Type.size(type) != 1) {
+    if (Type.size(type) != BYTE) {
         instructions.add(
             Instruction.LDRRegister(
                 Operand.Register(dest),
@@ -180,8 +185,8 @@ fun CodeGenerator.callFunctionExprInstructions(expression: Expression.CallFuncti
 }
 
 fun CodeGenerator.intExprInstructions(expression: Expression.Literal.LInt, dst: Int, dest: Int) {
-    if (dst > 10) {
-        instructions.add(Instruction.PUSH(arrayListOf(Operand.Register(10))))
+    if (dst > MAX_EXPR_REG) {
+        instructions.add(Instruction.PUSH(arrayListOf(Operand.Register(MAX_EXPR_REG))))
     }
     instructions.add(
         Instruction.LDRSimple(
@@ -192,8 +197,8 @@ fun CodeGenerator.intExprInstructions(expression: Expression.Literal.LInt, dst: 
 }
 
 fun CodeGenerator.boolExprInstructions(expression: Expression.Literal.LBool, dst: Int, dest: Int) {
-    if (dst > 10) {
-        instructions.add(Instruction.PUSH(arrayListOf(Operand.Register(10))))
+    if (dst > MAX_EXPR_REG) {
+        instructions.add(Instruction.PUSH(arrayListOf(Operand.Register(MAX_EXPR_REG))))
     }
     instructions.add(
         Instruction.MOV(
@@ -204,8 +209,8 @@ fun CodeGenerator.boolExprInstructions(expression: Expression.Literal.LBool, dst
 }
 
 fun CodeGenerator.charExprInstructions(expression: Expression.Literal.LChar, dst: Int, dest: Int) {
-    if (dst > 10) {
-        instructions.add(Instruction.PUSH(arrayListOf(Operand.Register(10))))
+    if (dst > MAX_EXPR_REG) {
+        instructions.add(Instruction.PUSH(arrayListOf(Operand.Register(MAX_EXPR_REG))))
     }
     instructions.add(
         Instruction.MOV(
@@ -275,6 +280,7 @@ fun CodeGenerator.unOpExprInstructions(expr: Expression.UnaryOperation, dest: In
                 )
             )
         }
+        else -> {}
     }
 
 }
@@ -330,7 +336,11 @@ fun CodeGenerator.binOpExprInstructions(expression: Expression.BinaryOperation, 
                         Operand.Register(dest),
                         Operand.Register(dest + 1)
                     ),
-                    Instruction.CMPCond(Operand.Register(dest + 1), Operand.Register(dest), "ASR #31"),
+                    Instruction.CMPCond(
+                        Operand.Register(dest + 1),
+                        Operand.Register(dest),
+                        "ASR #31"
+                    ),
                     Instruction.BCond("p_throw_overflow_error", "LNE")
 
                 )
@@ -389,8 +399,8 @@ fun CodeGenerator.binOpExprInstructions(expression: Expression.BinaryOperation, 
             instructions.addAll(
                 arrayListOf(
                     Instruction.CMP(Operand.Register(dest), Operand.Register(dest + 1)),
-                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(1), "EQ"),
-                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(0), "NE")
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(TRUE), "EQ"),
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(FALSE), "NE")
                 )
             )
         }
@@ -398,8 +408,8 @@ fun CodeGenerator.binOpExprInstructions(expression: Expression.BinaryOperation, 
             instructions.addAll(
                 arrayListOf(
                     Instruction.CMP(Operand.Register(dest), Operand.Register(dest + 1)),
-                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(1), "NE"),
-                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(0), "EQ")
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(TRUE), "NE"),
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(FALSE), "EQ")
                 )
             )
         }
@@ -407,8 +417,8 @@ fun CodeGenerator.binOpExprInstructions(expression: Expression.BinaryOperation, 
             instructions.addAll(
                 arrayListOf(
                     Instruction.CMP(Operand.Register(dest), Operand.Register(dest + 1)),
-                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(1), "GT"),
-                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(0), "LE")
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(TRUE), "GT"),
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(FALSE), "LE")
                 )
             )
         }
@@ -416,8 +426,8 @@ fun CodeGenerator.binOpExprInstructions(expression: Expression.BinaryOperation, 
             instructions.addAll(
                 arrayListOf(
                     Instruction.CMP(Operand.Register(dest), Operand.Register(dest + 1)),
-                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(1), "GE"),
-                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(0), "LT")
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(TRUE), "GE"),
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(FALSE), "LT")
                 )
             )
         }
@@ -425,8 +435,8 @@ fun CodeGenerator.binOpExprInstructions(expression: Expression.BinaryOperation, 
             instructions.addAll(
                 arrayListOf(
                     Instruction.CMP(Operand.Register(dest), Operand.Register(dest + 1)),
-                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(1), "LT"),
-                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(0), "GE")
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(TRUE), "LT"),
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(FALSE), "GE")
                 )
             )
         }
@@ -434,8 +444,8 @@ fun CodeGenerator.binOpExprInstructions(expression: Expression.BinaryOperation, 
             instructions.addAll(
                 arrayListOf(
                     Instruction.CMP(Operand.Register(dest), Operand.Register(dest + 1)),
-                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(1), "LE"),
-                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(0), "GT")
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(TRUE), "LE"),
+                    Instruction.MOVCond(Operand.Register(dest), Operand.Constant(FALSE), "GT")
                 )
             )
         }

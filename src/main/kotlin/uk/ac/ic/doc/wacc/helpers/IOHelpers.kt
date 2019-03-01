@@ -1,6 +1,7 @@
 package uk.ac.ic.doc.wacc.helpers
 
 import uk.ac.ic.doc.wacc.CodeGenerator
+import uk.ac.ic.doc.wacc.CodeGenerator.Companion.WORD
 import uk.ac.ic.doc.wacc.assembly_code.Instruction
 import uk.ac.ic.doc.wacc.assembly_code.Operand
 import uk.ac.ic.doc.wacc.ast.Expression
@@ -40,7 +41,7 @@ var checkArrayFlag = false
 var checkNullPointerFlag = false
 
 fun CodeGenerator.messageTagGenerator(content: String, numEscChars: Int = 0) {
-    // Generates msgs to be put in the data section of the assembly code
+    // Generates messages to be put in the data section of the assembly code
     var length: Int = content.length
     var escInString = 0
     if (numEscChars == 0) {
@@ -114,7 +115,7 @@ fun CodeGenerator.addPrintString(tagValue: Int) {
             Instruction.ADD(
                 Operand.Register(2),
                 Operand.Register(0),
-                Operand.Constant(4)
+                Operand.Constant(WORD)
             ),
             Instruction.LDRSimple(
                 Operand.Register(0),
@@ -123,7 +124,7 @@ fun CodeGenerator.addPrintString(tagValue: Int) {
             Instruction.ADD(
                 Operand.Register(0),
                 Operand.Register(0),
-                Operand.Constant(4)
+                Operand.Constant(WORD)
             ),
             Instruction.BL("printf"),
             Instruction.MOV(Operand.Register(0), Operand.Constant(0)),
@@ -144,7 +145,7 @@ fun CodeGenerator.addPrintBool(trueTagValue: Int, falseTagValue: Int) {
             Instruction.ADD(
                 Operand.Register(0),
                 Operand.Register(0),
-                Operand.Constant(4)
+                Operand.Constant(WORD)
             ),
             Instruction.BL("printf"),
             Instruction.MOV(Operand.Register(0), Operand.Constant(0)),
