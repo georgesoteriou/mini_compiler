@@ -13,7 +13,6 @@ class CodeGenerator(var program: Program) {
     var labelCounter = 0
     var instructions: MutableList<Instruction> = arrayListOf()
     var data: MutableList<Instruction> = arrayListOf()
-    var wholeProgram: MutableList<Instruction> = arrayListOf()
     var activeScope = ActiveScope(Scope(), null)
     var messageCounter = 0
 
@@ -32,9 +31,6 @@ class CodeGenerator(var program: Program) {
     var checkArrayOutOfBoundsTag = -1
     var checkArrayNegativeBoundsTag = -1
     var checkNullPointerTag = -1
-
-    // TODO: consider refactoring so as to avoid use of so many flags and corresponding tags
-
 
     var printStringFlag = false
     var printIntFlag = false
@@ -368,15 +364,12 @@ class CodeGenerator(var program: Program) {
     }
 
     fun compileExpression(expression: Expression, dst: Int) {
-        //TODO: if dest > 14. We have a problem. Add an if here to add regs to stack maybe
         var dest = dst
         if (dst > 10) {
             dest = 10
         }
         when (expression) {
             is Expression.CallFunction -> {
-                // TODO: Add jump to function
-                // TODO: MOVE r0 to r4
 
                 pushArgsToStack(expression)
                 instructions.add(
@@ -396,9 +389,6 @@ class CodeGenerator(var program: Program) {
                     )
                 )
 
-            }
-            is Expression.NewPair -> {
-                // TODO: Remove. Unused (Add else -> {})
             }
             is Expression.Identifier -> {
                 addPointerLDR(expression, dest)
@@ -447,9 +437,6 @@ class CodeGenerator(var program: Program) {
                     )
                 )
             }
-            is Expression.Literal.LArray -> {
-                // TODO: Remove. Unused (Add else -> {})
-            }
             is Expression.Literal.LPair -> {
                 instructions.add(
                     Instruction.LDRSimple(
@@ -463,7 +450,6 @@ class CodeGenerator(var program: Program) {
                 val e1 = expression.e1
                 val e2 = expression.e2
 
-
                 compileExpression(e1, dst)
                 compileExpression(e2, dst + 1)
                 if (dst >= 10) {
@@ -472,17 +458,10 @@ class CodeGenerator(var program: Program) {
                 binOpInstructions(expression, dest)
             }
             is Expression.UnaryOperation -> {
-                // TODO: Here we want to calculate "{unop} A"
-                // TODO: very similar to above.
-                // TODO: compileExpression(A, dest+1)
                 compileExpression(expression.expression, dest)
                 unOpInstructions(expression, dest)
 
             }
-
-            // TODO: This will need more thinking as it can be both on lhs and rhs.
-            // TODO: You might want to ignore this and use your assign/declare functions for lhs.
-            // TODO: And only use the functions below for the rhs to lookup values in the scope/stack
             is Expression.ArrayElem -> {
                 instructions.add(
                     Instruction.ADD(
@@ -545,11 +524,9 @@ class CodeGenerator(var program: Program) {
                         )
                     )
                 }
-
-
             }
             is Expression.Fst -> {
-                val offset = activeScope.getPosition((expression.expression as Expression.Identifier).name)
+                val offset = activeScope.getPosition((expression.expression).name)
                 instructions.addAll(
                     arrayListOf(
                         Instruction.LDRRegister(Operand.Register(4), Operand.Sp, Operand.Offset(offset)),
@@ -564,7 +541,7 @@ class CodeGenerator(var program: Program) {
                 printStringFlag = true
             }
             is Expression.Snd -> {
-                val offset = activeScope.getPosition((expression.expression as Expression.Identifier).name)
+                val offset = activeScope.getPosition((expression.expression).name)
                 instructions.addAll(
                     arrayListOf(
                         Instruction.LDRRegister(Operand.Register(4), Operand.Sp, Operand.Offset(offset)),
@@ -597,6 +574,7 @@ class CodeGenerator(var program: Program) {
                 printStringFlag = true
 
             }
+            else -> {}
         }
     }
 

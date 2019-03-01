@@ -36,7 +36,6 @@ fun main(args: Array<String>) {
         if (!semanticCheck(program)) {
             exitProcess(200)
         }
-        //(program)
         val out = File(args[0])
         CodeGenerator(program).compile(out.nameWithoutExtension)
     } catch (e: ParseCancellationException) {

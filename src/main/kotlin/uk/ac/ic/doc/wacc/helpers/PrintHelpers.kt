@@ -7,6 +7,7 @@ import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Type
 
 fun CodeGenerator.messageTagGenerator(content: String, numEscChars: Int = 0) {
+    // Generates msgs to be put in the data section of the assembly code
     var length: Int = content.length
     var escInString = 0
     if (numEscChars == 0) {
@@ -80,6 +81,7 @@ fun CodeGenerator.add_checkDivideByZero(tagValue: Int) {
 fun CodeGenerator.add_pPrintString(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
     // The required message for this: %.*s\0 resides at tagValue
+
     instructions.addAll(
         arrayListOf(
             (Instruction.LABEL("p_print_string")),
@@ -109,6 +111,7 @@ fun CodeGenerator.add_pPrintBool(trueTagValue: Int, falseTagValue: Int) {
     // The required messages for this:
     //                      true\0 resides at trueTagValue
     //                      false\0 resides at falseTagValue
+
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_bool"),
@@ -132,6 +135,7 @@ fun CodeGenerator.add_pPrintBool(trueTagValue: Int, falseTagValue: Int) {
 fun CodeGenerator.add_pPrintInt(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
     // The required messages for this: %d\0 resides at tagValue
+
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_int"),
@@ -154,6 +158,7 @@ fun CodeGenerator.add_pPrintInt(tagValue: Int) {
 fun CodeGenerator.add_pPrintReference(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
     // The required messages for this : %p\0 resides at tagValue
+
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_reference"),
@@ -176,6 +181,7 @@ fun CodeGenerator.add_pPrintReference(tagValue: Int) {
 fun CodeGenerator.add_pPrintLn(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
     // The required messages for this : \0 resides at tagValue
+
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_print_ln"),
@@ -197,6 +203,7 @@ fun CodeGenerator.add_pPrintLn(tagValue: Int) {
 fun CodeGenerator.add_freeArray(tagValue: Int) {
     // This should be called at the end of the program after checking the flags
     // The required messages for this : NullReferenceError: dereference a null reference\n\0 resides at tagValue
+
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_free_array"),
@@ -213,6 +220,7 @@ fun CodeGenerator.add_freeArray(tagValue: Int) {
 fun CodeGenerator.add_freePair(tagValue: Int) {
     // This should be called at the end of the program after chekcing the flags
     // The required messages for this: NullReferenceError: dereference a null reference\n\0 resides at tagValue
+
     instructions.addAll(
         arrayListOf(
             Instruction.LABEL("p_free_pair"),
@@ -327,11 +335,6 @@ fun CodeGenerator.printTypeInstructions(expression: Expression) {
 
         Type.compare(expression.exprType, Type.TString) -> {
             printStringFlag = true
-            //messageTagGenerator((expression as Expression.Literal.LString).string)
-            // TODO: check here about what happens because message generator is called here so the tag
-            // TODO: is generated here but it has already been passed through compileExpression so maybe
-            // TODO: the function call to messageTagGenerator should be in compileExpression
-            // TODO: but what if strings are used elsewhere?
             instructions.add(Instruction.BL("p_print_string"))
         }
 

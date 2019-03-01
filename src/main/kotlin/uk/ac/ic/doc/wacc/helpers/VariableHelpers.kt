@@ -195,7 +195,6 @@ fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Liter
             Operand.Register(0),
             Operand.Literal.LInt(
                 (rhs.params.size * Type.size((lhs.type as Type.TArray).type) + 4).toString()
-                // TODO: Fix this for multidimensional arrays & put in expr
             )
         )
     )
