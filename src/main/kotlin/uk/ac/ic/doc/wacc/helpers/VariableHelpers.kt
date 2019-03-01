@@ -54,7 +54,7 @@ fun CodeGenerator.addPointerLDR(e1: Expression, dest: Int) {
         }
         else -> {
             instructions.add(
-                Instruction.LDRSimple(Operand.Register(dest),Operand.Literal.LInt("0"))
+                Instruction.LDRSimple(Operand.Register(dest), Operand.Literal.LInt("0"))
             )
         }
     }
@@ -107,12 +107,22 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
 
     instructions.add(Instruction.BL("malloc"))
 
-    instructions.add(
-        Instruction.STRSimple(
-            Operand.Register(5),
-            Operand.Register(0)
+    if (Type.size(typeL) != 1) {
+        instructions.add(
+            Instruction.STRSimple(
+                Operand.Register(5),
+                Operand.Register(0)
+            )
         )
-    )
+    } else {
+        instructions.add(
+            Instruction.STRBOffset(
+                Operand.Register(5),
+                Operand.Register(0),
+                Operand.Offset(0)
+            )
+        )
+    }
 
     instructions.add(
         Instruction.STRSimple(
@@ -132,12 +142,22 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
 
     instructions.add(Instruction.BL("malloc"))
 
-    instructions.add(
-        Instruction.STRSimple(
-            Operand.Register(5),
-            Operand.Register(0)
+    if (Type.size(typeR) != 1) {
+        instructions.add(
+            Instruction.STRSimple(
+                Operand.Register(5),
+                Operand.Register(0)
+            )
         )
-    )
+    } else {
+        instructions.add(
+            Instruction.STRBOffset(
+                Operand.Register(5),
+                Operand.Register(0),
+                Operand.Offset(0)
+            )
+        )
+    }
 
     instructions.add(
         Instruction.STROffset(
@@ -191,13 +211,23 @@ fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Liter
     val type = (rhs.exprType as Type.TArray).type
     rhs.params.forEach {
         elemAssignInstructions(type, it)
-        instructions.add(
-            Instruction.STROffset(
-                Operand.Register(5),
-                Operand.Register(4),
-                Operand.Offset(offset)
+        if (Type.size(type) != 1) {
+            instructions.add(
+                Instruction.STROffset(
+                    Operand.Register(5),
+                    Operand.Register(4),
+                    Operand.Offset(offset)
+                )
             )
-        )
+        } else {
+            instructions.add(
+                Instruction.STRBOffset(
+                    Operand.Register(5),
+                    Operand.Register(4),
+                    Operand.Offset(offset)
+                )
+            )
+        }
         offset += Type.size(type)
     }
 

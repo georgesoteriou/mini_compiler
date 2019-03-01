@@ -98,7 +98,18 @@ class CodeGenerator(var program: Program) {
                     }
 
                     is Type.TArray -> {
-                        arrayAssignInstructions(statement.lhs, (statement.rhs as Expression.Literal.LArray))
+                        val rhs = statement.rhs
+                        when(rhs) {
+                            is Expression.Literal.LArray -> arrayAssignInstructions(statement.lhs, rhs)
+                            else -> {
+                                compileExpression(rhs, 4)
+                                instructions.add(Instruction.STROffset(
+                                    Operand.Register(4),
+                                    Operand.Sp,
+                                    Operand.Offset(activeScope.getPosition(name))
+                                ))
+                            }
+                        }
                     }
                     is Type.TPair -> {
                         val rhs = statement.rhs
@@ -182,7 +193,7 @@ class CodeGenerator(var program: Program) {
                             instructions.add(Instruction.ADD(Operand.Register(5),Operand.Register(5),Operand.Constant(4)))
 
                         }
-                        instructions.add(Instruction.ADD(Operand.Register(5),Operand.Register(5),Operand.Register(6)))
+                        instructions.add(Instruction.ADDCond(Operand.Register(5),Operand.Register(5),Operand.Register(6), "LSL #2"))
                         instructions.add(Instruction.STRBOffset(Operand.Register(4),Operand.Register(5),Operand.Offset(0)))
                     }
                     is Expression.Fst -> {

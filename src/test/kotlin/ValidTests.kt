@@ -16,12 +16,12 @@ class ValidTests {
 
     class Advanced {}
     class Array {
-//        @Test
-//        fun array() {
-//            testCompile(
-//                File("src/test/resources/valid/array/array.wacc"), 0, " = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}"
-//            )
-//        }
+        @Test
+        fun array() {
+            testCompile(
+                File("src/test/resources/valid/array/array.wacc"), 0, " = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}"
+            )
+        }
 
         @Test
         fun arrayBasic() {
@@ -477,10 +477,10 @@ class ValidTests {
             fun mutualRecursion() {
                 testCompile(
                     File("src/test/resources/valid/function/nested_functions/mutualRecursion.wacc"),
-                    0, 
-                    "r1: sending 8\n" + "r2: received 8\n" + "r1: sending 7\n" + "r2: received 7\n" + 
-                            "r1: sending 6\n" + "r2: received 6\n" + "r1: sending 5\n" + "r2: received 5\n" + 
-                            "r1: sending 4\n" + "r2: received 4\n" + "r1: sending 3\n" + "r2: received 3\n" + 
+                    0,
+                    "r1: sending 8\n" + "r2: received 8\n" + "r1: sending 7\n" + "r2: received 7\n" +
+                            "r1: sending 6\n" + "r2: received 6\n" + "r1: sending 5\n" + "r2: received 5\n" +
+                            "r1: sending 4\n" + "r2: received 4\n" + "r1: sending 3\n" + "r2: received 3\n" +
                             "r1: sending 2\n" + "r2: received 2\n" + "r1: sending 1\n" + "r2: received 1"
                 )
             }
@@ -907,13 +907,13 @@ class ValidTests {
             )
         }
 
-//        @Test
-//        fun linkedList() {
-//            testCompile(
-//                File("src/test/resources/valid/pairs/linkedList.wacc"),
-//                0, "list = {1, 2, 4, 11}"
-//            )
-//        }
+        @Test
+        fun linkedList() {
+            testCompile(
+                File("src/test/resources/valid/pairs/linkedList.wacc"),
+                0, "list = {1, 2, 4, 11}"
+            )
+        }
 
         @Test
         fun nestedPair() {
@@ -1177,23 +1177,23 @@ class ValidTests {
             )
         }
 
-//        @Test
-//        fun printAllTypes() {
-//            testCompile(
-//                File("src/test/resources/valid/scope/printAllTypes.wacc"),
-//                0, "( [1, 2, 3] , [a, b, c] )\n" +
-//                        "[  = (a, true),  = (b, false) ]\n" +
-//                        "1, 2\n" +
-//                        "array, of, strings\n" +
-//                        "true, false, true\n" +
-//                        "xyz\n" +
-//                        "1, 2, 3\n" +
-//                        "this is a string\n" +
-//                        "true\n" +
-//                        "x\n" +
-//                        "5"
-//            )
-//        }
+        @Test
+        fun printAllTypes() {
+            testCompile(
+                File("src/test/resources/valid/scope/printAllTypes.wacc"),
+                0, "( [1, 2, 3] , [a, b, c] )\n" +
+                        "[  = (a, true),  = (b, false) ]\n" +
+                        "1, 2\n" +
+                        "array, of, strings\n" +
+                        "true, false, true\n" +
+                        "xyz\n" +
+                        "1, 2, 3\n" +
+                        "this is a string\n" +
+                        "true\n" +
+                        "x\n" +
+                        "5"
+            )
+        }
 
         @Test
         fun scope() {
@@ -1211,14 +1211,14 @@ class ValidTests {
             )
         }
 
-//        @Test
-//        fun scopeRedefine() {
-//            testCompile(
-//                File("src/test/resources/valid/scope/scopeRedefine.wacc"),
-//                0, "true\n" +
-//                        "2"
-//            )
-//        }
+        @Test
+        fun scopeRedefine() {
+            testCompile(
+                File("src/test/resources/valid/scope/scopeRedefine.wacc"),
+                0, "true\n" +
+                        "2"
+            )
+        }
 
         @Test
         fun scopeSimpleRedefine() {
