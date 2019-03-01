@@ -21,13 +21,16 @@ sealed class Type {
     companion object {
         fun compare(t1: Type, t2: Type): Boolean {
             if (t1 is TError || t2 is TError) return false
-            if (t1::class == t2::class) return true
             if (t1 is TAny || t2 is TAny) return true
             if (t1 is TArray && t1.type is TChar && t2 is TString) return true
             if (t2 is TArray && t2.type is TChar && t1 is TString) return true
             if (t1 is TPair && t2 is TPair) {
                 return compare(t1.t1, t2.t1) && compare(t1.t2, t2.t2)
             }
+            if(t1 is TArray && t2 is TArray) {
+                return compare(t1.type, t2.type)
+            }
+            if (t1::class == t2::class) return true
             return false
         }
 
