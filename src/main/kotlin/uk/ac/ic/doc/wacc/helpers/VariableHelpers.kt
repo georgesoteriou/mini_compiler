@@ -91,7 +91,19 @@ fun CodeGenerator.identifierAssign(statement: Statement.VariableAssignment, lhs:
         }
         is Type.TArray -> {
             val def = Definition(name, lhs.exprType)
-            arrayAssignInstructions(def, statement.rhs as Expression.Literal.LArray)
+            val rhs = statement.rhs
+            if (rhs is Expression.Literal.LArray) {
+                arrayAssignInstructions(def, rhs)
+            } else {
+                compileExpression(rhs, MIN_EXPR_REG)
+                instructions.add(
+                    Instruction.STROffset(
+                        Operand.Register(MIN_EXPR_REG),
+                        Operand.Sp,
+                        Operand.Offset(activeScope.getPosition(def.name))
+                    )
+                )
+            }
         }
         is Type.TPair -> {
             val def = Definition(name, lhs.exprType)
