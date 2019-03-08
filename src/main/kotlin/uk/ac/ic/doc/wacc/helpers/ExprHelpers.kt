@@ -41,7 +41,7 @@ fun CodeGenerator.addPointerLDR(e1: Expression, dest: Int) {
         else -> instructions.add(
             Instruction.LDRSimple(
                 Operand.Register(dest),
-                Operand.Literal.LInt("0")
+                Operand.Literal.LInt(0)
             )
         )
 
@@ -234,7 +234,7 @@ fun CodeGenerator.nullExprInstructions(dest: Int) {
     instructions.add(
         Instruction.LDRSimple(
             Operand.Register(dest),
-            Operand.Literal.LInt("0")
+            Operand.Literal.LInt(0)
         )
     )
 }
