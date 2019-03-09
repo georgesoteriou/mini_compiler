@@ -9,18 +9,18 @@ class AstOptimizer(val program: Program) {
     private fun optimizeStatement(statement: Statement) {
         when (statement) {
             is Statement.VariableDeclaration -> {
-                statement.rhs = optimizeExpression(statement.rhs)
+                optimizeExpression(statement.rhs)
             }
             is Statement.VariableAssignment -> {
-                statement.rhs = optimizeExpression(statement.rhs)
+                optimizeExpression(statement.rhs)
             }
             is Statement.If -> {
-                statement.condition = optimizeExpression(statement.condition)
+                optimizeExpression(statement.condition)
                 optimizeStatement(statement.ifThen)
                 optimizeStatement(statement.elseThen)
             }
             is Statement.While -> {
-                statement.condition = optimizeExpression(statement.condition)
+                optimizeExpression(statement.condition)
                 optimizeStatement(statement.then)
             }
             is Statement.Block -> {
@@ -29,33 +29,17 @@ class AstOptimizer(val program: Program) {
         }
     }
 
-    private fun optimizeExpression(expression: Expression): Expression {
+    private fun optimizeExpression(expression: Expression) {
         when (expression) {
             is Expression.BinaryOperation -> {
                 val e1 = optimizeExpression(expression.e1)
-                val e2 =optimizeExpression(expression.e2)
-                return Expression.BinaryOperation(e1, e2, expression.operator)
+                val e2 = optimizeExpression(expression.e2)
+                //Expression.BinaryOperation(e1, e2, expression.operator)
             }
             is Expression.UnaryOperation -> {
-                val subExpr = expression.expression
-                return when (expression.operator) {
-                    Expression.UnaryOperator.MINUS -> {
-                        when(subExpr) {
-                            is Expression.Literal.LInt ->
-                                Expression.Literal.LInt(
-                                    "-${subExpr.int.replaceFirst(Regex("^0+(?!$)"), "")}"
-                                )
-                            else -> Expression.UnaryOperation(optimizeExpression(subExpr), expression.operator)
-                        }
-                    }
-                    else -> Expression.UnaryOperation(optimizeExpression(subExpr), expression.operator)
-                }
+
             }
-            is Expression.Literal.LInt -> {
-                val newInt = expression.int.replaceFirst(Regex("^0+(?!$)"), "")
-                return Expression.Literal.LInt(newInt)
-            }
-            else -> return expression
+            else -> expression
         }
     }
 

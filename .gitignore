@@ -8,8 +8,6 @@ src/main/gen/
 test.wacc
 *.s
 a.out
-test
-a.out
 
 # Created by https://www.gitignore.io/api/java,macos,maven,gradle,kotlin,intellij
 # Edit at https://www.gitignore.io/?templates=java,macos,maven,gradle,kotlin,intellij
