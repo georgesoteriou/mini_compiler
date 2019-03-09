@@ -64,7 +64,6 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
                 && checkStatement(param.ifThen as Statement.Block, activeScope, returnType)
                 && checkStatement(param.elseThen as Statement.Block, activeScope, returnType)
 
-
         is Statement.PrintLn -> {
             val type = exprType(param.expression, activeScope)
             type !is Type.TError && type !is Type.TFunction
