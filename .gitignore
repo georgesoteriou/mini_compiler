@@ -7,7 +7,7 @@ src/main/gen/
 .idea/misc.xml
 test.wacc
 *.s
-a.out
+*.out
 
 # Created by https://www.gitignore.io/api/java,macos,maven,gradle,kotlin,intellij
 # Edit at https://www.gitignore.io/?templates=java,macos,maven,gradle,kotlin,intellij
