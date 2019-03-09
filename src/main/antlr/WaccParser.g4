@@ -46,6 +46,8 @@ stat_list: stat (SEMICOL stat)* (SEMICOL)* ;
 stat: SKIP_S                                        #skip
 | type IDENT ASSIGN assign_rhs                      #declare
 | assign_lhs ASSIGN assign_rhs                      #assign
+| IDENT side_effs_unary                             #side_eff_unary
+| IDENT side_effs_binary expr                       #side_eff_binary
 | READ_S assign_lhs                                 #read
 | FREE_S expr                                       #free
 | RETURN_S expr                                     #return
@@ -56,7 +58,7 @@ stat: SKIP_S                                        #skip
 | IF_S expr THEN_S stat_list FI_S                   #short_if
 | WHILE_S expr DO_S stat_list DONE_S                #while
 | DO_S stat_list WHILE_S expr                       #do_while
-| FOR_S stat SEMICOL expr SEMICOL stat SEMICOL  DO_S stat_list END_S         #for
+| FOR_S stat SEMICOL expr SEMICOL stat DO_S stat_list END_S         #for
 | BEGIN_S stat_list END_S                           #begin
 ;
 
@@ -66,6 +68,19 @@ base_type: INT_T    #int
 | BOOL_T            #bool
 | CHAR_T            #char
 | STRING_T          #string
+;
+
+side_effs_unary: PLUS_PLUS        #plus_plus
+| MINUS_MINUS               #minus_minus
+;
+
+side_effs_binary: PLUS_EQ                   #plus_eq
+| MINUS_EQ                  #minus_eq
+| MULT_EQ                   #mult_eq
+| DIV_EQ                    #div_eq
+| MOD_EQ                    #mod_eq
+| AND_EQ                    #and_eq
+| OR_EQ                     #or_eq
 ;
 
 type: base_type
