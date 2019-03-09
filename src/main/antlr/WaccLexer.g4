@@ -54,6 +54,7 @@ THEN_S: 'then' ;
 ELSE_S: 'else' ;
 FI_S: 'fi' ;
 WHILE_S: 'while' ;
+FOR_S: 'for';
 DO_S: 'do' ;
 DONE_S: 'done' ;
 

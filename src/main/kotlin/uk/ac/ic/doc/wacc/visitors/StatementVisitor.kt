@@ -9,6 +9,21 @@ import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 
 class StatementVisitor : WaccParserBaseVisitor<Statement>() {
+    override fun visitDo_while(ctx: WaccParser.Do_whileContext): Statement {
+        val block = ctx.stat_list().accept(this) as Statement.Block
+        val whileStat = Statement.While(ctx.expr().accept(ExprVisitor()), block)
+        val body = arrayListOf(block, whileStat)
+        return Statement.Block(body, block.scope)
+    }
+
+    override fun visitFor(ctx: WaccParser.ForContext): Statement {
+        val block = ctx.stat_list().accept(this) as Statement.Block
+        val step = ctx.stat(1).accept(this)
+        val whileBody = Statement.Block(arrayListOf(block, step), block.scope)
+        val whileStat = Statement.While(ctx.expr().accept(ExprVisitor()), whileBody)
+        val declStat = ctx.stat(0).accept(this) as Statement.VariableDeclaration
+        return Statement.Block(arrayListOf(declStat, whileStat), Scope())
+    }
 
     private fun Statement.at(token: Token): Statement {
         location.lineNum = token.line
