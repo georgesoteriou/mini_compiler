@@ -53,6 +53,7 @@ stat: SKIP_S                                        #skip
 | PRINT_S expr                                      #print
 | PRINTLN_S expr                                    #println
 | IF_S expr THEN_S stat_list ELSE_S stat_list FI_S  #if
+| IF_S expr THEN_S stat_list FI_S                   #short_if
 | WHILE_S expr DO_S stat_list DONE_S                #while
 | DO_S stat_list WHILE_S expr                       #do_while
 | FOR_S stat SEMICOL expr SEMICOL stat SEMICOL  DO_S stat_list END_S         #for

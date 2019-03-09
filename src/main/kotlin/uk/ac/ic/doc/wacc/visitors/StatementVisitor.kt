@@ -9,11 +9,25 @@ import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 
 class StatementVisitor : WaccParserBaseVisitor<Statement>() {
+
+    private fun Statement.at(token: Token): Statement {
+        location.lineNum = token.line
+        location.colNum = token.charPositionInLine
+        return this
+    }
+
+    override fun visitShort_if(ctx: WaccParser.Short_ifContext): Statement {
+        val condition = ctx.expr().accept(ExprVisitor())
+        val ifThen = ctx.stat_list().accept(this)
+        return Statement.If(condition, ifThen, Statement.Block(arrayListOf(), Scope()))
+            .at(ctx.start)
+    }
+
     override fun visitDo_while(ctx: WaccParser.Do_whileContext): Statement {
         val block = ctx.stat_list().accept(this) as Statement.Block
         val whileStat = Statement.While(ctx.expr().accept(ExprVisitor()), block)
         val body = arrayListOf(block, whileStat)
-        return Statement.Block(body, block.scope)
+        return Statement.Block(body, block.scope).at(ctx.start)
     }
 
     override fun visitFor(ctx: WaccParser.ForContext): Statement {
@@ -22,13 +36,7 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
         val whileBody = Statement.Block(arrayListOf(block, step), block.scope)
         val whileStat = Statement.While(ctx.expr().accept(ExprVisitor()), whileBody)
         val declStat = ctx.stat(0).accept(this) as Statement.VariableDeclaration
-        return Statement.Block(arrayListOf(declStat, whileStat), Scope())
-    }
-
-    private fun Statement.at(token: Token): Statement {
-        location.lineNum = token.line
-        location.colNum = token.charPositionInLine
-        return this
+        return Statement.Block(arrayListOf(declStat, whileStat), Scope()).at(ctx.start)
     }
 
     override fun visitDeclare(ctx: WaccParser.DeclareContext): Statement {

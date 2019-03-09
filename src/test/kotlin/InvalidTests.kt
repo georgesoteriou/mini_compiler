@@ -606,12 +606,12 @@ class InvalidTests {
                 )
             }
 
-            @Test
-            fun ifNoelse() {
-                testCompile(
-                    File("src/test/resources/invalid/syntaxErr/if/ifNoelse.wacc"), 100
-                )
-            }
+//            @Test
+//            fun ifNoelse() {
+//                testCompile(
+//                    File("src/test/resources/invalid/syntaxErr/if/ifNoelse.wacc"), 100
+//                )
+//            }
 
             @Test
             fun ifNofi() {
@@ -668,12 +668,12 @@ class InvalidTests {
                 )
             }
 
-            @Test
-            fun extraSeq() {
-                testCompile(
-                    File("src/test/resources/invalid/syntaxErr/sequence/extraSeq.wacc"), 100
-                )
-            }
+//            @Test
+//            fun extraSeq() {
+//                testCompile(
+//                    File("src/test/resources/invalid/syntaxErr/sequence/extraSeq.wacc"), 100
+//                )
+//            }
 
             @Test
             fun missingSeq() {
