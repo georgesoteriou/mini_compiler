@@ -31,11 +31,13 @@ fun main(args: Array<String>) {
         val visitor = ProgramVisitor()
         val program = parseResource(args[0]).accept(visitor)
 
-        AstOptimizer(program).optimize()
 
         if (!semanticCheck(program)) {
             exitProcess(200)
         }
+
+        AstOptimizer(program).optimize()
+
         val outputFile = File(args[0]).nameWithoutExtension
         CodeGenerator(program).compile().outputAssembly(outputFile)
     } catch (e: ParseCancellationException) {

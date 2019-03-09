@@ -19,7 +19,19 @@ sealed class Expression {
     }
 
     enum class BinaryOperator {
-        MULT, DIV, MOD, PLUS, MINUS, GT, GTE, LT, LTE, EQ, NOTEQ, AND, OR
+        MULT ,
+        DIV  ,
+        MOD  ,
+        PLUS,
+        MINUS,
+        GT,
+        GTE,
+        LT,
+        LTE,
+        EQ,
+        NOTEQ,
+        AND,
+        OR
     }
 
     data class BinaryOperation(var e1: Expression, var e2: Expression, var operator: BinaryOperator) : Expression()
