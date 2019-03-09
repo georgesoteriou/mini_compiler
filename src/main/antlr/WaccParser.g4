@@ -55,7 +55,7 @@ stat: SKIP_S                                        #skip
 | IF_S expr THEN_S stat_list ELSE_S stat_list FI_S  #if
 | WHILE_S expr DO_S stat_list DONE_S                #while
 | DO_S stat_list WHILE_S expr                       #do_while
-| FOR_S stat expr stat DO_S stat_list END_S         #for
+| FOR_S stat SEMICOL expr SEMICOL stat SEMICOL  DO_S stat_list END_S         #for
 | BEGIN_S stat_list END_S                           #begin
 ;
 
