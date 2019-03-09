@@ -70,8 +70,8 @@ base_type: INT_T    #int
 | STRING_T          #string
 ;
 
-side_effs_unary: PLUS_PLUS        #plus_plus
-| MINUS_MINUS               #minus_minus
+side_effs_unary: PLUS PLUS        #plus_plus
+| MINUS MINUS               #minus_minus
 ;
 
 side_effs_binary: PLUS_EQ                   #plus_eq

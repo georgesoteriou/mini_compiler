@@ -27,8 +27,6 @@ ORD: 'ord' ;
 CHR: 'chr' ;
 
 // side-effecting operators
-PLUS_PLUS: '++';
-MINUS_MINUS: '--';
 PLUS_EQ: '+=';
 MINUS_EQ: '-=';
 MULT_EQ: '*=';
