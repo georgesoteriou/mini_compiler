@@ -2,7 +2,7 @@ package uk.ac.ic.doc.wacc.ast
 
 class AstOptimizer(val program: Program) {
     fun optimize() {
-        program.functions.forEach { optimizeStatement(it.block) }
+        program.functions.map {optimizeStatement(it.block)}
         program.block.statements.map(this::optimizeStatement)
     }
 
@@ -24,7 +24,7 @@ class AstOptimizer(val program: Program) {
                 statement.then = optimizeStatement(statement.then)
             }
             is Statement.Block -> {
-                statement.statements.map(this::optimizeStatement)
+                statement.statements = statement.statements.map(this::optimizeStatement)
             }
         }
         return statement
@@ -38,11 +38,11 @@ class AstOptimizer(val program: Program) {
                 if(e1 is Expression.Literal.LInt && e2 is Expression.Literal.LInt) {
                     val operator = expression.operator
                     val result :Int = when(operator){
-                        Expression.BinaryOperator.MULT  -> e1.int * e2.int
-                        Expression.BinaryOperator.DIV   -> e1.int / e2.int
-                        Expression.BinaryOperator.MOD   -> e1.int % e2.int
-                        Expression.BinaryOperator.PLUS  -> e1.int + e2.int
-                        Expression.BinaryOperator.MINUS -> e1.int - e2.int
+                        Expression.BinaryOperator.MULT -> e1.int * e2.int
+                        Expression.BinaryOperator.DIV  -> if(e2.int == 0) { return expression } else { e1.int / e2.int }
+                        Expression.BinaryOperator.MOD  -> if(e2.int == 0) { return expression } else { e1.int % e2.int }
+                        Expression.BinaryOperator.PLUS -> e1.int + e2.int
+                        Expression.BinaryOperator.MINUS-> e1.int - e2.int
                         else -> 0
                     }
                     return Expression.Literal.LInt(result)
@@ -51,12 +51,12 @@ class AstOptimizer(val program: Program) {
                     val operator = expression.operator
                     val result: Boolean = when (operator) {
                         Expression.BinaryOperator.AND -> e1.bool && e2.bool
-                        Expression.BinaryOperator.OR -> e1.bool || e2.bool
+                        Expression.BinaryOperator.OR  -> e1.bool || e2.bool
                         else -> false
                     }
                     return Expression.Literal.LBool(result)
                 }
-                return Expression.BinaryOperation(e1, e2, expression.operator)
+                return expression
             }
             else -> return expression
         }

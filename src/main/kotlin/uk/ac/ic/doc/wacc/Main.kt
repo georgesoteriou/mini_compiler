@@ -35,7 +35,9 @@ fun main(args: Array<String>) {
         if (!semanticCheck(program)) {
             exitProcess(200)
         }
+
         AstOptimizer(program).optimize()
+
         val outputFile = File(args[0]).nameWithoutExtension
         CodeGenerator(program).compile().outputAssembly(outputFile)
     } catch (e: ParseCancellationException) {
