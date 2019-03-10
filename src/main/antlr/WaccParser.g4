@@ -59,8 +59,11 @@ stat: SKIP_S                                        #skip
 | WHILE_S expr DO_S stat_list DONE_S                #while
 | DO_S stat_list WHILE_S expr                       #do_while
 | FOR_S stat SEMICOL expr SEMICOL stat DO_S stat_list END_S         #for
+| SWITCH_S expr IS_S switch_line+ DONE_S            #switch
 | BEGIN_S stat_list END_S                           #begin
 ;
+
+switch_line : expr COL stat_list ;
 
 //types
 

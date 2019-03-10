@@ -10,6 +10,18 @@ import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 
 class StatementVisitor : WaccParserBaseVisitor<Statement>() {
+    override fun visitSwitch(ctx: WaccParser.SwitchContext): Statement {
+        val switch_block = arrayListOf<Statement>()
+       val expr = ctx.expr().accept(ExprVisitor())
+       ctx.switch_line().forEach{
+           val cond = Expression.BinaryOperation(expr, it.expr().accept(ExprVisitor()), Expression.BinaryOperator.EQ)
+           val if_stat = Statement.If(cond, it.stat_list().accept(this), Statement.Block(arrayListOf(), Scope()))
+           switch_block.add(if_stat)
+       }
+
+        return Statement.Block(switch_block, Scope())
+    }
+
     override fun visitSide_eff_unary(ctx: WaccParser.Side_eff_unaryContext): Statement {
         val op = ctx.side_effs_unary().accept(UnSideEffVisitor())
         val ident = Expression.Identifier(ctx.IDENT().toString())
