@@ -41,7 +41,7 @@ param: type IDENT ;
 
 param_list: param (COMMA param)* ;
 
-stat_list: stat (SEMICOL stat)* (SEMICOL)* ;
+stat_list: stat (SEMICOL stat)* (SEMICOL)? ;
 
 stat: SKIP_S                                        #skip
 | type IDENT ASSIGN assign_rhs                      #declare
