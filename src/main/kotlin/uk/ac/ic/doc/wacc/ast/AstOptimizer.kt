@@ -2,11 +2,11 @@ package uk.ac.ic.doc.wacc.ast
 
 class AstOptimizer(val program: Program) {
     fun optimize() {
-        program.functions.forEach { optimizeStatement(it.block) }
-        program.block.statements.forEach(this::optimizeStatement)
+        program.functions.map {optimizeStatement(it.block)}
+        program.block.statements.map(this::optimizeStatement)
     }
 
-    private fun optimizeStatement(statement: Statement) {
+    private fun optimizeStatement(statement: Statement): Statement {
         when (statement) {
             is Statement.VariableDeclaration -> {
                 statement.rhs = optimizeExpression(statement.rhs)
@@ -16,44 +16,47 @@ class AstOptimizer(val program: Program) {
             }
             is Statement.If -> {
                 statement.condition = optimizeExpression(statement.condition)
-                optimizeStatement(statement.ifThen)
-                optimizeStatement(statement.elseThen)
+                statement.ifThen = optimizeStatement(statement.ifThen)
+                statement.elseThen = optimizeStatement(statement.elseThen)
             }
             is Statement.While -> {
                 statement.condition = optimizeExpression(statement.condition)
-                optimizeStatement(statement.then)
+                statement.then = optimizeStatement(statement.then)
             }
             is Statement.Block -> {
-                statement.statements.forEach(this::optimizeStatement)
+                statement.statements = statement.statements.map(this::optimizeStatement)
             }
         }
+        return statement
     }
 
     private fun optimizeExpression(expression: Expression): Expression {
         when (expression) {
             is Expression.BinaryOperation -> {
                 val e1 = optimizeExpression(expression.e1)
-                val e2 =optimizeExpression(expression.e2)
-                return Expression.BinaryOperation(e1, e2, expression.operator)
-            }
-            is Expression.UnaryOperation -> {
-                val subExpr = expression.expression
-                return when (expression.operator) {
-                    Expression.UnaryOperator.MINUS -> {
-                        when(subExpr) {
-                            is Expression.Literal.LInt ->
-                                Expression.Literal.LInt(
-                                    "-${subExpr.int.replaceFirst(Regex("^0+(?!$)"), "")}"
-                                )
-                            else -> Expression.UnaryOperation(optimizeExpression(subExpr), expression.operator)
-                        }
+                val e2 = optimizeExpression(expression.e2)
+                if(e1 is Expression.Literal.LInt && e2 is Expression.Literal.LInt) {
+                    val operator = expression.operator
+                    val result :Int = when(operator){
+                        Expression.BinaryOperator.MULT -> e1.int * e2.int
+                        Expression.BinaryOperator.DIV  -> if(e2.int == 0) { return expression } else { e1.int / e2.int }
+                        Expression.BinaryOperator.MOD  -> if(e2.int == 0) { return expression } else { e1.int % e2.int }
+                        Expression.BinaryOperator.PLUS -> e1.int + e2.int
+                        Expression.BinaryOperator.MINUS-> e1.int - e2.int
+                        else -> 0
                     }
-                    else -> Expression.UnaryOperation(optimizeExpression(subExpr), expression.operator)
+                    return Expression.Literal.LInt(result)
                 }
-            }
-            is Expression.Literal.LInt -> {
-                val newInt = expression.int.replaceFirst(Regex("^0+(?!$)"), "")
-                return Expression.Literal.LInt(newInt)
+                if(e1 is Expression.Literal.LBool && e2 is Expression.Literal.LBool) {
+                    val operator = expression.operator
+                    val result: Boolean = when (operator) {
+                        Expression.BinaryOperator.AND -> e1.bool && e2.bool
+                        Expression.BinaryOperator.OR  -> e1.bool || e2.bool
+                        else -> false
+                    }
+                    return Expression.Literal.LBool(result)
+                }
+                return expression
             }
             else -> return expression
         }

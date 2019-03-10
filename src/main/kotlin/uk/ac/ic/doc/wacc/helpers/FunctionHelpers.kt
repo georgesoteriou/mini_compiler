@@ -35,7 +35,7 @@ fun CodeGenerator.compileBlock(name: String, block: Statement.Block, isFunction:
         instructions.add(
             Instruction.LDRSimple(
                 Operand.Register(0),
-                Operand.Literal.LInt("0")
+                Operand.Literal.LInt(0)
             )
         )
     }

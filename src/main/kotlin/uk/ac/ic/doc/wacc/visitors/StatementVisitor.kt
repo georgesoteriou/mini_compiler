@@ -1,6 +1,7 @@
 package uk.ac.ic.doc.wacc.visitors
 
 import org.antlr.v4.runtime.Token
+import org.antlr.v4.runtime.misc.ParseCancellationException
 import uk.ac.ic.doc.wacc.ast.Definition
 import uk.ac.ic.doc.wacc.ast.Expression
 import uk.ac.ic.doc.wacc.ast.Scope
@@ -9,11 +10,50 @@ import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 
 class StatementVisitor : WaccParserBaseVisitor<Statement>() {
+    override fun visitSide_eff_unary(ctx: WaccParser.Side_eff_unaryContext): Statement {
+        val op = ctx.side_effs_unary().accept(UnSideEffVisitor())
+        val ident = Expression.Identifier(ctx.IDENT().toString())
+        val rhs = Expression.Literal.LInt(1)
+        return Statement.VariableAssignment(ident, Expression.BinaryOperation(ident, rhs, op))
+    }
+
+    override fun visitSide_eff_binary(ctx: WaccParser.Side_eff_binaryContext): Statement {
+        val op = ctx.side_effs_binary().accept(BinSideEffVisitor())
+        val ident = Expression.Identifier(ctx.IDENT().toString())
+        val rhs = ctx.expr().accept(ExprVisitor())
+
+        return Statement.VariableAssignment(ident,Expression.BinaryOperation(ident, rhs, op))
+    }
 
     private fun Statement.at(token: Token): Statement {
         location.lineNum = token.line
         location.colNum = token.charPositionInLine
         return this
+    }
+
+
+
+    override fun visitShort_if(ctx: WaccParser.Short_ifContext): Statement {
+        val condition = ctx.expr().accept(ExprVisitor())
+        val ifThen = ctx.stat_list().accept(this)
+        return Statement.If(condition, ifThen, Statement.Block(arrayListOf(), Scope()))
+            .at(ctx.start)
+    }
+
+    override fun visitDo_while(ctx: WaccParser.Do_whileContext): Statement {
+        val block = ctx.stat_list().accept(this) as Statement.Block
+        val whileStat = Statement.While(ctx.expr().accept(ExprVisitor()), block)
+        val body = arrayListOf(block, whileStat)
+        return Statement.Block(body, block.scope).at(ctx.start)
+    }
+
+    override fun visitFor(ctx: WaccParser.ForContext): Statement {
+        val block = ctx.stat_list().accept(this) as Statement.Block
+        val step = ctx.stat(1).accept(this)
+        val whileBody = Statement.Block(arrayListOf(block, step), block.scope)
+        val whileStat = Statement.While(ctx.expr().accept(ExprVisitor()), whileBody)
+        val declStat = ctx.stat(0).accept(this) as? Statement.VariableDeclaration ?: throw ParseCancellationException()
+        return Statement.Block(arrayListOf(declStat, whileStat), Scope()).at(ctx.start)
     }
 
     override fun visitDeclare(ctx: WaccParser.DeclareContext): Statement {

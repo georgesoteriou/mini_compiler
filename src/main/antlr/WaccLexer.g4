@@ -26,6 +26,15 @@ LEN: 'len' ;
 ORD: 'ord' ;
 CHR: 'chr' ;
 
+// side-effecting operators
+PLUS_EQ: '+=';
+MINUS_EQ: '-=';
+MULT_EQ: '*=';
+MOD_EQ: '%=';
+DIV_EQ: '/=';
+AND_EQ: '&&=';
+OR_EQ: '||=';
+
 //brackets
 OPEN_PARENTHESES: '(' ;
 CLOSE_PARENTHESES: ')' ;
@@ -54,6 +63,7 @@ THEN_S: 'then' ;
 ELSE_S: 'else' ;
 FI_S: 'fi' ;
 WHILE_S: 'while' ;
+FOR_S: 'for';
 DO_S: 'do' ;
 DONE_S: 'done' ;
 

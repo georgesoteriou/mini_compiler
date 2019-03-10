@@ -5,6 +5,7 @@ options {
 }
 
 expr: array_elem                            #arrayElem
+| (MINUS | PLUS)? INT_LITER                 #intLit
 | unaryOper expr                            #unaryOp
 | expr (MULT | DIV | MOD) expr              #binaryOp1
 | expr (PLUS | MINUS) expr                  #binaryOp2
@@ -13,7 +14,6 @@ expr: array_elem                            #arrayElem
 | expr (AND) expr                           #binaryOp5
 | expr (OR) expr                            #binaryOp6
 | OPEN_PARENTHESES expr CLOSE_PARENTHESES   #parenth
-| (MINUS | PLUS)? INT_LITER                 #intLit
 | BOOL_LITER                                #boolLit
 | CHAR_LITER                                #charLit
 | STR_LITER                                 #strLit
@@ -41,11 +41,13 @@ param: type IDENT ;
 
 param_list: param (COMMA param)* ;
 
-stat_list: stat (SEMICOL stat)* ;
+stat_list: stat (SEMICOL stat)* (SEMICOL)? ;
 
 stat: SKIP_S                                        #skip
 | type IDENT ASSIGN assign_rhs                      #declare
 | assign_lhs ASSIGN assign_rhs                      #assign
+| IDENT side_effs_unary                             #side_eff_unary
+| IDENT side_effs_binary expr                       #side_eff_binary
 | READ_S assign_lhs                                 #read
 | FREE_S expr                                       #free
 | RETURN_S expr                                     #return
@@ -53,7 +55,10 @@ stat: SKIP_S                                        #skip
 | PRINT_S expr                                      #print
 | PRINTLN_S expr                                    #println
 | IF_S expr THEN_S stat_list ELSE_S stat_list FI_S  #if
+| IF_S expr THEN_S stat_list FI_S                   #short_if
 | WHILE_S expr DO_S stat_list DONE_S                #while
+| DO_S stat_list WHILE_S expr                       #do_while
+| FOR_S stat SEMICOL expr SEMICOL stat DO_S stat_list END_S         #for
 | BEGIN_S stat_list END_S                           #begin
 ;
 
@@ -63,6 +68,19 @@ base_type: INT_T    #int
 | BOOL_T            #bool
 | CHAR_T            #char
 | STRING_T          #string
+;
+
+side_effs_unary: PLUS PLUS        #plus_plus
+| MINUS MINUS               #minus_minus
+;
+
+side_effs_binary: PLUS_EQ                   #plus_eq
+| MINUS_EQ                  #minus_eq
+| MULT_EQ                   #mult_eq
+| DIV_EQ                    #div_eq
+| MOD_EQ                    #mod_eq
+| AND_EQ                    #and_eq
+| OR_EQ                     #or_eq
 ;
 
 type: base_type

@@ -254,7 +254,7 @@ fun CodeGenerator.pairNullInstructions(lhs: Definition) {
     instructions.add(
         Instruction.LDRSimple(
             Operand.Register(MIN_EXPR_REG),
-            Operand.Literal.LInt("0")
+            Operand.Literal.LInt(0)
         )
     )
     instructions.add(
@@ -270,7 +270,7 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
     instructions.add(
         Instruction.LDRSimple(
             Operand.Register(0),
-            Operand.Literal.LInt("8")
+            Operand.Literal.LInt(8)
         )
     )
     instructions.add(Instruction.BL("malloc"))
@@ -290,7 +290,7 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
     instructions.add(
         Instruction.LDRSimple(
             Operand.Register(0),
-            Operand.Literal.LInt(Type.size(e1.exprType).toString())
+            Operand.Literal.LInt(Type.size(e1.exprType))
         )
     )
 
@@ -325,7 +325,7 @@ fun CodeGenerator.pairAssignInstructions(definition: Definition, rhs: Expression
     instructions.add(
         Instruction.LDRSimple(
             Operand.Register(0),
-            Operand.Literal.LInt(Type.size(e1.exprType).toString())
+            Operand.Literal.LInt(Type.size(e1.exprType))
         )
     )
 
@@ -383,7 +383,7 @@ fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Liter
         Instruction.LDRSimple(
             Operand.Register(0),
             Operand.Literal.LInt(
-                (rhs.params.size * Type.size((lhs.type as Type.TArray).type) + WORD).toString()
+                (rhs.params.size * Type.size((lhs.type as Type.TArray).type) + WORD)
             )
         )
     )
@@ -423,7 +423,7 @@ fun CodeGenerator.arrayAssignInstructions(lhs: Definition, rhs: Expression.Liter
     instructions.add(
         Instruction.LDRSimple(
             Operand.Register(MIN_EXPR_REG + 1),
-            Operand.Literal.LInt(rhs.params.size.toString())
+            Operand.Literal.LInt(rhs.params.size)
         )
     )
     instructions.add(
