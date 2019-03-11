@@ -436,12 +436,12 @@ class InvalidTests {
                 )
             }
 
-            @Test
-            fun noBody() {
-                testCompile(
-                    File("src/test/resources/invalid/syntaxErr/basic/noBody.wacc"), 100
-                )
-            }
+//            @Test
+//            fun noBody() {
+//                testCompile(
+//                    File("src/test/resources/invalid/syntaxErr/basic/noBody.wacc"), 100
+//                )
+//            }
 
             @Test
             fun skpErr() {
@@ -582,12 +582,12 @@ class InvalidTests {
                 )
             }
 
-            @Test
-            fun noBodyAfterFuncs() {
-                testCompile(
-                    File("src/test/resources/invalid/syntaxErr/function/noBodyAfterFuncs.wacc"), 100
-                )
-            }
+//            @Test
+//            fun noBodyAfterFuncs() {
+//                testCompile(
+//                    File("src/test/resources/invalid/syntaxErr/function/noBodyAfterFuncs.wacc"), 100
+//                )
+//            }
 
             @Test
             fun thisIsNotC() {
