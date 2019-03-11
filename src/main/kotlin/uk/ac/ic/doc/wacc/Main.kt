@@ -19,13 +19,12 @@ fun main(args: Array<String>) {
         return
     }
 
-
-
-
-
     fun lexerForResource(resourceName: String) = WaccLexer(CharStreams.fromFileName(resourceName))
     fun tokenStream(resourceName: String) = CommonTokenStream(lexerForResource(resourceName))
     fun parseResource(resourceName: String): WaccParser.ProgContext {
+        if(!File(resourceName).exists()) {
+            throw ParseCancellationException("$resourceName does not exist")
+        }
         val parser = WaccParser(tokenStream(resourceName))
         parser.errorHandler = BailErrorStrategy()
         return parser.prog()
@@ -60,7 +59,7 @@ fun main(args: Array<String>) {
         val outputFile = File(args[0]).nameWithoutExtension
         CodeGenerator(program).compile().outputAssembly(outputFile)
     } catch (e: ParseCancellationException) {
-        println("Syntax error $e")
+        println("Syntax error ${if(e.message != null) {e.message} else {""}}")
         exitProcess(100)
     }
 
