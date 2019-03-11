@@ -110,4 +110,5 @@ pair_elem: FST expr      #fst
 
 func: type IDENT OPEN_PARENTHESES param_list? CLOSE_PARENTHESES IS_S stat_list END_S ;
 
-prog: BEGIN_S (func)* stat_list END_S EOF ;
+includes: INCLUDE FILENAME SEMICOL;
+prog: BEGIN_S (includes)* (func)* stat_list? END_S EOF ;
