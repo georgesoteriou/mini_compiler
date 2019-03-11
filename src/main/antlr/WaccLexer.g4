@@ -70,7 +70,7 @@ FOR_S: 'for';
 DO_S: 'do' ;
 DONE_S: 'done' ;
 
-//base-type
+//base-returnType
 INT_T: 'int' ;
 BOOL_T: 'bool' ;
 CHAR_T: 'char' ;

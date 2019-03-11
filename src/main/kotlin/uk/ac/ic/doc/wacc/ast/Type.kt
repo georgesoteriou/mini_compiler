@@ -19,7 +19,7 @@ sealed class Type {
     data class TPair(var t1: Type, var t2: Type) : Type()
     object TPairSimple : Type()
 
-    data class TFunction(var type: Type, var params: List<Type>) : Type()
+    data class TFunction(var returnType: Type, var params: List<Type>) : Type()
 
     companion object {
         fun compare(t1: Type, t2: Type): Boolean {
@@ -48,6 +48,18 @@ sealed class Type {
                 is Type.TBool,
                 is Type.TChar -> BYTE
                 else -> 0
+            }
+        }
+
+        fun toAppend(t: Type): String {
+            return when (t) {
+                Type.TInt -> "_i"
+                Type.TBool -> "_b"
+                Type.TChar -> "_c"
+                Type.TString -> "_s"
+                is Type.TArray -> "_a"
+                is Type.TPair -> "_p"
+                else -> ""
             }
         }
     }
