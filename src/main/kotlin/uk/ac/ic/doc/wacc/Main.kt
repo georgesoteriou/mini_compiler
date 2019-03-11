@@ -5,6 +5,7 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.misc.ParseCancellationException
 import uk.ac.ic.doc.wacc.ast.AstOptimizer
+import uk.ac.ic.doc.wacc.ast.Program
 import uk.ac.ic.doc.wacc.grammar.WaccLexer
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
@@ -18,6 +19,10 @@ fun main(args: Array<String>) {
         return
     }
 
+
+
+
+
     fun lexerForResource(resourceName: String) = WaccLexer(CharStreams.fromFileName(resourceName))
     fun tokenStream(resourceName: String) = CommonTokenStream(lexerForResource(resourceName))
     fun parseResource(resourceName: String): WaccParser.ProgContext {
@@ -26,11 +31,25 @@ fun main(args: Array<String>) {
         return parser.prog()
     }
 
+    fun recursiveInclude(program:Program) {
+        val visitor = ProgramVisitor()
+        program.includes.forEach{
+            val includesProg = parseResource(it).accept(visitor)
+            recursiveInclude(includesProg)
+
+            if (!includesProg.block.statements.isEmpty()) {
+                throw ParseCancellationException("An imported file has a main function")
+            }
+
+            program.functions.addAll(includesProg.functions)
+        }
+    }
 
     try {
         val visitor = ProgramVisitor()
         val program = parseResource(args[0]).accept(visitor)
 
+        recursiveInclude(program)
 
         if (!semanticCheck(program)) {
             exitProcess(200)
@@ -41,7 +60,7 @@ fun main(args: Array<String>) {
         val outputFile = File(args[0]).nameWithoutExtension
         CodeGenerator(program).compile().outputAssembly(outputFile)
     } catch (e: ParseCancellationException) {
-        println("Syntax error ")
+        println("Syntax error $e")
         exitProcess(100)
     }
 
