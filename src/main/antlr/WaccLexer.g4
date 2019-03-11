@@ -66,7 +66,7 @@ WHILE_S: 'while' ;
 FOR_S: 'for';
 DO_S: 'do' ;
 DONE_S: 'done' ;
-SWITCH_S: 'switch' ;
+WHEN_S: 'when' ;
 
 //base-type
 INT_T: 'int' ;

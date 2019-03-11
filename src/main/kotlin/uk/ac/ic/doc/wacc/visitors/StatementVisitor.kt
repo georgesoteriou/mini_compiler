@@ -10,7 +10,7 @@ import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 
 class StatementVisitor : WaccParserBaseVisitor<Statement>() {
-    override fun visitSwitch(ctx: WaccParser.SwitchContext): Statement {
+    /*override fun visitSwitch(ctx: WaccParser.SwitchContext): Statement {
         val switch_block = arrayListOf<Statement>()
        val expr = ctx.expr().accept(ExprVisitor())
        ctx.switch_line().forEach{
@@ -20,7 +20,7 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
        }
 
         return Statement.Block(switch_block, Scope())
-    }
+    }*/
 
     override fun visitSide_eff_unary(ctx: WaccParser.Side_eff_unaryContext): Statement {
         val op = ctx.side_effs_unary().accept(UnSideEffVisitor())
@@ -42,8 +42,6 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
         location.colNum = token.charPositionInLine
         return this
     }
-
-
 
     override fun visitShort_if(ctx: WaccParser.Short_ifContext): Statement {
         val condition = ctx.expr().accept(ExprVisitor())
