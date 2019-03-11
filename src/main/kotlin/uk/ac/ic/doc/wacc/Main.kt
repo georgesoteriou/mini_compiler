@@ -38,7 +38,7 @@ fun main(args: Array<String>) {
             recursiveInclude(includesProg)
 
             if (!includesProg.block.statements.isEmpty()) {
-                throw ParseCancellationException("An imported file has a main function")
+                throw ParseCancellationException("$it has a main function")
             }
 
             program.functions.addAll(includesProg.functions)
