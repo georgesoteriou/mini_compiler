@@ -10,4 +10,3 @@ Project management:
                   Upon merging into the develop branch for each of the extensions, we sat down as a group and made sure that everyone was brought up
                   speed with the new features being added.
 
-                
