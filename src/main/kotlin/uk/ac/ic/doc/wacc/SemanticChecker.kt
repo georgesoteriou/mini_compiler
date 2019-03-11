@@ -7,7 +7,7 @@ fun errorLog(it: Statement) {
     when (it) {
         is Statement.Block -> println("Error within Block starting at line ${it.location.lineNum}")
         is Statement.While -> println("Error within While starting at line ${it.location.lineNum}")
-        is Statement.If -> println("Error within If starting at line ${it.location.lineNum}")
+        is Statement.If -> println("Error within branching statement starting at line ${it.location.lineNum}")
         is Statement.Print -> println("Error in print at line ${it.location.lineNum}")
         is Statement.PrintLn -> println("Error in println at line ${it.location.lineNum}")
         is Statement.Exit -> println("Error in exit at line ${it.location.lineNum}")
