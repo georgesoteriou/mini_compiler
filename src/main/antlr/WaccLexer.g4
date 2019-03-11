@@ -1,5 +1,8 @@
 lexer grammar WaccLexer;
 
+
+INCLUDE : 'include';
+
 //skippable
 WHITESPACE: (' ' | '\n' | '\t')+ -> skip ;
 COMMENT: '#' (~('\n'))* '\n' -> skip ;
@@ -97,3 +100,4 @@ STR_LITER: '"' CHAR* '"' ;
 PAIR_LITER: 'null' ;
 
 IDENT: ('_' |[a-zA-Z]) ('_' | [a-zA-Z] | DIGIT)* ;
+FILENAME: [a-zA-Z0-9:\\_/.]+('.wacc') ;
