@@ -24,17 +24,19 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
     override fun visitWhen(ctx: WaccParser.WhenContext): Statement {
         val expr = ctx.expr().accept(ExprVisitor())
         val binop = ctx.getChild(2) as Expression.BinaryOperator
-
         val emptyBlock = Statement.Block(arrayListOf(), Scope())
+
+        // cascade if statements
         val whenIf = Statement.If(Expression.Literal.LBool(true), emptyBlock, emptyBlock)
         var currentIf = whenIf
         ctx.switch_line().forEach{
             val cond = Expression.BinaryOperation(expr, it.expr().accept(ExprVisitor()), binop)
             currentIf.condition = cond
             currentIf.ifThen = it.stat_list().accept(this)
-            currentIf.elseThen = emptyBlock
-            currentIf = Statement.If(Expression.Literal.LBool(true), emptyBlock, emptyBlock)
+            currentIf.elseThen = Statement.If(Expression.Literal.LBool(true), emptyBlock, emptyBlock)
+            currentIf = currentIf.elseThen as Statement.If
         }
+        currentIf.elseThen = emptyBlock
 
         return Statement.Block(arrayListOf(whenIf), Scope())
     }
