@@ -4,7 +4,6 @@ import org.antlr.v4.runtime.BailErrorStrategy
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.misc.ParseCancellationException
-import uk.ac.ic.doc.wacc.ast.AstOptimizer
 import uk.ac.ic.doc.wacc.grammar.WaccLexer
 import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.visitors.ProgramVisitor
@@ -35,8 +34,6 @@ fun main(args: Array<String>) {
         if (!semanticCheck(program)) {
             exitProcess(200)
         }
-
-        AstOptimizer(program).optimize()
 
         val outputFile = File(args[0]).nameWithoutExtension
         CodeGenerator(program).compile().outputAssembly(outputFile)

@@ -41,6 +41,7 @@ fun checkReturn(block: Statement.Block): Boolean {
         is Statement.If -> {
             checkReturn((stat.ifThen as Statement.Block)) && checkReturn((stat.elseThen as Statement.Block))
         }
+        is Statement.Block -> checkReturn(stat)
         else -> throw ParseCancellationException("Line " + stat.location.lineNum + ": Function missing return statement")
     }
 }
