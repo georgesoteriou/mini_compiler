@@ -54,7 +54,7 @@ sealed class Type {
                 Type.TInt -> "_i"
                 Type.TBool -> "_b"
                 Type.TChar -> "_c"
-                Type.TString -> "_s"
+                Type.TString -> "_a"
                 is Type.TArray -> "_a"
                 is Type.TPair -> "_p"
                 else -> ""
