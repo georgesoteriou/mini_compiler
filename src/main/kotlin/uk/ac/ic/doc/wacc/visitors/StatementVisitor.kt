@@ -10,6 +10,45 @@ import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 
 class StatementVisitor : WaccParserBaseVisitor<Statement>() {
+    /*override fun visitSwitch(ctx: WaccParser.SwitchContext): Statement {
+        val switch_block = arrayListOf<Statement>()
+       val expr = ctx.expr().accept(ExprVisitor())
+       ctx.switch_line().forEach{
+           val cond = Expression.BinaryOperation(expr, it.expr().accept(ExprVisitor()), Expression.BinaryOperator.EQ)
+           val if_stat = Statement.If(cond, it.stat_list().accept(this), Statement.Block(arrayListOf(), Scope()))
+           switch_block.add(if_stat)
+       }
+
+        return Statement.Block(switch_block, Scope())
+    }*/
+    override fun visitWhen(ctx: WaccParser.WhenContext): Statement {
+        val expr = ctx.expr().accept(ExprVisitor())
+        val binop = when {
+            ctx.EQ() != null -> Expression.BinaryOperator.EQ
+            ctx.GT() != null -> Expression.BinaryOperator.GT
+            ctx.GTE() != null -> Expression.BinaryOperator.GTE
+            ctx.LT() != null -> Expression.BinaryOperator.LT
+            ctx.NOTEQ() != null -> Expression.BinaryOperator.NOTEQ
+            ctx.LTE() != null -> Expression.BinaryOperator.LTE
+            else -> throw ParseCancellationException("When does not support other binary operators!")
+        }
+        val emptyBlock = Statement.Block(arrayListOf(), Scope())
+
+        // cascade if statements
+        val whenIf = Statement.If(Expression.Literal.LBool(true), emptyBlock, emptyBlock)
+        var currentIf = whenIf
+        ctx.switch_line().forEach{
+            val cond = Expression.BinaryOperation(expr, it.expr().accept(ExprVisitor()), binop)
+            currentIf.condition = cond
+            currentIf.ifThen = it.stat_list().accept(this) as Statement.Block
+            currentIf.elseThen = Statement.Block(arrayListOf(Statement.If(Expression.Literal.LBool(true), emptyBlock, emptyBlock)), Scope())
+            currentIf = currentIf.elseThen.statements.first() as Statement.If
+        }
+        currentIf.elseThen = emptyBlock
+
+        return Statement.Block(arrayListOf(whenIf), Scope())
+    }
+
     override fun visitSide_eff_unary(ctx: WaccParser.Side_eff_unaryContext): Statement {
         val op = ctx.side_effs_unary().accept(UnSideEffVisitor())
         val ident = Expression.Identifier(ctx.IDENT().toString())
@@ -31,12 +70,10 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
         return this
     }
 
-
-
     override fun visitShort_if(ctx: WaccParser.Short_ifContext): Statement {
         val condition = ctx.expr().accept(ExprVisitor())
         val ifThen = ctx.stat_list().accept(this)
-        return Statement.If(condition, ifThen, Statement.Block(arrayListOf(), Scope()))
+        return Statement.If(condition, ifThen as Statement.Block, Statement.Block(arrayListOf(), Scope()))
             .at(ctx.start)
     }
 
@@ -71,22 +108,31 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
         val e = ExprVisitor()
         val lhs = ctx.assign_lhs().accept(e)
         val rhs = ctx.assign_rhs().accept(e)
+
         return Statement.VariableAssignment(lhs, rhs)
             .at(ctx.start)
     }
 
     override fun visitIf(ctx: WaccParser.IfContext): Statement {
         val condition = ctx.expr().accept(ExprVisitor())
+
+        if(condition is Expression.Literal.LBool){
+            return when (condition.bool) {
+                true -> ctx.stat_list(0).accept(this).at(ctx.start)
+                false -> ctx.stat_list(1).accept(this).at(ctx.start)
+            }
+        }
+
         val ifThen = ctx.stat_list(0).accept(this)
         val elseThen = ctx.stat_list(1).accept(this)
-        return Statement.If(condition, ifThen, elseThen)
+        return Statement.If(condition, ifThen as Statement.Block, elseThen as Statement.Block)
             .at(ctx.start)
     }
 
     override fun visitWhile(ctx: WaccParser.WhileContext): Statement {
         val condition = ctx.expr().accept(ExprVisitor())
         val then = ctx.stat_list().accept(this)
-        return Statement.While(condition, then)
+        return Statement.While(condition, then as Statement.Block)
             .at(ctx.start)
     }
 

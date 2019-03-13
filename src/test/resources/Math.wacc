@@ -1,0 +1,35 @@
+begin
+    int Math_pow(int a, int b) is
+        int result = 1;
+        for int i = 0; i < b; i++ do
+            result *= a;
+        end;
+        return result;
+    end
+
+    int Math_factorial(int a) is
+        int result = 1;
+        for int i = 1; i <= a; i++ do
+            result *= i;
+        end;
+        return result;
+    end
+
+    int Math_max(int a, int b) is
+        if a > b then
+            return a;
+        else
+            return b;
+        fi
+    end
+
+    int Math_min(int a, int b) is
+        if a < b then
+            return a;
+        else
+            return b;
+        fi
+    end
+
+
+end
