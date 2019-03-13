@@ -15,4 +15,21 @@ begin
         return result;
     end
 
+    int Math_max(int a, int b) is
+        if a > b then
+            return a;
+        else
+            return b;
+        fi
+    end
+
+    int Math_min(int a, int b) is
+        if a < b then
+            return a;
+        else
+            return b;
+        fi
+    end
+
+
 end

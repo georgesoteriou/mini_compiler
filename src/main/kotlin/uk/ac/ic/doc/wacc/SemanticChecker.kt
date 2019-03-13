@@ -70,11 +70,11 @@ class SemanticChecker {
 
             is Statement.While ->
                 exprType(statement.condition, activeScope) is Type.TBool
-                        && checkStatement(statement.then as Statement.Block, activeScope, returnType)
+                        && checkStatement(statement.then, activeScope, returnType)
 
             is Statement.If -> exprType(statement.condition, activeScope) is Type.TBool
-                    && checkStatement(statement.ifThen as Statement.Block, activeScope, returnType)
-                    && checkStatement(statement.elseThen as Statement.Block, activeScope, returnType)
+                    && checkStatement(statement.ifThen, activeScope, returnType)
+                    && checkStatement(statement.elseThen, activeScope, returnType)
 
             is Statement.PrintLn -> {
                 val type = exprType(statement.expression, activeScope)

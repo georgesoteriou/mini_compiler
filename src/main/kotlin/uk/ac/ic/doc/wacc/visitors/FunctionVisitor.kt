@@ -37,11 +37,11 @@ fun checkReturn(block: Statement.Block): Boolean {
     return when (stat) {
         is Statement.Return -> true
         is Statement.Exit -> true
-        is Statement.While -> checkReturn((stat.then as Statement.Block))
+        is Statement.While -> checkReturn((stat.then))
         is Statement.If -> {
-            (checkReturn(stat.ifThen as Statement.Block)) && (
-                    (stat.elseThen as Statement.Block).statements.isEmpty())  ||
-                    checkReturn(stat.elseThen as Statement.Block)
+            (checkReturn(stat.ifThen)) && (
+                    (stat.elseThen).statements.isEmpty()) ||
+                    checkReturn(stat.elseThen)
         }
         is Statement.Block -> checkReturn(stat)
         else -> throw ParseCancellationException("Line " + stat.location.lineNum + ": Function missing return statement")
