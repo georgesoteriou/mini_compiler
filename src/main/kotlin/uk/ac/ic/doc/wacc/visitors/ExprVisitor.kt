@@ -19,23 +19,52 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
         val e1 = ctx.expr(0).accept(this)
         val e2 = ctx.expr(1).accept(this)
 
-        return when {
-            ctx.MULT() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.MULT)
-            ctx.DIV() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.DIV)
-            ctx.MOD() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.MOD)
+        val operator = when {
+            ctx.MULT() != null -> Expression.BinaryOperator.MULT
+            ctx.DIV() != null -> Expression.BinaryOperator.DIV
+            ctx.MOD() != null -> Expression.BinaryOperator.MOD
             else -> throw RuntimeException("Binary Op does not exist")
         }
+
+        if (e1 is Expression.Literal.LInt && e2 is Expression.Literal.LInt) {
+            val result: Int = when (operator) {
+                Expression.BinaryOperator.MULT -> e1.int * e2.int
+                Expression.BinaryOperator.DIV -> if (e2.int == 0) {
+                    return Expression.BinaryOperation(e1, e2, operator)
+                } else {
+                    e1.int / e2.int
+                }
+                Expression.BinaryOperator.MOD -> if (e2.int == 0) {
+                    return Expression.BinaryOperation(e1, e2, operator)
+                } else {
+                    e1.int % e2.int
+                }
+                else -> 0
+            }
+            return Expression.Literal.LInt(result)
+        }
+        return Expression.BinaryOperation(e1, e2, operator)
     }
 
     override fun visitBinaryOp2(ctx: WaccParser.BinaryOp2Context): Expression {
         val e1 = ctx.expr(0).accept(this)
         val e2 = ctx.expr(1).accept(this)
 
-        return when {
-            ctx.PLUS() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.PLUS)
-            ctx.MINUS() != null -> Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.MINUS)
+        val operator = when {
+            ctx.PLUS() != null -> Expression.BinaryOperator.PLUS
+            ctx.MINUS() != null -> Expression.BinaryOperator.MINUS
             else -> throw RuntimeException("Binary Op does not exist")
         }
+
+        if (e1 is Expression.Literal.LInt && e2 is Expression.Literal.LInt) {
+            val result: Int = when (operator) {
+                Expression.BinaryOperator.PLUS -> e1.int + e2.int
+                Expression.BinaryOperator.MINUS -> e1.int - e2.int
+                else -> 0
+            }
+            return Expression.Literal.LInt(result)
+        }
+        return Expression.BinaryOperation(e1, e2, operator)
     }
 
     override fun visitBinaryOp3(ctx: WaccParser.BinaryOp3Context): Expression {
@@ -65,12 +94,18 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
     override fun visitBinaryOp5(ctx: WaccParser.BinaryOp5Context): Expression {
         val e1 = ctx.expr(0).accept(this)
         val e2 = ctx.expr(1).accept(this)
+        if (e1 is Expression.Literal.LBool && e2 is Expression.Literal.LBool) {
+            return Expression.Literal.LBool(e1.bool && e2.bool)
+        }
         return Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.AND)
     }
 
     override fun visitBinaryOp6(ctx: WaccParser.BinaryOp6Context): Expression {
         val e1 = ctx.expr(0).accept(this)
         val e2 = ctx.expr(1).accept(this)
+        if (e1 is Expression.Literal.LBool && e2 is Expression.Literal.LBool) {
+            return Expression.Literal.LBool(e1.bool || e2.bool)
+        }
         return Expression.BinaryOperation(e1, e2, Expression.BinaryOperator.OR)
     }
 
@@ -78,11 +113,11 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
     override fun visitUnaryOp(ctx: WaccParser.UnaryOpContext): Expression {
         val e = ctx.expr().accept(this)
         return when {
-            ctx.unaryOper().NOT()  != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.NOT)
-            ctx.unaryOper().MINUS()!= null -> Expression.UnaryOperation(e, Expression.UnaryOperator.MINUS)
-            ctx.unaryOper().LEN()  != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.LEN)
-            ctx.unaryOper().ORD()  != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.ORD)
-            ctx.unaryOper().CHR()  != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.CHR)
+            ctx.unaryOper().NOT() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.NOT)
+            ctx.unaryOper().MINUS() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.MINUS)
+            ctx.unaryOper().LEN() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.LEN)
+            ctx.unaryOper().ORD() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.ORD)
+            ctx.unaryOper().CHR() != null -> Expression.UnaryOperation(e, Expression.UnaryOperator.CHR)
             else -> throw RuntimeException("Unary Op does not exist")
         }
     }
@@ -91,9 +126,9 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
 
     override fun visitIntLit(ctx: WaccParser.IntLitContext): Expression = Expression.Literal.LInt(
         if (ctx.MINUS() != null) {
-            "-" + ctx.INT_LITER().toString()
+            Integer.parseInt("-" + ctx.INT_LITER().toString().replaceFirst(Regex("^0+(?!$)"), ""))
         } else {
-            ctx.INT_LITER().toString()
+            Integer.parseInt(ctx.INT_LITER().toString().replaceFirst(Regex("^0+(?!$)"), ""))
         }
     )
 
@@ -104,12 +139,12 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
         var foundString = ctx.CHAR_LITER().toString()
         foundString = foundString.reversed()
         //println(foundString)
-        val charFound:Char = foundString[1]
+        val charFound: Char = foundString[1]
         return Expression.Literal.LChar(charFound)
     }
 
     override fun visitStrLit(ctx: WaccParser.StrLitContext): Expression =
-        Expression.Literal.LString(ctx.STR_LITER().toString().substring(1,ctx.STR_LITER().toString().length-1))
+        Expression.Literal.LString(ctx.STR_LITER().toString().substring(1, ctx.STR_LITER().toString().length - 1))
 
     override fun visitPairLit(ctx: WaccParser.PairLitContext): Expression = Expression.Literal.LPair
 
@@ -135,9 +170,11 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
         Expression.Identifier(ctx.IDENT().toString())
 
     override fun visitFst(ctx: WaccParser.FstContext): Expression = Expression.Fst(
-        ctx.expr().accept(this) as Expression.Identifier)
+        ctx.expr().accept(this) as Expression.Identifier
+    )
 
     override fun visitSnd(ctx: WaccParser.SndContext): Expression = Expression.Snd(
-        ctx.expr().accept(this) as Expression.Identifier)
+        ctx.expr().accept(this) as Expression.Identifier
+    )
 
 }

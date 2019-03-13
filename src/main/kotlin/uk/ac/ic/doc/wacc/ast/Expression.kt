@@ -10,7 +10,7 @@ sealed class Expression {
     data class Identifier(var name: String) : Expression()
 
     sealed class Literal : Expression() {
-        data class LInt(var int: String) : Literal()
+        data class LInt(var int: Int) : Literal()
         data class LBool(var bool: Boolean) : Literal()
         data class LChar(var char: Char) : Literal()
         data class LString(var string: String) : Literal()
@@ -19,7 +19,19 @@ sealed class Expression {
     }
 
     enum class BinaryOperator {
-        MULT, DIV, MOD, PLUS, MINUS, GT, GTE, LT, LTE, EQ, NOTEQ, AND, OR
+        MULT ,
+        DIV  ,
+        MOD  ,
+        PLUS,
+        MINUS,
+        GT,
+        GTE,
+        LT,
+        LTE,
+        EQ,
+        NOTEQ,
+        AND,
+        OR
     }
 
     data class BinaryOperation(var e1: Expression, var e2: Expression, var operator: BinaryOperator) : Expression()
