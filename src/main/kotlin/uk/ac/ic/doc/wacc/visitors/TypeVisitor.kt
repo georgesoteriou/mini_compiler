@@ -15,11 +15,11 @@ class TypeVisitor : WaccParserBaseVisitor<Type>() {
     override fun visitString(ctx: WaccParser.StringContext): Type = Type.TString
 
     override fun visitArray_type(ctx: WaccParser.Array_typeContext): Type = when {
-        ctx.array_type() != null -> Type.TArray(ctx.array_type().accept(this))
-        ctx.base_type() != null -> Type.TArray(ctx.base_type().accept(this))
-        ctx.pair_type() != null -> Type.TArray(ctx.pair_type().accept(this))
-        else -> throw InvalidTypeException("Array returnType does not exist")
-    }
+            ctx.array_type() != null -> Type.TArray(ctx.array_type().accept(this))
+            ctx.base_type() != null -> Type.TArray(ctx.base_type().accept(this))
+            ctx.pair_type() != null -> Type.TArray(ctx.pair_type().accept(this))
+            else -> throw InvalidTypeException("Array returnType does not exist")
+        }
 
     override fun visitPair_type(ctx: WaccParser.Pair_typeContext): Type {
         val t1 = ctx.pair_elem_type(0).accept(this)

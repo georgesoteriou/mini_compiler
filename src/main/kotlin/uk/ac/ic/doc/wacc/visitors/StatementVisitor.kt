@@ -31,8 +31,6 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
         return this
     }
 
-
-
     override fun visitShort_if(ctx: WaccParser.Short_ifContext): Statement {
         val condition = ctx.expr().accept(ExprVisitor())
         val ifThen = ctx.stat_list().accept(this)
@@ -71,6 +69,7 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
         val e = ExprVisitor()
         val lhs = ctx.assign_lhs().accept(e)
         val rhs = ctx.assign_rhs().accept(e)
+
         return Statement.VariableAssignment(lhs, rhs)
             .at(ctx.start)
     }

@@ -12,9 +12,7 @@ sealed class Type {
     object TString : Type()
 
     object TError : Type()
-    class TArray(var type: Type) : Type() {
-        var size: Int = 0
-    }
+    data class TArray(var type: Type, var types: List<Type> = arrayListOf()) : Type()
 
     data class TPair(var t1: Type, var t2: Type) : Type()
     object TPairSimple : Type()
