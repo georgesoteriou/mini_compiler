@@ -1,0 +1,136 @@
+# HARD PUZZLE
+#
+# 9 1 0 0 0 0 0 5 0
+# 0 0 3 0 0 9 0 2 1
+# 0 0 0 4 0 2 0 0 0
+# 0 8 0 0 4 0 9 0 2
+# 0 0 0 0 7 0 0 0 0
+# 5 0 4 0 6 0 0 1 0
+# 0 0 0 5 0 6 0 0 0
+# 2 5 0 7 0 0 8 0 0
+# 0 3 0 0 0 0 0 9 5
+#
+# ------------------
+# EASY PUZZLE
+#
+# 6 3 0 2 0 8 0 1 0
+# 2 0 0 0 5 0 0 8 9
+# 1 0 9 0 6 0 0 3 0
+# 0 0 8 0 0 6 0 5 0
+# 0 0 0 1 8 7 0 0 0
+# 0 6 0 5 0 0 9 0 0
+# 0 9 0 0 7 0 1 0 6
+# 8 1 0 0 2 0 0 0 5
+# 0 2 0 4 0 3 0 9 7
+
+begin
+  int[][] readPuzzle() is
+    println "Insert your puzzle (81 numbers). Use 0 for blank squares:";
+    int[] ar0 = [0,0,0,0,0,0,0,0,0];
+    int[] ar1 = [0,0,0,0,0,0,0,0,0];
+    int[] ar2 = [0,0,0,0,0,0,0,0,0];
+    int[] ar3 = [0,0,0,0,0,0,0,0,0];
+    int[] ar4 = [0,0,0,0,0,0,0,0,0];
+    int[] ar5 = [0,0,0,0,0,0,0,0,0];
+    int[] ar6 = [0,0,0,0,0,0,0,0,0];
+    int[] ar7 = [0,0,0,0,0,0,0,0,0];
+    int[] ar8 = [0,0,0,0,0,0,0,0,0];
+    int[][] puzzle = [ar0, ar1, ar2, ar3, ar4, ar5, ar6, ar7, ar8];
+
+    for int i = 0; i < 9; i++ do
+      for int j = 0; j < 9; j++ do
+        int temp = 0;
+        read temp;
+        puzzle[i][j] = temp;
+      end;
+    end;
+    return puzzle;
+  end
+
+  int writePuzzle(int[][] puzzle) is
+    println "Solution:";
+    for int i = 0; i < 9; i++ do
+      for int j = 0; j < 9; j++ do
+        print puzzle[i][j];
+        print " ";
+      end;
+      println "";
+    end;
+    return 1;
+  end
+
+  bool valid(int x, int y, int[][] grid) is
+    if grid[x][y] == 0 then return false; fi;
+    int count = 0;
+    for int i = 0; i < 9; i++ do
+      if grid[x][i] == grid[x][y] then count++; fi;
+      if grid[i][y] == grid[x][y] then count++; fi;
+      int t1 = ((x/3) * 3) + i/3;
+      int t2 = ((y/3) * 3) + i%3;
+      if grid[t1][t2] == grid[x][y] then count++; fi;
+    end;
+    return ! (count > 3);
+  end
+
+  bool valid(int[][] grid) is
+    bool v = true;
+    for int i = 0; i < 9; i++ do
+      for int j = 0; j < 9; j++ do
+        bool b = call valid(i,j,grid);
+        if !b then return false; fi;
+      end;
+    end;
+    return v;
+  end
+
+  int[][] loop(int x, int y, int[][] grid) is
+    int count = 0;
+    bool v = call valid(grid);
+    while !v do
+      if count > 9 then
+        grid[x][y] = 0;
+        return grid;
+      fi;
+      if grid[x][y] < 9 then
+        int tmp = grid[x][y];
+        grid[x][y] = tmp + 1;
+        count++;
+      else
+        grid[x][y] = 0;
+        count++;
+      fi;
+      bool vxy = call valid(x, y, grid);
+      if vxy then
+        grid = call solve(x, y, grid);
+      fi;
+      v = call valid(grid);
+    done;
+    return grid;
+  end
+
+  int[][] solve(int x, int y, int[][] grid) is
+    bool v = call valid(grid);
+    if v then
+      return grid;
+    fi;
+    while grid[x][y] != 0 do
+      if (x < 8) then
+        x++;
+      else
+        x = 0;
+        y++;
+      fi
+    done;
+    int[][] ret = call loop(x, y, grid);
+    return ret;
+  end
+
+  int[][] solve(int[][] grid) is
+    grid = call solve(0, 0, grid);
+    return grid;
+  end
+
+  int[][] puzzle = call readPuzzle();
+  int[][] solved = call solve(puzzle);
+  int num = call writePuzzle(solved);
+end

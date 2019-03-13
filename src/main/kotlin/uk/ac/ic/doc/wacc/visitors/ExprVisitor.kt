@@ -138,7 +138,6 @@ class ExprVisitor : WaccParserBaseVisitor<Expression>() {
     override fun visitCharLit(ctx: WaccParser.CharLitContext): Expression {
         var foundString = ctx.CHAR_LITER().toString()
         foundString = foundString.reversed()
-        //println(foundString)
         val charFound: Char = foundString[1]
         return Expression.Literal.LChar(charFound)
     }
