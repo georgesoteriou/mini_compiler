@@ -210,18 +210,19 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
         is Expression.Literal.LString -> Type.TString
         is Expression.Literal.LPair -> Type.TPair(Type.TAny, Type.TAny)
         is Expression.Literal.LArray -> {
-            var arrayElemType: Type = Type.TAny
-            expr.params.forEach {
-                val itType = exprType(it, activeScope)
-                if (Type.compare(itType, arrayElemType)) {
-                    arrayElemType = itType
-                } else {
-                    arrayElemType = Type.TError
+            val arrayElemType = expr.params.map { exprType(it, activeScope) }
+            val type = if (!arrayElemType.isEmpty()) {
+                arrayElemType.foldRight(arrayElemType[0]) { type, acc ->
+                    if (Type.compare(type, acc)) {
+                        type
+                    } else {
+                        return Type.TError
+                    }
                 }
+            } else {
+                Type.TAny
             }
-            val array = Type.TArray(arrayElemType)
-            array.size = expr.params.size
-            array
+            Type.TArray(type, arrayElemType)
         }
         is Expression.NewPair -> Type.TPair(exprType(expr.e1, activeScope), exprType(expr.e2, activeScope))
 
