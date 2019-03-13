@@ -43,6 +43,7 @@ fun checkReturn(block: Statement.Block): Boolean {
                     (stat.elseThen as Statement.Block).statements.isEmpty())  ||
                     checkReturn(stat.elseThen as Statement.Block)
         }
+        is Statement.Block -> checkReturn(stat)
         else -> throw ParseCancellationException("Line " + stat.location.lineNum + ": Function missing return statement")
     }
 }
