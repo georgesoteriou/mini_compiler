@@ -108,12 +108,21 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
         val e = ExprVisitor()
         val lhs = ctx.assign_lhs().accept(e)
         val rhs = ctx.assign_rhs().accept(e)
+
         return Statement.VariableAssignment(lhs, rhs)
             .at(ctx.start)
     }
 
     override fun visitIf(ctx: WaccParser.IfContext): Statement {
         val condition = ctx.expr().accept(ExprVisitor())
+
+        if(condition is Expression.Literal.LBool){
+            return when (condition.bool) {
+                true -> ctx.stat_list(0).accept(this).at(ctx.start)
+                false -> ctx.stat_list(1).accept(this).at(ctx.start)
+            }
+        }
+
         val ifThen = ctx.stat_list(0).accept(this)
         val elseThen = ctx.stat_list(1).accept(this)
         return Statement.If(condition, ifThen as Statement.Block, elseThen as Statement.Block)

@@ -983,29 +983,32 @@ class ValidTests {
         }
     }
     class RuntimeErr {
+        // Changed expected Exit code to 200 because this error is now caught in semantic test
         class ArrayOutOfBounds {
             @Test
             fun arrayNegBounds() {
                 testCompile(
                     File("src/test/resources/valid/runtimeErr/arrayOutOfBounds/arrayNegBounds.wacc"),
-                    255
+                    200
                 )
             }
         }
 
+        // Changed expected Exit code to 200 because this error is now caught in semantic test
         @Test
         fun arrayOutOfBounds() {
             testCompile(
                 File("src/test/resources/valid/runtimeErr/arrayOutOfBounds/arrayOutOfBounds.wacc"),
-                255
+                200
             )
         }
 
+        // Changed expected Exit code to 200 because this error is now caught in semantic test
         @Test
         fun arrayOutOfBoundsWrite() {
             testCompile(
                 File("src/test/resources/valid/runtimeErr/arrayOutOfBounds/arrayOutOfBoundsWrite.wacc"),
-                255
+                200
             )
         }
         class DivideByZero {

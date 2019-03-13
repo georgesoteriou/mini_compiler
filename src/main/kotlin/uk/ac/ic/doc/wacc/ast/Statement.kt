@@ -3,6 +3,7 @@ package uk.ac.ic.doc.wacc.ast
 sealed class Statement {
 
     var location = Location(0, 0)
+    var context = ""
 
     class Skip : Statement()
     data class VariableDeclaration(var lhs: Definition, var rhs: Expression) : Statement()

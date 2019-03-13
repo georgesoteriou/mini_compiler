@@ -33,14 +33,17 @@ class FunctionVisitor : WaccParserBaseVisitor<Function>() {
 
 
 fun checkReturn(block: Statement.Block): Boolean {
-    val stat = (block).statements.last()
+    val stat = block.statements.last()
     return when (stat) {
         is Statement.Return -> true
         is Statement.Exit -> true
         is Statement.While -> checkReturn((stat.then as Statement.Block))
         is Statement.If -> {
-            checkReturn((stat.ifThen as Statement.Block)) && checkReturn((stat.elseThen as Statement.Block))
+            (checkReturn(stat.ifThen as Statement.Block)) && (
+                    (stat.elseThen as Statement.Block).statements.isEmpty())  ||
+                    checkReturn(stat.elseThen as Statement.Block)
         }
+        is Statement.Block -> checkReturn(stat)
         else -> throw ParseCancellationException("Line " + stat.location.lineNum + ": Function missing return statement")
     }
 }
