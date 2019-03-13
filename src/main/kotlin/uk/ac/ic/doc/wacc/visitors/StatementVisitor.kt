@@ -23,7 +23,15 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
     }*/
     override fun visitWhen(ctx: WaccParser.WhenContext): Statement {
         val expr = ctx.expr().accept(ExprVisitor())
-        val binop = ctx.getChild(2) as Expression.BinaryOperator
+        val binop = when {
+            ctx.EQ() != null -> Expression.BinaryOperator.EQ
+            ctx.GT() != null -> Expression.BinaryOperator.GT
+            ctx.GTE() != null -> Expression.BinaryOperator.GTE
+            ctx.LT() != null -> Expression.BinaryOperator.LT
+            ctx.NOTEQ() != null -> Expression.BinaryOperator.NOTEQ
+            ctx.LTE() != null -> Expression.BinaryOperator.LTE
+            else -> throw ParseCancellationException("When does not support other binary operators!")
+        }
         val emptyBlock = Statement.Block(arrayListOf(), Scope())
 
         // cascade if statements
@@ -32,9 +40,9 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
         ctx.switch_line().forEach{
             val cond = Expression.BinaryOperation(expr, it.expr().accept(ExprVisitor()), binop)
             currentIf.condition = cond
-            currentIf.ifThen = it.stat_list().accept(this)
-            currentIf.elseThen = Statement.If(Expression.Literal.LBool(true), emptyBlock, emptyBlock)
-            currentIf = currentIf.elseThen as Statement.If
+            currentIf.ifThen = it.stat_list().accept(this) as Statement.Block
+            currentIf.elseThen = Statement.Block(arrayListOf(Statement.If(Expression.Literal.LBool(true), emptyBlock, emptyBlock)), Scope())
+            currentIf = currentIf.elseThen.statements.first() as Statement.If
         }
         currentIf.elseThen = emptyBlock
 
@@ -65,7 +73,7 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
     override fun visitShort_if(ctx: WaccParser.Short_ifContext): Statement {
         val condition = ctx.expr().accept(ExprVisitor())
         val ifThen = ctx.stat_list().accept(this)
-        return Statement.If(condition, ifThen, Statement.Block(arrayListOf(), Scope()))
+        return Statement.If(condition, ifThen as Statement.Block, Statement.Block(arrayListOf(), Scope()))
             .at(ctx.start)
     }
 
@@ -108,14 +116,14 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
         val condition = ctx.expr().accept(ExprVisitor())
         val ifThen = ctx.stat_list(0).accept(this)
         val elseThen = ctx.stat_list(1).accept(this)
-        return Statement.If(condition, ifThen, elseThen)
+        return Statement.If(condition, ifThen as Statement.Block, elseThen as Statement.Block)
             .at(ctx.start)
     }
 
     override fun visitWhile(ctx: WaccParser.WhileContext): Statement {
         val condition = ctx.expr().accept(ExprVisitor())
         val then = ctx.stat_list().accept(this)
-        return Statement.While(condition, then)
+        return Statement.While(condition, then as Statement.Block)
             .at(ctx.start)
     }
 
