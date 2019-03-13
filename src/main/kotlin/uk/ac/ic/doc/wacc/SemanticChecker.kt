@@ -24,16 +24,26 @@ fun semanticCheck(prog: Program): Boolean {
     var valid = true
     val activeScope = ActiveScope(Scope(), null)
 
+
+
+    prog.functions.forEach { f ->
+        f.name += Type.toAppend(f.type.returnType)
+        f.type.params.forEach {
+            f.name += Type.toAppend(it)
+        }
+
+    }
     if (!activeScope.addAll(prog.functions.map { Definition(it.name, it.type) })) {
         return false
     }
-
     prog.functions.forEach { f ->
         val definitions =
             f.params.zip(f.type.params).map { def -> Pair(def.first, Scope.Definition(def.second, true)) }
+
+
         f.block.scope.definitions.putAll(definitions)
         f.block.scope.definitions[""] = Scope.Definition(Type.TAny, true)
-        valid = valid && checkStatement(f.block, activeScope, f.type.type)
+        valid = valid && checkStatement(f.block, activeScope, f.type.returnType)
     }
 
     valid = valid && checkStatement(prog.block, activeScope, Type.TError)
@@ -63,7 +73,6 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
         is Statement.If -> exprType(param.condition, activeScope) is Type.TBool
                 && checkStatement(param.ifThen as Statement.Block, activeScope, returnType)
                 && checkStatement(param.elseThen as Statement.Block, activeScope, returnType)
-
 
         is Statement.PrintLn -> {
             val type = exprType(param.expression, activeScope)
@@ -105,6 +114,11 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
         is Statement.VariableAssignment -> {
 
             val lhsType = exprType(param.lhs, activeScope)
+            val rhsT = param.rhs
+            if (rhsT is Expression.CallFunction) {
+                rhsT.name += Type.toAppend(lhsType)
+            }
+
             val rhsType = exprType(param.rhs, activeScope)
 
             val rhs = param.rhs
@@ -114,7 +128,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
                 if (funType.params.size != rhs.params.size) {
                     return false
                 }
-                return Type.compare(lhsType, funType.type) &&
+                return Type.compare(lhsType, funType.returnType) &&
                         funType.params.zip(rhs.params).foldRight(true) { type, next ->
                             next && Type.compare(type.first, exprType(type.second, activeScope))
                         }
@@ -125,6 +139,12 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
 
         is Statement.VariableDeclaration -> {
             val lhs = param.lhs
+
+            val rhsT = param.rhs
+            if (rhsT is Expression.CallFunction) {
+                rhsT.name += Type.toAppend(lhs.type)
+            }
+
             val rhsType = exprType(param.rhs, activeScope)
 
             val rhs = param.rhs
@@ -134,7 +154,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
                 if (funType.params.size != rhs.params.size) {
                     return false
                 }
-                val funtype = Type.compare(lhs.type, funType.type) &&
+                val funtype = Type.compare(lhs.type, funType.returnType) &&
                         funType.params.zip(rhs.params).foldRight(true) { type, next ->
                             next && Type.compare(type.first, exprType(type.second, activeScope))
                         }
@@ -169,9 +189,15 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
 
     expr.exprType = when (expr) {
         is Expression.CallFunction -> {
+            expr.params.forEach {
+                it.exprType = exprType(it, activeScope)
+                expr.name += Type.toAppend(it.exprType)
+            }
+
             val type = activeScope.findType(expr.name).orElse(Type.TError)
+
             when (type) {
-                is Type.TFunction -> type.type
+                is Type.TFunction -> type.returnType
                 else -> Type.TError
             }
         }

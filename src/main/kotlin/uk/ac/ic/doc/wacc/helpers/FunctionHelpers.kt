@@ -125,7 +125,26 @@ fun CodeGenerator.returnStatementInstructions(statement: Statement.Return) {
             Operand.Register(MIN_EXPR_REG)
         )
     )
-    increaseSP(currentBlock!!)
+    var tempScope: ActiveScope? = activeScope
+    var size = 0
+    while(tempScope != null) {
+        size += tempScope.currentScope.blockSize
+        tempScope = tempScope.parentScope
+    }
+    for (i in 1..size step MAX_SUB_SIZE) {
+        instructions.add(
+            Instruction.ADD(
+                Operand.Sp, Operand.Sp, Operand.Offset(
+                    if (size > MAX_SUB_SIZE) {
+                        size -= MAX_SUB_SIZE
+                        MAX_SUB_SIZE
+                    } else {
+                        size
+                    }
+                )
+            )
+        )
+    }
     instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
 }
 

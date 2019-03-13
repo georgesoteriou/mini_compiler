@@ -50,6 +50,12 @@ test {
     }
 }
 
+subprojects {
+    tasks.withType(Test) {
+        maxParallelForks = Runtime.runtime.availableProcessors()
+    }
+}
+
 clean {
     project.delete fileTree('build').include('*.*')
     project.delete fileTree('.').include('*.s')

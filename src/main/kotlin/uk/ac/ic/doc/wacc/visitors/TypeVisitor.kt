@@ -18,7 +18,7 @@ class TypeVisitor : WaccParserBaseVisitor<Type>() {
         ctx.array_type() != null -> Type.TArray(ctx.array_type().accept(this))
         ctx.base_type() != null -> Type.TArray(ctx.base_type().accept(this))
         ctx.pair_type() != null -> Type.TArray(ctx.pair_type().accept(this))
-        else -> throw InvalidTypeException("Array type does not exist")
+        else -> throw InvalidTypeException("Array returnType does not exist")
     }
 
     override fun visitPair_type(ctx: WaccParser.Pair_typeContext): Type {

@@ -1,5 +1,8 @@
 lexer grammar WaccLexer;
 
+
+INCLUDE : 'include';
+
 //skippable
 WHITESPACE: (' ' | '\n' | '\t')+ -> skip ;
 COMMENT: '#' (~('\n'))* '\n' -> skip ;
@@ -25,6 +28,15 @@ NOT: '!' ;
 LEN: 'len' ;
 ORD: 'ord' ;
 CHR: 'chr' ;
+
+// side-effecting operators
+PLUS_EQ: '+=';
+MINUS_EQ: '-=';
+MULT_EQ: '*=';
+MOD_EQ: '%=';
+DIV_EQ: '/=';
+AND_EQ: '&&=';
+OR_EQ: '||=';
 
 //brackets
 OPEN_PARENTHESES: '(' ;
@@ -54,10 +66,11 @@ THEN_S: 'then' ;
 ELSE_S: 'else' ;
 FI_S: 'fi' ;
 WHILE_S: 'while' ;
+FOR_S: 'for';
 DO_S: 'do' ;
 DONE_S: 'done' ;
 
-//base-type
+//base-returnType
 INT_T: 'int' ;
 BOOL_T: 'bool' ;
 CHAR_T: 'char' ;
@@ -87,3 +100,4 @@ STR_LITER: '"' CHAR* '"' ;
 PAIR_LITER: 'null' ;
 
 IDENT: ('_' |[a-zA-Z]) ('_' | [a-zA-Z] | DIGIT)* ;
+FILENAME: [a-zA-Z0-9:\\_/.]+('.wacc') ;
