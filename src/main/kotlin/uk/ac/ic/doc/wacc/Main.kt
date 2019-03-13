@@ -49,7 +49,7 @@ fun main(args: Array<String>) {
 
         recursiveInclude(program)
 
-        if (!semanticCheck(program)) {
+        if (!SemanticChecker().semanticCheck(program)) {
             exitProcess(200)
         }
 
