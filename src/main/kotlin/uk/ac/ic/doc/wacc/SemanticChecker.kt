@@ -51,12 +51,12 @@ fun semanticCheck(prog: Program): Boolean {
 }
 
 
-fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type): Boolean {
-    return when (param) {
+fun checkStatement(statement: Statement, activeScope: ActiveScope, returnType: Type): Boolean {
+    return when (statement) {
         is Statement.Block -> {
-            val newActiveScope = activeScope.newSubScope(param.scope)
+            val newActiveScope = activeScope.newSubScope(statement.scope)
             var valid = true
-            param.statements.forEach {
+            statement.statements.forEach {
                 val check = checkStatement(it, newActiveScope, returnType)
                 if (!check) {
                     errorLog(it)
@@ -67,34 +67,34 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
         }
 
         is Statement.While ->
-            exprType(param.condition, activeScope) is Type.TBool
-                    && checkStatement(param.then as Statement.Block, activeScope, returnType)
+            exprType(statement.condition, activeScope) is Type.TBool
+                    && checkStatement(statement.then as Statement.Block, activeScope, returnType)
 
-        is Statement.If -> exprType(param.condition, activeScope) is Type.TBool
-                && checkStatement(param.ifThen as Statement.Block, activeScope, returnType)
-                && checkStatement(param.elseThen as Statement.Block, activeScope, returnType)
+        is Statement.If -> exprType(statement.condition, activeScope) is Type.TBool
+                && checkStatement(statement.ifThen as Statement.Block, activeScope, returnType)
+                && checkStatement(statement.elseThen as Statement.Block, activeScope, returnType)
 
         is Statement.PrintLn -> {
-            val type = exprType(param.expression, activeScope)
+            val type = exprType(statement.expression, activeScope)
             type !is Type.TError && type !is Type.TFunction
         }
 
         is Statement.Print -> {
-            val type = exprType(param.expression, activeScope)
+            val type = exprType(statement.expression, activeScope)
             type !is Type.TError && type !is Type.TFunction
         }
-        is Statement.Exit -> exprType(param.expression, activeScope) is Type.TInt
+        is Statement.Exit -> exprType(statement.expression, activeScope) is Type.TInt
 
         is Statement.Return -> {
             if (returnType is Type.TError) {
                 false
             } else {
-                Type.compare(exprType(param.expression, activeScope), returnType)
+                Type.compare(exprType(statement.expression, activeScope), returnType)
             }
         }
 
         is Statement.FreeVariable -> {
-            when (exprType(param.expression, activeScope)) {
+            when (exprType(statement.expression, activeScope)) {
                 is Type.TArray -> true
                 is Type.TPair -> true
                 is Type.TPairSimple -> true
@@ -104,7 +104,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
         }
 
         is Statement.ReadInput -> {
-            when (exprType(param.expression, activeScope)) {
+            when (exprType(statement.expression, activeScope)) {
                 is Type.TInt -> true
                 is Type.TChar -> true
                 else -> false
@@ -113,15 +113,16 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
 
         is Statement.VariableAssignment -> {
 
-            val lhsType = exprType(param.lhs, activeScope)
-            val rhsT = param.rhs
+            val lhsType = exprType(statement.lhs, activeScope)
+            val rhsT = statement.rhs
+
             if (rhsT is Expression.CallFunction) {
                 rhsT.name += Type.toAppend(lhsType)
             }
 
-            val rhsType = exprType(param.rhs, activeScope)
+            val rhsType = exprType(statement.rhs, activeScope)
 
-            val rhs = param.rhs
+            val rhs = statement.rhs
             if (rhs is Expression.CallFunction) {
                 val funType = activeScope.findType(rhs.name).orElse(Type.TError) as? Type.TFunction ?: return false
 
@@ -138,16 +139,16 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
         }
 
         is Statement.VariableDeclaration -> {
-            val lhs = param.lhs
+            val lhs = statement.lhs
 
-            val rhsT = param.rhs
+            val rhsT = statement.rhs
             if (rhsT is Expression.CallFunction) {
                 rhsT.name += Type.toAppend(lhs.type)
             }
 
-            val rhsType = exprType(param.rhs, activeScope)
+            val rhsType = exprType(statement.rhs, activeScope)
 
-            val rhs = param.rhs
+            val rhs = statement.rhs
             if (rhs is Expression.CallFunction) {
                 val funType = activeScope.findType(rhs.name).orElse(Type.TError) as? Type.TFunction ?: return false
 
@@ -170,7 +171,7 @@ fun checkStatement(param: Statement, activeScope: ActiveScope, returnType: Type)
                 return false
             }
             return if (Type.compare(lhs.type, rhsType)) {
-                if (!Type.compare(Type.TPair(Type.TAny, Type.TAny), rhsType)) {
+                if(rhsT !is Expression.Literal.LPair) {
                     lhs.type = rhsType
                 }
                 activeScope.add(lhs)
@@ -318,9 +319,17 @@ fun exprType(expr: Expression, activeScope: ActiveScope): Type {
             }
 
             var arrType = activeScope.findType(expr.array).orElse(Type.TError)
-            repeat(expr.indexes.size) {
+            expr.indexes.forEach {
                 arrType = when (arrType) {
-                    is Type.TArray -> (arrType as Type.TArray).type
+                    is Type.TArray -> {
+                        val size = (arrType as Type.TArray).types.size
+                        if(it is Expression.Literal.LInt) {
+                            if (it.int >= size || it.int < 0) {
+                                return Type.TError
+                            }
+                        }
+                        (arrType as Type.TArray).type
+                    }
                     is Type.TString -> Type.TChar
                     else -> Type.TError
                 }
