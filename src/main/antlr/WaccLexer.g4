@@ -69,6 +69,7 @@ WHILE_S: 'while' ;
 FOR_S: 'for';
 DO_S: 'do' ;
 DONE_S: 'done' ;
+WHEN_S: 'when' ;
 
 //base-returnType
 INT_T: 'int' ;
@@ -78,6 +79,7 @@ STRING_T: 'string' ;
 
 //various symbols
 SEMICOL: ';' ;
+COL: ':' ;
 COMMA: ',' ;
 ASSIGN: '=' ;
 FST: 'fst' ;

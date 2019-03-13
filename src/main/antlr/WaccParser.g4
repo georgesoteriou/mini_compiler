@@ -58,9 +58,12 @@ stat: SKIP_S                                        #skip
 | IF_S expr THEN_S stat_list FI_S                   #short_if
 | WHILE_S expr DO_S stat_list DONE_S                #while
 | DO_S stat_list WHILE_S expr                       #do_while
-| FOR_S stat SEMICOL expr SEMICOL stat DO_S stat_list END_S         #for
+| FOR_S stat SEMICOL expr SEMICOL stat DO_S stat_list END_S           #for
+| WHEN_S expr (GT | GTE | LT | LTE | EQ | NOTEQ) switch_line+ DONE_S  #when
 | BEGIN_S stat_list END_S                           #begin
 ;
+
+switch_line : expr COL stat_list ;
 
 //types
 
