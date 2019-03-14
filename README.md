@@ -87,7 +87,7 @@ Finally the code generator traverses the AST only once using all the information
 
 ## 4. Beyond the Specification
 
-- `for` and `do while` statements were implemented on the basis of while statements. A `for` statement compiles to a `while` statement with an embedded declaration before the loop and a counter increase as the last statement of the body of the loop. The `do while` simply adds the body of the while once before the `while` statement. This creates the effect of a `do while` loop.
+- `for` and `do while` statements were implemented on the basis of while statements. A `for` statement compiles to a `while` statement with an embedded declaration before the loop and a counter increase as the last statement of the body of the loop. The `do while` simply adds the body of the while once before the `while` statement. This creates the effect of a `do while` loop. 
 
   The format of the statements is as follows:
 
@@ -101,7 +101,7 @@ Finally the code generator traverses the AST only once using all the information
   end
   ```
 
-- We extended the `if` statement implementation to support not having an `else` branch, to avoid writing redundant `else` branches that contain just a `skip`. It is efficiently implemented, reusing assembly code for `if` statements, but with an effectively empty `else` instructions.
+- We extended the `if` statement implementation to support not having an `else` branch, to avoid writing redundant `else` branches that contain just a `skip`. It is efficiently implemented, reusing assembly code for `if` statements, but with an effectively empty `else` instructions. Because of this change, `ifNoelse` test fails.
 - Implemented `when` statements, which act nearly like the ones implemented by Kotlin. This statement contains an expression that will be evaluated, using a user-chosen comparison operator, with another expression found in the lines of the when statement. If none of the lines evaluate to true, the when statement won't do anything, as we decided not to include a default case, as a design choice.
 
   The format of the statement is as follows:
@@ -117,8 +117,8 @@ Finally the code generator traverses the AST only once using all the information
   ```
 
 - Extended WACC language to support side-effecting expressions (`++, --, +=, -=, *=, /=, %=, &=, |=`), by compiling them as assignment statements.
-- Extended WACC language to allow a semicolon at the end of the penultimate statement. This improves readability and uniformity of the WACC language.
-- Implemented a way to include other .wacc files into the program, effectively enabling headers and predefined libraries to be imported into the program. (A side effect of implementing include statements was that the WACC language had to be modified to allow for .wacc files to only contain function definitions, with no body.)
+- Extended WACC language to allow a semicolon at the end of the penultimate statement. This improves readability and uniformity of the WACC language. (This causes the `extraSeq` test to fail)
+- Implemented a way to include other .wacc files into the program, effectively enabling headers and predefined libraries to be imported into the program. (A side effect of implementing include statements was that the WACC language had to be modified to allow for .wacc files to only contain function definitions, with no body. and therefore the tests `noBodyAfterFuncs` and `noBody` fail)
 
   The format of the includes is as follows:
 
@@ -131,4 +131,5 @@ Finally the code generator traverses the AST only once using all the information
   ```
 
 - Implemented function overloading, by allowing functions to have the same name, and possibly different parameters and return types. This was done by using the name of the function, its parameters and return type to generate a unique function name to be used throughout in the AST, and upon encountering function calls, looking up the unique internal function name to jump to the intended function.
+- Implemented array bound checking. This was done by making array types stronger by storing the type of each object in the array. This helped us solve the problem of indexing multidimensional arrays as each index may have a sub array of different length. Using this tool, every time an access to an array is made, the length of the corresponding array is checked and a semantic error is expressed if the index is out of bounds. Because of this change, 3 runtime error test fail as this is now longer a runtime error, but a semantic one.
 - We also spent some time working on a sudoku solving project in wacc. There are two files that can be found under `src/test/resources/` called `sudoku.wacc` and `sudoku2.wacc`. They both take an unsolved sudoku grid and return a solved one in under a second. The first is written in the normal WACC language without any extensions implemented. The second one includes our extensions and can be used to make sure that the features we implemented are correct.
