@@ -8,18 +8,18 @@ class SemanticChecker {
 
     private fun errorLog(it: Statement) {
         when (it) {
-            is Statement.Block -> println("Error within Block starting at line ${it.location.lineNum}. ${it.context}.")
-            is Statement.While -> println("Error within While starting at line ${it.location.lineNum}. ${it.context}.")
-            is Statement.If -> println("Error within If starting at line ${it.location.lineNum}. ${it.context}.")
-            is Statement.Print -> println("Error in print at line ${it.location.lineNum}. ${it.context}.")
-            is Statement.PrintLn -> println("Error in println at line ${it.location.lineNum}. ${it.context}.")
-            is Statement.Exit -> println("Error in exit at line ${it.location.lineNum}. ${it.context}.")
-            is Statement.Return -> println("Error in return at line ${it.location.lineNum}. ${it.context}.")
-            is Statement.FreeVariable -> println("Error in free at line ${it.location.lineNum}. ${it.context}.")
-            is Statement.ReadInput -> println("Error in read at line ${it.location.lineNum}. ${it.context}.")
-            is Statement.VariableAssignment -> println("Error in assignment at line ${it.location.lineNum}. ${it.context}.")
-            is Statement.VariableDeclaration -> println("Error in declaration at line ${it.location.lineNum}. ${it.context}.")
-            is Statement.Skip -> println("Error in skip at line ${it.location.lineNum}. ${it.context}.")
+            is Statement.Block -> println("Error within Block starting at line ${it.location.lineNum}. ${it.context}")
+            is Statement.While -> println("Error within While starting at line ${it.location.lineNum}. ${it.context}")
+            is Statement.If -> println("Error within If starting at line ${it.location.lineNum}. ${it.context}")
+            is Statement.Print -> println("Error in print at line ${it.location.lineNum}. ${it.context}")
+            is Statement.PrintLn -> println("Error in println at line ${it.location.lineNum}. ${it.context}")
+            is Statement.Exit -> println("Error in exit at line ${it.location.lineNum}. ${it.context}")
+            is Statement.Return -> println("Error in return at line ${it.location.lineNum}. ${it.context}")
+            is Statement.FreeVariable -> println("Error in free at line ${it.location.lineNum}. ${it.context}")
+            is Statement.ReadInput -> println("Error in read at line ${it.location.lineNum}. ${it.context}")
+            is Statement.VariableAssignment -> println("Error in assignment at line ${it.location.lineNum}. ${it.context}")
+            is Statement.VariableDeclaration -> println("Error in declaration at line ${it.location.lineNum}. ${it.context}")
+            is Statement.Skip -> println("Error in skip at line ${it.location.lineNum}. ${it.context}")
         }
     }
 

@@ -10,17 +10,13 @@ import uk.ac.ic.doc.wacc.grammar.WaccParser
 import uk.ac.ic.doc.wacc.grammar.WaccParserBaseVisitor
 
 class StatementVisitor : WaccParserBaseVisitor<Statement>() {
-    /*override fun visitSwitch(ctx: WaccParser.SwitchContext): Statement {
-        val switch_block = arrayListOf<Statement>()
-       val expr = ctx.expr().accept(ExprVisitor())
-       ctx.switch_line().forEach{
-           val cond = Expression.BinaryOperation(expr, it.expr().accept(ExprVisitor()), Expression.BinaryOperator.EQ)
-           val if_stat = Statement.If(cond, it.stat_list().accept(this), Statement.Block(arrayListOf(), Scope()))
-           switch_block.add(if_stat)
-       }
 
-        return Statement.Block(switch_block, Scope())
-    }*/
+    private fun Statement.at(token: Token): Statement {
+        location.lineNum = token.line
+        location.colNum = token.charPositionInLine
+        return this
+    }
+
     override fun visitWhen(ctx: WaccParser.WhenContext): Statement {
         val expr = ctx.expr().accept(ExprVisitor())
         val binop = when {
@@ -64,12 +60,6 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
         return Statement.VariableAssignment(ident,Expression.BinaryOperation(ident, rhs, op))
     }
 
-    private fun Statement.at(token: Token): Statement {
-        location.lineNum = token.line
-        location.colNum = token.charPositionInLine
-        return this
-    }
-
     override fun visitShort_if(ctx: WaccParser.Short_ifContext): Statement {
         val condition = ctx.expr().accept(ExprVisitor())
         val ifThen = ctx.stat_list().accept(this)
@@ -87,8 +77,11 @@ class StatementVisitor : WaccParserBaseVisitor<Statement>() {
     override fun visitFor(ctx: WaccParser.ForContext): Statement {
         val block = ctx.stat_list().accept(this) as Statement.Block
         val step = ctx.stat(1).accept(this)
-        val whileBody = Statement.Block(arrayListOf(block, step), block.scope)
-        val whileStat = Statement.While(ctx.expr().accept(ExprVisitor()), whileBody)
+        var newStatements = arrayListOf<Statement>()
+        newStatements.addAll(block.statements)
+        newStatements.add(step)
+        block.statements = newStatements
+        val whileStat = Statement.While(ctx.expr().accept(ExprVisitor()), block)
         val declStat = ctx.stat(0).accept(this) as? Statement.VariableDeclaration ?: throw ParseCancellationException()
         return Statement.Block(arrayListOf(declStat, whileStat), Scope()).at(ctx.start)
     }
