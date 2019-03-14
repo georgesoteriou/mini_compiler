@@ -44,13 +44,15 @@ class ValidTests {
                 0, "4"
             )
         }
+
         @Test
         fun arrayLookup() {
             testCompile(
                 File("src/test/resources/valid/array/arrayLookup.wacc"),
-                0,"43"
+                0, "43"
             )
         }
+
         @Test
         fun arrayNested() {
             testCompile(
@@ -58,6 +60,7 @@ class ValidTests {
                 0, "3\n" + "3"
             )
         }
+
         @Test
         fun arrayPrint() {
             testCompile(
@@ -65,6 +68,7 @@ class ValidTests {
                 0, " = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}"
             )
         }
+
         @Test
         fun arraySimple() {
             testCompile(
@@ -72,6 +76,7 @@ class ValidTests {
                 0, "42"
             )
         }
+
         @Test
         fun modifyString() {
             testCompile(
@@ -79,6 +84,7 @@ class ValidTests {
                 0, "hello world!\n" + "Hello world!\n" + "Hi!"
             )
         }
+
         @Test
         fun printRef() {
             testCompile(
@@ -98,6 +104,7 @@ class ValidTests {
                     255
                 )
             }
+
             @Test
             fun exitBasic() {
                 testCompile(
@@ -105,6 +112,7 @@ class ValidTests {
                     7
                 )
             }
+
             @Test
             fun exitBasic2() {
                 testCompile(
@@ -112,6 +120,7 @@ class ValidTests {
                     42
                 )
             }
+
             @Test
             fun exitWrap() {
                 testCompile(
@@ -121,6 +130,7 @@ class ValidTests {
             }
 
         }
+
         class Skip {
             @Test
             fun comment() {
@@ -129,6 +139,7 @@ class ValidTests {
                     0
                 )
             }
+
             @Test
             fun commentInLine() {
                 testCompile(
@@ -136,6 +147,7 @@ class ValidTests {
                     0
                 )
             }
+
             @Test
             fun skip() {
                 testCompile(
@@ -155,6 +167,7 @@ class ValidTests {
                 0, "false\n" + "true\n" + "false"
             )
         }
+
         @Test
         fun boolCalc() {
             testCompile(
@@ -162,6 +175,7 @@ class ValidTests {
                 0, "false"
             )
         }
+
         @Test
         fun boolExpr1() {
             testCompile(
@@ -169,6 +183,7 @@ class ValidTests {
                 0, "Correct"
             )
         }
+
         @Test
         fun charComparisonExpr() {
             testCompile(
@@ -176,6 +191,7 @@ class ValidTests {
                 0, "false\n" + "true\n" + "true\n" + "true\n" + "false\n" + "false"
             )
         }
+
         @Test
         fun divExpr() {
             testCompile(
@@ -183,6 +199,7 @@ class ValidTests {
                 0, "1"
             )
         }
+
         @Test
         fun equalsExpr() {
             testCompile(
@@ -190,6 +207,7 @@ class ValidTests {
                 0, "false\n" + "false\n" + "true"
             )
         }
+
         @Test
         fun greaterEqExpr() {
             testCompile(
@@ -197,6 +215,7 @@ class ValidTests {
                 0, "false\n" + "true\n" + "true"
             )
         }
+
         @Test
         fun greaterExpr() {
             testCompile(
@@ -204,6 +223,7 @@ class ValidTests {
                 0, "false\n" + "true"
             )
         }
+
         @Test
         fun intCalc() {
             testCompile(
@@ -211,6 +231,7 @@ class ValidTests {
                 0, "72"
             )
         }
+
         @Test
         fun intExpr1() {
             testCompile(
@@ -218,6 +239,7 @@ class ValidTests {
                 0, "Correct"
             )
         }
+
         @Test
         fun lessCharExpr() {
             testCompile(
@@ -225,6 +247,7 @@ class ValidTests {
                 0, "true\n" + "false"
             )
         }
+
         @Test
         fun lessEqExpr() {
             testCompile(
@@ -232,6 +255,7 @@ class ValidTests {
                 0, "true\n" + "false\n" + "true"
             )
         }
+
         @Test
         fun lessExpr() {
             testCompile(
@@ -239,6 +263,7 @@ class ValidTests {
                 0, "true\n" + "false"
             )
         }
+
         @Test
         fun longExpr() {
             testCompile(
@@ -246,6 +271,7 @@ class ValidTests {
                 153
             )
         }
+
         @Test
         fun longExpr2() {
             testCompile(
@@ -253,6 +279,7 @@ class ValidTests {
                 10
             )
         }
+
         @Test
         fun longExpr3() {
             testCompile(
@@ -260,6 +287,7 @@ class ValidTests {
                 9
             )
         }
+
         @Test
         fun longSplitExpr() {
             testCompile(
@@ -267,6 +295,7 @@ class ValidTests {
                 153
             )
         }
+
         @Test
         fun longSplitExpr2() {
             testCompile(
@@ -274,6 +303,7 @@ class ValidTests {
                 128
             )
         }
+
         @Test
         fun minusExpr() {
             testCompile(
@@ -281,6 +311,7 @@ class ValidTests {
                 0, "5"
             )
         }
+
         @Test
         fun minusMinusExpr() {
             testCompile(
@@ -288,6 +319,7 @@ class ValidTests {
                 0, "3"
             )
         }
+
         @Test
         fun minusNoWhitespaceExpr() {
             testCompile(
@@ -303,6 +335,7 @@ class ValidTests {
                 0, "-1"
             )
         }
+
         @Test
         fun modExpr() {
             testCompile(
@@ -310,6 +343,7 @@ class ValidTests {
                 0, "2"
             )
         }
+
         @Test
         fun multExpr() {
             testCompile(
@@ -317,6 +351,7 @@ class ValidTests {
                 0, "15"
             )
         }
+
         @Test
         fun multNoWhitespaceExpr() {
             testCompile(
@@ -324,6 +359,7 @@ class ValidTests {
                 0, "2"
             )
         }
+
         @Test
         fun negBothDiv() {
             testCompile(
@@ -331,6 +367,7 @@ class ValidTests {
                 0, "2"
             )
         }
+
         @Test
         fun negBothMod() {
             testCompile(
@@ -338,6 +375,7 @@ class ValidTests {
                 0, "-2"
             )
         }
+
         @Test
         fun negDividendDiv() {
             testCompile(
@@ -345,6 +383,7 @@ class ValidTests {
                 0, "-2"
             )
         }
+
         @Test
         fun negDividendMod() {
             testCompile(
@@ -352,6 +391,7 @@ class ValidTests {
                 0, "-2"
             )
         }
+
         @Test
         fun negDivisorDiv() {
             testCompile(
@@ -359,6 +399,7 @@ class ValidTests {
                 0, "-2"
             )
         }
+
         @Test
         fun negDivisorMod() {
             testCompile(
@@ -366,6 +407,7 @@ class ValidTests {
                 0, "2"
             )
         }
+
         @Test
         fun negExpr() {
             testCompile(
@@ -373,6 +415,7 @@ class ValidTests {
                 0, "-42"
             )
         }
+
         @Test
         fun notequalsExpr() {
             testCompile(
@@ -380,6 +423,7 @@ class ValidTests {
                 0, "true\n" + "true\n" + "false"
             )
         }
+
         @Test
         fun notExpr() {
             testCompile(
@@ -387,6 +431,7 @@ class ValidTests {
                 0, "false\n" + "true"
             )
         }
+
         @Test
         fun ordAndchrExpr() {
             testCompile(
@@ -394,6 +439,7 @@ class ValidTests {
                 0, "a is 97\n" + "99 is c"
             )
         }
+
         @Test
         fun orExpr() {
             testCompile(
@@ -401,6 +447,7 @@ class ValidTests {
                 0, "true\n" + "true\n" + "false"
             )
         }
+
         @Test
         fun plusExpr() {
             testCompile(
@@ -408,6 +455,7 @@ class ValidTests {
                 0, "35"
             )
         }
+
         @Test
         fun plusMinusExpr() {
             testCompile(
@@ -415,6 +463,7 @@ class ValidTests {
                 0, "-1"
             )
         }
+
         @Test
         fun plusNoWhitespaceExpr() {
             testCompile(
@@ -422,6 +471,7 @@ class ValidTests {
                 0, "3"
             )
         }
+
         @Test
         fun plusPlusExpr() {
             testCompile(
@@ -429,6 +479,7 @@ class ValidTests {
                 0, "3"
             )
         }
+
         @Test
         fun sequentialCount() {
             testCompile(
@@ -437,6 +488,7 @@ class ValidTests {
                         + "1\n" + "2\n" + "3\n" + "4\n" + "5\n" + "6\n" + "7\n" + "8\n" + "9\n" + "10"
             )
         }
+
         @Test
         fun stringEqualsExpr() {
             testCompile(
@@ -473,6 +525,7 @@ class ValidTests {
                     0, "true"
                 )
             }
+
             @Test
             fun mutualRecursion() {
                 testCompile(
@@ -508,6 +561,7 @@ class ValidTests {
                 )
             }
         }
+
         class SimpleFunctions {
             @Test
             fun asciiTable() {
@@ -767,6 +821,7 @@ class ValidTests {
             )
         }
     }
+
     class Io {
         class Basic {}
         class Print {
@@ -982,6 +1037,7 @@ class ValidTests {
             )
         }
     }
+
     class RuntimeErr {
         // Changed expected Exit code to 200 because this error is now caught in semantic test
         class ArrayOutOfBounds {
@@ -1011,6 +1067,7 @@ class ValidTests {
                 200
             )
         }
+
         class DivideByZero {
             @Test
             fun divideByZero() {
@@ -1036,6 +1093,7 @@ class ValidTests {
                 )
             }
         }
+
         class IntegerOverflow {
             @Test
             fun intJustOverflow() {
@@ -1104,6 +1162,7 @@ class ValidTests {
                 )
             }
         }
+
         class NullDereference {
             @Test
             fun freeNull() {
@@ -1241,6 +1300,7 @@ class ValidTests {
             )
         }
     }
+
     class Sequence {
         @Test
         fun basicSeq() {
@@ -1307,6 +1367,7 @@ class ValidTests {
             )
         }
     }
+
     class Variables {
         @Test
         fun _VarNames() {
@@ -1420,6 +1481,7 @@ class ValidTests {
             )
         }
     }
+
     class While {
         @Test
         fun testFibonacciIterative() {
@@ -1447,6 +1509,7 @@ class ValidTests {
                 "Change n\n" + "Should print \"Change n\" once before."
             )
         }
+
         @Test
         fun max() {
             testCompile(

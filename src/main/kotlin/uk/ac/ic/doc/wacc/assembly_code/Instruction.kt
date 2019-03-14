@@ -33,7 +33,12 @@ sealed class Instruction {
         override fun toString(): String = "RSBS $rd, $r1, $operand"
     }
 
-    data class SMULL(var rdLo: Operand.Register, var rdHi: Operand.Register, var rm: Operand.Register, var rs: Operand.Register) : Instruction() {
+    data class SMULL(
+        var rdLo: Operand.Register,
+        var rdHi: Operand.Register,
+        var rm: Operand.Register,
+        var rs: Operand.Register
+    ) : Instruction() {
         override fun toString(): String = "SMULL $rdLo, $rdHi, $rm, $rs"
     }
 
@@ -41,25 +46,26 @@ sealed class Instruction {
         override fun toString(): String = "LDR $rd, $value"
     }
 
-    data class LDRRegCond(var rd: Operand, var addrBase: Operand, var addrOffset: Operand.Offset, var cond: String) : Instruction() {
+    data class LDRRegCond(var rd: Operand, var addrBase: Operand, var addrOffset: Operand.Offset, var cond: String) :
+        Instruction() {
         override fun toString(): String {
-            return if(addrOffset.value != 0) {
+            return if (addrOffset.value != 0) {
                 "LDR$cond $rd, [$addrBase, $addrOffset]"
             } else {
                 "LDR$cond $rd, [$addrBase]"
             }
         }
     }
+
     data class LDRRegister(var rd: Operand, var addrBase: Operand, var addrOffset: Operand.Offset) : Instruction() {
         override fun toString(): String {
-            return if(addrOffset.value != 0) {
+            return if (addrOffset.value != 0) {
                 "LDR $rd, [$addrBase, $addrOffset]"
             } else {
                 "LDR $rd, [$addrBase]"
             }
         }
     }
-
 
 
     data class LDRCond(var rd: Operand, var value: Operand, var cond: String) : Instruction() {
@@ -97,7 +103,7 @@ sealed class Instruction {
     data class STROffset(var register: Operand, var addrBase: Operand, var addrOffset: Operand.Offset) : Instruction() {
         override fun toString(): String {
             return if (addrOffset.value != 0) {
-                if(addrOffset.value < 0) {
+                if (addrOffset.value < 0) {
                     "STR $register, [$addrBase, $addrOffset]!"
                 } else {
                     "STR $register, [$addrBase, $addrOffset]"
@@ -108,10 +114,11 @@ sealed class Instruction {
         }
     }
 
-    data class STRBOffset(var register: Operand, var addrBase: Operand, var addrOffset: Operand.Offset) : Instruction() {
+    data class STRBOffset(var register: Operand, var addrBase: Operand, var addrOffset: Operand.Offset) :
+        Instruction() {
         override fun toString(): String {
             return if (addrOffset.value != 0) {
-                if(addrOffset.value < 0) {
+                if (addrOffset.value < 0) {
                     "STRB $register, [$addrBase, $addrOffset]!"
                 } else {
                     "STRB $register, [$addrBase, $addrOffset]"

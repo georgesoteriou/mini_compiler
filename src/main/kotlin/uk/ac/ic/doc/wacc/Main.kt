@@ -21,7 +21,7 @@ fun main(args: Array<String>) {
     fun lexerForResource(resourceName: String) = WaccLexer(CharStreams.fromFileName(resourceName))
     fun tokenStream(resourceName: String) = CommonTokenStream(lexerForResource(resourceName))
     fun parseResource(resourceName: String): WaccParser.ProgContext {
-        if(!File(resourceName).exists()) {
+        if (!File(resourceName).exists()) {
             throw ParseCancellationException("$resourceName does not exist")
         }
         val parser = WaccParser(tokenStream(resourceName))
@@ -31,7 +31,7 @@ fun main(args: Array<String>) {
 
     fun recursiveInclude(program: Program) {
         val visitor = ProgramVisitor()
-        program.includes.forEach{
+        program.includes.forEach {
             val includesProg = parseResource(it).accept(visitor)
             recursiveInclude(includesProg)
 
@@ -56,7 +56,13 @@ fun main(args: Array<String>) {
         val outputFile = File(args[0]).nameWithoutExtension
         CodeGenerator(program).compile().outputAssembly(outputFile)
     } catch (e: ParseCancellationException) {
-        println("Syntax error ${if(e.message != null) {e.message} else {""}}")
+        println(
+            "Syntax error ${if (e.message != null) {
+                e.message
+            } else {
+                ""
+            }}"
+        )
         exitProcess(100)
     }
 

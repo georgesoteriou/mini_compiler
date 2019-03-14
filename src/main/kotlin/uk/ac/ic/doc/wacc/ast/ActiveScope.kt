@@ -5,10 +5,10 @@ import java.util.*
 class ActiveScope(var currentScope: Scope, var parentScope: ActiveScope?) {
 
     fun getPosition(name: String): Int {
-        val pos =  currentScope.getPosition(name)
-        val isDefInScope =  (currentScope.definitions[name] != null)
-                          && (currentScope.definitions[name]!!.isDeclared)
-        return if(pos.isPresent && isDefInScope) {
+        val pos = currentScope.getPosition(name)
+        val isDefInScope = (currentScope.definitions[name] != null)
+                && (currentScope.definitions[name]!!.isDeclared)
+        return if (pos.isPresent && isDefInScope) {
             currentScope.getPosition(name).get()
         } else {
             currentScope.fullSize + parentScope!!.getPosition(name)
