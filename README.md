@@ -1,3 +1,31 @@
+# WACC 11:
+
+## Requires 
+- Kotlin
+- Antlr
+- gradle
+- arm-linux-gnueabi-gcc
+- qemu-arm
+
+## Compile
+```
+make
+```
+
+## Test
+```
+make test
+```
+
+## Run
+```
+./run.sh <file> 
+```
+
+## clean
+```
+make clean
+```
 # WACC Report
 
 ## The Team
