@@ -280,7 +280,8 @@ fun CodeGenerator.unOpExprInstructions(expr: Expression.UnaryOperation, dest: In
                 )
             )
         }
-        else -> {}
+        else -> {
+        }
     }
 
 }

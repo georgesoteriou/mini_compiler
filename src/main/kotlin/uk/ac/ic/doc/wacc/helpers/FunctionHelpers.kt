@@ -9,8 +9,13 @@ import uk.ac.ic.doc.wacc.ast.*
 
 const val MAX_SUB_SIZE = 1024
 
-fun CodeGenerator.compileBlock(name: String, block: Statement.Block, isFunction: Boolean = false, params: List<String> = listOf()) {
-    if(name != "") {
+fun CodeGenerator.compileBlock(
+    name: String,
+    block: Statement.Block,
+    isFunction: Boolean = false,
+    params: List<String> = listOf()
+) {
+    if (name != "") {
         instructions.add(Instruction.LABEL(name))
         instructions.add(Instruction.PUSH(arrayListOf(Operand.Lr)))
     }
@@ -18,7 +23,7 @@ fun CodeGenerator.compileBlock(name: String, block: Statement.Block, isFunction:
     block.scope.findFullSize()
     block.scope.blockSize = block.scope.fullSize
     if (!params.isEmpty()) {
-            block.scope.blockSize -= WORD
+        block.scope.blockSize -= WORD
     }
     params.forEach {
         block.scope.blockSize -= Type.size(block.scope.definitions[it]!!.type)
@@ -27,11 +32,11 @@ fun CodeGenerator.compileBlock(name: String, block: Statement.Block, isFunction:
     activeScope = activeScope.newSubScope(block.scope)
     decreaseSP(block)
     block.statements.forEach { compileStatement(it) }
-    if(!isFunction) {
+    if (!isFunction) {
         increaseSP(block)
     }
 
-    if(name == "main") {
+    if (name == "main") {
         instructions.add(
             Instruction.LDRSimple(
                 Operand.Register(0),
@@ -42,7 +47,7 @@ fun CodeGenerator.compileBlock(name: String, block: Statement.Block, isFunction:
 
     activeScope = activeScope.parentScope!!
 
-    if(name != "" && !isFunction) {
+    if (name != "" && !isFunction) {
         instructions.add(Instruction.POP(arrayListOf(Operand.Pc)))
         instructions.add(Instruction.Flag(".ltorg"))
     }
@@ -55,7 +60,7 @@ fun CodeGenerator.pushArgsToStack(func: Expression.CallFunction) {
         val size = Type.size(it.exprType)
         activeScope.currentScope.fullSize += size
         stackOffset += size
-        if(size == 1) {
+        if (size == 1) {
             instructions.add(
                 Instruction.STRBOffset(
                     Operand.Register(MIN_EXPR_REG), Operand.Sp, Operand.Offset(-size)
@@ -72,7 +77,7 @@ fun CodeGenerator.pushArgsToStack(func: Expression.CallFunction) {
     activeScope.currentScope.fullSize -= stackOffset
 }
 
-fun argsSize(func: Expression.CallFunction) : Int {
+fun argsSize(func: Expression.CallFunction): Int {
     var size = 0
     func.params.forEach {
         size += Type.size(it.exprType)
@@ -127,7 +132,7 @@ fun CodeGenerator.returnStatementInstructions(statement: Statement.Return) {
     )
     var tempScope: ActiveScope? = activeScope
     var size = 0
-    while(tempScope != null) {
+    while (tempScope != null) {
         size += tempScope.currentScope.blockSize
         tempScope = tempScope.parentScope
     }

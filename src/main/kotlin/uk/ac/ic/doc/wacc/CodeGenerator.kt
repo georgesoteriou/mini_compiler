@@ -8,9 +8,9 @@ import java.io.File
 class CodeGenerator(var program: Program) {
 
     companion object {
-        const val BYTE  = 1
-        const val WORD  = 4
-        const val TRUE  = 1
+        const val BYTE = 1
+        const val WORD = 4
+        const val TRUE = 1
         const val FALSE = 0
         const val MAX_EXPR_REG = 10
         const val MIN_EXPR_REG = 4
@@ -22,7 +22,7 @@ class CodeGenerator(var program: Program) {
     var activeScope = ActiveScope(Scope(), null)
     var currentBlock: Statement.Block? = null
 
-    fun compile() : CodeGenerator {
+    fun compile(): CodeGenerator {
         instructions.add(Instruction.Flag(".text"))
         instructions.add(Instruction.Flag(".global main"))
 

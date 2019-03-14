@@ -2,7 +2,8 @@ package uk.ac.ic.doc.wacc.ast
 
 sealed class Expression {
 
-    var exprType:Type = Type.TAny
+    var exprType: Type = Type.TAny
+
     data class CallFunction(var name: String, var params: List<Expression>) : Expression()
 
     data class NewPair(var e1: Expression, var e2: Expression) : Expression()
@@ -19,19 +20,7 @@ sealed class Expression {
     }
 
     enum class BinaryOperator {
-        MULT ,
-        DIV  ,
-        MOD  ,
-        PLUS,
-        MINUS,
-        GT,
-        GTE,
-        LT,
-        LTE,
-        EQ,
-        NOTEQ,
-        AND,
-        OR
+        MULT, DIV, MOD, PLUS, MINUS, GT, GTE, LT, LTE, EQ, NOTEQ, AND, OR
     }
 
     data class BinaryOperation(var e1: Expression, var e2: Expression, var operator: BinaryOperator) : Expression()

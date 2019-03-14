@@ -58,7 +58,7 @@ fun CodeGenerator.ifInstructions(statement: Statement.If) {
             "EQ"
         )
     )
-    labelCounter+=2
+    labelCounter += 2
 
     compileStatement(statement.ifThen)
 
