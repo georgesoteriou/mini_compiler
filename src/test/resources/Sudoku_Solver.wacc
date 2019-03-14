@@ -1,3 +1,6 @@
+# Created by George Soteriou
+# To be used with sudoku2.wacc
+
 begin
       int[][] readPuzzle() is
         println "Insert your puzzle (81 numbers). Use 0 for blank squares:";
